@@ -1,0 +1,165 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "next": "Next",
+    "back": "Back",
+    "submit": "Submit",
+    "search": "Search",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "logout": "Log out",
+    "sending": "Sending…",
+    "verifying": "Verifying…"
+  },
+  "nav": {
+    "findJobs": "Find Jobs",
+    "findWorkers": "Find Workers",
+    "pricing": "Pricing",
+    "resources": "Resources",
+    "browseJobs": "Browse Jobs",
+    "realResults": "Real results"
+  },
+  "home": {
+    "title": "Winga",
+    "tagline": "Find freelance jobs or hire talented freelancers.",
+    "coreValues": "Our Core Values",
+    "testimonials": "Customer Testimonials",
+    "benefits": "Why Winga",
+    "benefit1": "Secure escrow — payment released only when you approve",
+    "benefit2": "Pay with M-Pesa, Tigo, Airtel",
+    "benefit3": "In-app chat — clear communication",
+    "findDreamJob": "Find your dream job",
+    "remoteWorkDone": "Remote work done properly."
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "sendOtp": "Send OTP",
+    "verifyOtp": "Verify OTP",
+    "employer": "Employer",
+    "jobSeeker": "Job Seeker",
+    "welcomeBack": "Welcome Back",
+    "enterEmailToStart": "Please enter your email to get started. If you already have an account we will log you in.",
+    "enterEmail": "Enter email",
+    "noAccount": "Don't have an account?",
+    "enterOtp": "Enter OTP",
+    "otpSentToEmail": "Please enter the OTP sent to your email.",
+    "changeEmail": "Change Email",
+    "enterOtpPlaceholder": "Enter OTP",
+    "resendOtp": "Resend OTP",
+    "noAccountSignUp": "No account found. Please sign up first.",
+    "invalidOtp": "Invalid or expired OTP."
+  },
+  "job": {
+    "postJob": "Post a Job",
+    "title": "Title",
+    "description": "Description",
+    "budget": "Budget",
+    "deadline": "Deadline",
+    "category": "Category",
+    "location": "Location",
+    "city": "City",
+    "region": "Region",
+    "attachments": "Attachments",
+    "step1": "Type & Category",
+    "step2": "Details & Location",
+    "step3": "Budget & Deadline",
+    "step4": "Attachments",
+    "searchPlaceholder": "Search jobs...",
+    "sortBy": "Sort by",
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "bestMatch": "Best Match",
+    "noJobsFound": "No jobs found",
+    "experienceLevel": "Experience level",
+    "selectCategory": "Select category"
+  },
+  "bid": {
+    "yourBid": "Your Bid",
+    "serviceFee": "Service Fee",
+    "wingaCommission": "Winga Commission (15%)",
+    "totalToClient": "Total Client Pays"
+  },
+  "subscription": {
+    "required": "Monthly subscription required to bid on jobs.",
+    "subscribe": "Subscribe Now"
+  },
+  "dashboard": {
+    "myJobs": "My Jobs",
+    "findWork": "Find Work",
+    "savedJobs": "Saved Jobs",
+    "applicants": "Applicants",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "billing": "Billing",
+    "applied": "Applied",
+    "hired": "Hired",
+    "noApplications": "You haven't applied to any jobs yet.",
+    "statusLabel": "Status",
+    "noActiveContracts": "No active contracts yet."
+  },
+  "footer": {
+    "tagline": "Connecting talents to the best opportunities.",
+    "workersArticles": "Workers Articles",
+    "workersFaq": "Workers FAQ",
+    "howToBecomeVA": "How to Become a Virtual Assistant",
+    "howDoIGetPaid": "How Do I Get Paid",
+    "becomeChatter": "Become an OnlyFans Chatter",
+    "employersArticles": "Employers Articles",
+    "employersFaq": "Employers FAQ",
+    "howToHireChatters": "How to Hire OnlyFans Chatters",
+    "howToHireVA": "How to Hire a Virtual Assistant",
+    "isWingaLegit": "Is Winga Legit?",
+    "navigation": "Navigation",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "copyright": "Winga. All rights reserved.",
+    "scrollToTop": "Scroll to top"
+  },
+  "status": {
+    "job": {
+      "OPEN": "Requested",
+      "PAUSED": "Paused",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "contract": {
+      "ACTIVE": "In progress",
+      "PAUSED": "Paused",
+      "REVIEW_PENDING": "Under review",
+      "DISPUTED": "Disputed",
+      "COMPLETED": "Completed",
+      "TERMINATED": "Terminated"
+    },
+    "paymentReleased": "Payment released"
+  },
+  "pricing": {
+    "title": "Pricing",
+    "subtitle": "Choose a plan",
+    "perMonth": "/ month",
+    "simplePricing": "Simple, Transparent Pricing",
+    "choosePlan": "Choose the plan that fits your hiring needs. Upgrade or downgrade anytime."
+  },
+  "findWorkers": {
+    "title": "Find Workers",
+    "subtitle": "Make the first move.",
+    "searchPlaceholder": "Search by skill or name...",
+    "noResults": "No workers found"
+  },
+  "affiliate": {
+    "title": "Affiliates",
+    "myCode": "My Code",
+    "referralLink": "Referral Link",
+    "commission": "Commission",
+    "balance": "Balance",
+    "paid": "Paid",
+    "pending": "Pending",
+    "withdrawn": "Withdrawn"
+  }
+}

@@ -1,0 +1,25 @@
+"use client";
+
+import Link from "next/link";
+
+export default function ClientBillingPage() {
+  return (
+    <div className="min-h-screen bg-[#fafafa]">
+      <div className="max-w-[800px] mx-auto px-6 py-10">
+        <h1 className="text-[24px] font-bold text-[#111827] mb-2">Billing</h1>
+        <p className="text-[14px] text-[#666] mb-6">
+          Manage your subscription and payment methods.
+        </p>
+        <div className="bg-white border border-[#E8E8E8] rounded-[16px] p-8 text-center">
+          <p className="text-[15px] text-[#555]">Billing settings coming soon.</p>
+          <Link
+            href="/client/upgrade"
+            className="inline-block mt-4 text-[#006e42] font-semibold hover:underline"
+          >
+            View plans & upgrade
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

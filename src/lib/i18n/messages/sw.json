@@ -1,0 +1,165 @@
+{
+  "common": {
+    "loading": "Inapakia...",
+    "save": "Hifadhi",
+    "cancel": "Ghairi",
+    "next": "Ifuatayo",
+    "back": "Rudi",
+    "submit": "Wasilisha",
+    "search": "Tafuta",
+    "signIn": "Ingia",
+    "signUp": "Jisajili",
+    "logout": "Toka",
+    "sending": "Inatumia...",
+    "verifying": "Inathibitisha..."
+  },
+  "nav": {
+    "findJobs": "Tafuta Kazi",
+    "findWorkers": "Tafuta Wafanyakazi",
+    "pricing": "Bei",
+    "resources": "Rasilimali",
+    "browseJobs": "Tazama Kazi",
+    "realResults": "Matokeo Halisi"
+  },
+  "home": {
+    "title": "Winga",
+    "tagline": "Tafuta kazi za freelance au ajiri wataalam wa Winga.",
+    "coreValues": "Thamani Zetu",
+    "testimonials": "Maoni ya Wateja",
+    "benefits": "Faida za Winga",
+    "benefit1": "Escrow salama — malipo yanakubaliwa kabla ya kutolewa",
+    "benefit2": "Malipo kwa M-Pesa, Tigo, Airtel",
+    "benefit3": "Chat ndani ya app — ushiriki wazi",
+    "findDreamJob": "Tafuta kazi unayoitamani",
+    "remoteWorkDone": "Kazi ya mbali kwa njia sahihi."
+  },
+  "auth": {
+    "login": "Ingia",
+    "register": "Jisajili",
+    "email": "Barua pepe",
+    "password": "Nenosiri",
+    "sendOtp": "Tuma OTP",
+    "verifyOtp": "Thibitisha OTP",
+    "employer": "Mwajiri",
+    "jobSeeker": "Mtafuta Kazi",
+    "welcomeBack": "Karibu Tena",
+    "enterEmailToStart": "Ingiza barua pepe kuanza. Ikiwa una akaunti tayari utaingia.",
+    "enterEmail": "Ingiza barua pepe",
+    "noAccount": "Huna akaunti?",
+    "enterOtp": "Ingiza OTP",
+    "otpSentToEmail": "Ingiza OTP iliyotumwa kwenye barua pepe yako.",
+    "changeEmail": "Badilisha Barua pepe",
+    "enterOtpPlaceholder": "Ingiza OTP",
+    "resendOtp": "Tuma OTP Tena",
+    "noAccountSignUp": "Hakuna akaunti. Tafadhali jisajili.",
+    "invalidOtp": "OTP batili au imekwisha muda."
+  },
+  "job": {
+    "postJob": "Tanga Kazi",
+    "title": "Kichwa",
+    "description": "Maelezo",
+    "budget": "Bajeti",
+    "deadline": "Tarehe ya Mwisho",
+    "category": "Kategoria",
+    "location": "Mahali",
+    "city": "Jiji",
+    "region": "Mkoa",
+    "attachments": "Viambatanisho",
+    "step1": "Aina na Kategoria",
+    "step2": "Maelezo na Mahali",
+    "step3": "Bajeti na Tarehe",
+    "step4": "Viambatanisho",
+    "searchPlaceholder": "Tafuta kazi...",
+    "sortBy": "Panga kwa",
+    "newest": "Mpya zaidi",
+    "oldest": "Zee zaidi",
+    "bestMatch": "Vinavyolingana",
+    "noJobsFound": "Hakuna kazi zilizopatikana",
+    "experienceLevel": "Kiwango cha uzoefu",
+    "selectCategory": "Chagua kategoria"
+  },
+  "bid": {
+    "yourBid": "Bid Yako",
+    "serviceFee": "Gharama ya Huduma",
+    "wingaCommission": "Ada ya Winga (15%)",
+    "totalToClient": "Jumla Mteja Atalipa"
+  },
+  "subscription": {
+    "required": "Unahitaji usajili wa kila mwezi ili kubid kwenye kazi.",
+    "subscribe": "Jisajili Sasa"
+  },
+  "dashboard": {
+    "myJobs": "Kazi Zangu",
+    "findWork": "Tafuta Kazi",
+    "savedJobs": "Kazi Zilizohifadhiwa",
+    "applicants": "Waombaji",
+    "messages": "Ujumbe",
+    "notifications": "Arifa",
+    "profile": "Wasifu",
+    "billing": "Billing",
+    "applied": "Omba",
+    "hired": "Waliyoajiriwa",
+    "noApplications": "Hujaomba kazi yoyote bado.",
+    "statusLabel": "Hali",
+    "noActiveContracts": "Hakuna mikataba hai bado."
+  },
+  "footer": {
+    "tagline": "Kuunganisha wataalam na fursa bora zaidi.",
+    "workersArticles": "Makala kwa Wafanyakazi",
+    "workersFaq": "Maswali kwa Wafanyakazi",
+    "howToBecomeVA": "Jinsi ya Kuwa Msaidizi Mtandao",
+    "howDoIGetPaid": "Ninalipwaje",
+    "becomeChatter": "Kuwa Mchatter wa OnlyFans",
+    "employersArticles": "Makala kwa Waajiri",
+    "employersFaq": "Maswali kwa Waajiri",
+    "howToHireChatters": "Jinsi ya Kuajiri OnlyFans Chatters",
+    "howToHireVA": "Jinsi ya Kuajiri Msaidizi Mtandao",
+    "isWingaLegit": "Winga ni halali?",
+    "navigation": "Urambazaji",
+    "termsOfService": "Masharti ya Huduma",
+    "privacyPolicy": "Sera ya Faragha",
+    "copyright": "Winga. Haki zote zimehifadhiwa.",
+    "scrollToTop": "Rudi juu"
+  },
+  "status": {
+    "job": {
+      "OPEN": "Ombi",
+      "PAUSED": "Imesimamishwa",
+      "IN_PROGRESS": "Inaendelea",
+      "COMPLETED": "Imekamilika",
+      "CANCELLED": "Imefutwa"
+    },
+    "contract": {
+      "ACTIVE": "Inaendelea",
+      "PAUSED": "Imesimamishwa",
+      "REVIEW_PENDING": "Inasubiri Mapitio",
+      "DISPUTED": "Mgogoro",
+      "COMPLETED": "Imekamilika",
+      "TERMINATED": "Imekomeshwa"
+    },
+    "paymentReleased": "Malipo yametolewa"
+  },
+  "pricing": {
+    "title": "Bei",
+    "subtitle": "Chagua mpango",
+    "perMonth": "/ mwezi",
+    "simplePricing": "Bei Rahisi na Wazi",
+    "choosePlan": "Chagua mpango unaofaa mahitaji yako ya kuajiri. Sogeza juu au chini wakati wowote."
+  },
+  "findWorkers": {
+    "title": "Tafuta Wafanyakazi",
+    "subtitle": "Fanya hatua ya kwanza.",
+    "searchPlaceholder": "Tafuta kwa ujuzi au jina...",
+    "noResults": "Hakuna wafanyakazi waliopatikana"
+  },
+  "affiliate": {
+    "title": "Ushirika",
+    "myCode": "Msimbo Wangu",
+    "referralLink": "Kiungo cha Usaidizi",
+    "commission": "Ada",
+    "balance": "Salio",
+    "paid": "Imelipwa",
+    "pending": "Inasubiri",
+    "withdrawn": "Imetolewa"
+  }
+}
