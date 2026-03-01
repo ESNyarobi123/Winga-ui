@@ -9,7 +9,7 @@ import { useT } from "@/lib/i18n";
 export function SubscriptionBanner() {
   const t = useT();
   const user = useUserStore((s) => s.user);
-  const [subscription, setSubscription] = useState<Awaited<ReturnType<typeof subscriptionService.getMySubscription>>>(undefined);
+  const [subscription, setSubscription] = useState<Awaited<ReturnType<typeof subscriptionService.getMySubscription>> | undefined>(undefined);
 
   useEffect(() => {
     if (user?.role !== "FREELANCER") return;
