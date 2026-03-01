@@ -198,8 +198,8 @@ export default function ClientPostJobPage() {
                                         className="w-full h-11 px-3 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:ring-1 focus:ring-[#006e42]"
                                     >
                                         <option value="">Select category</option>
-                                        {(JOB_CATEGORIES as string[]).map((c) => (
-                                            <option key={c} value={c}>{c}</option>
+                                        {JOB_CATEGORIES.map((cat) => (
+                                            <option key={cat.name} value={cat.name}>{cat.name}</option>
                                         ))}
                                     </select>
                                 </div>
