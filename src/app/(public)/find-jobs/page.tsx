@@ -84,7 +84,7 @@ export default function FindJobsPage() {
         (job) => job.category.toLowerCase() === selectedCategory.toLowerCase()
       );
     }
-    const getTime = (job: JobListItem) => (job as { createdAt?: string }).createdAt ? new Date((job as { createdAt: string }).createdAt).getTime() : 0;
+    const getTime = (job: JobListItem) => job.postedAt ? new Date(job.postedAt).getTime() : 0;
     if (sortBy === "newest" && list.length > 0) list = [...list].sort((a, b) => getTime(b) - getTime(a));
     else if (sortBy === "oldest" && list.length > 0) list = [...list].sort((a, b) => getTime(a) - getTime(b));
     return list;

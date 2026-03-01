@@ -76,7 +76,6 @@ export function LocationFields({ value, onChange, disabled }: LocationFieldsProp
         <Button
           type="button"
           variant="outline"
-          size="sm"
           className="gap-2"
           onClick={handleUseMyLocation}
           disabled={disabled || gpsLoading}

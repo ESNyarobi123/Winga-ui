@@ -116,11 +116,9 @@ export default function WorkerFindJobsPage() {
     } else {
       list = [...jobs];
     }
-    // Sort by Newest / Oldest (by createdAt if available, else keep order)
-    const getTime = (job: JobListItem) => {
-      const createdAt = (job as { createdAt?: string }).createdAt;
-      return createdAt ? new Date(createdAt).getTime() : 0;
-    };
+    // Sort by Newest / Oldest (by postedAt)
+    const getTime = (job: JobListItem) =>
+      job.postedAt ? new Date(job.postedAt).getTime() : 0;
     if (sortBy === "Newest" && list.length > 0) {
       list = [...list].sort((a, b) => getTime(b) - getTime(a));
     } else if (sortBy === "Oldest" && list.length > 0) {
