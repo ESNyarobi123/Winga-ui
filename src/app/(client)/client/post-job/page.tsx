@@ -74,8 +74,8 @@ export default function ClientPostJobPage() {
                     <button
                         onClick={() => setMode("ai")}
                         className={`relative p-6 rounded-[16px] border-[2px] text-left transition-all overflow-visible ${mode === "ai"
-                                ? "border-[#006e42] bg-white shadow-sm"
-                                : "border-[#E0E0E0] bg-white hover:border-[#aaa]"
+                            ? "border-[#006e42] bg-white shadow-sm"
+                            : "border-[#E0E0E0] bg-white hover:border-[#aaa]"
                             }`}
                     >
                         {mode === "ai" && (
@@ -86,8 +86,8 @@ export default function ClientPostJobPage() {
                         <div className="flex items-center gap-3 mb-2">
                             <div
                                 className={`w-5 h-5 rounded-full border-[2px] flex items-center justify-center ${mode === "ai"
-                                        ? "border-[#006e42] bg-white"
-                                        : "border-[#ccc]"
+                                    ? "border-[#006e42] bg-white"
+                                    : "border-[#ccc]"
                                     }`}
                             >
                                 {mode === "ai" && (
@@ -108,15 +108,15 @@ export default function ClientPostJobPage() {
                     <button
                         onClick={() => setMode("manual")}
                         className={`relative p-6 rounded-[16px] border-[2px] text-left transition-all ${mode === "manual"
-                                ? "border-[#006e42] bg-white shadow-sm"
-                                : "border-[#E0E0E0] bg-white hover:border-[#aaa]"
+                            ? "border-[#006e42] bg-white shadow-sm"
+                            : "border-[#E0E0E0] bg-white hover:border-[#aaa]"
                             }`}
                     >
                         <div className="flex items-center gap-3 mb-2">
                             <div
                                 className={`w-5 h-5 rounded-full border-[2px] flex items-center justify-center ${mode === "manual"
-                                        ? "border-[#006e42] bg-white"
-                                        : "border-[#ccc]"
+                                    ? "border-[#006e42] bg-white"
+                                    : "border-[#ccc]"
                                     }`}
                             >
                                 {mode === "manual" && (
@@ -317,308 +317,311 @@ export default function ClientPostJobPage() {
 
                         {/* Legacy long form - hidden when using steps; show only if we want to keep it as alternative. We keep step 1-4 as main flow. */}
                         {manualStep === 0 && (
-                        <section>
-                            <h2 className="text-[17px] font-extrabold text-[#111827] mb-4">Job Information</h2>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-[13px] font-semibold text-[#555] mb-1">Job title</label>
-                                    <Input
-                                        value={manual.title}
-                                        onChange={(e) => setManual((m) => ({ ...m, title: e.target.value }))}
-                                        placeholder="Enter job title."
-                                        className="h-11"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-[13px] font-semibold text-[#555] mb-1">Type of employment</label>
-                                    <select
-                                        value={manual.employmentType}
-                                        onChange={(e) => setManual((m) => ({ ...m, employmentType: e.target.value }))}
-                                        className="w-full h-11 px-3 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:ring-1 focus:ring-[#006e42]"
-                                    >
-                                        <option value="">Select option</option>
-                                        {EMPLOYMENT_TYPES.map((t) => (
-                                            <option key={t} value={t}>{t}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-[13px] font-semibold text-[#555] mb-1">Description</label>
-                                    <textarea
-                                        value={manual.description}
-                                        onChange={(e) => setManual((m) => ({ ...m, description: e.target.value }))}
-                                        placeholder="Describe the role you want to hire."
-                                        className="w-full h-32 p-3 text-[14px] border border-[#E0E0E0] rounded-[10px] resize-none focus:outline-none focus:ring-1 focus:ring-[#006e42]"
-                                    />
-                                    <button type="button" className="mt-1 text-[12px] font-semibold text-[#006e42] hover:underline">
-                                        Generate description with AI
-                                    </button>
-                                </div>
-                            </div>
-                        </section>
+                            <>
+                                <section>
+                                    <h2 className="text-[17px] font-extrabold text-[#111827] mb-4">Job Information</h2>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-[13px] font-semibold text-[#555] mb-1">Job title</label>
+                                            <Input
+                                                value={manual.title}
+                                                onChange={(e) => setManual((m) => ({ ...m, title: e.target.value }))}
+                                                placeholder="Enter job title."
+                                                className="h-11"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[13px] font-semibold text-[#555] mb-1">Type of employment</label>
+                                            <select
+                                                value={manual.employmentType}
+                                                onChange={(e) => setManual((m) => ({ ...m, employmentType: e.target.value }))}
+                                                className="w-full h-11 px-3 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:ring-1 focus:ring-[#006e42]"
+                                            >
+                                                <option value="">Select option</option>
+                                                {EMPLOYMENT_TYPES.map((t) => (
+                                                    <option key={t} value={t}>{t}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[13px] font-semibold text-[#555] mb-1">Description</label>
+                                            <textarea
+                                                value={manual.description}
+                                                onChange={(e) => setManual((m) => ({ ...m, description: e.target.value }))}
+                                                placeholder="Describe the role you want to hire."
+                                                className="w-full h-32 p-3 text-[14px] border border-[#E0E0E0] rounded-[10px] resize-none focus:outline-none focus:ring-1 focus:ring-[#006e42]"
+                                            />
+                                            <button type="button" className="mt-1 text-[12px] font-semibold text-[#006e42] hover:underline">
+                                                Generate description with AI
+                                            </button>
+                                        </div>
+                                    </div>
+                                </section>
 
-                        {/* Gender */}
-                        <section>
-                            <p className="text-[13px] font-semibold text-[#555] mb-2">Preferred gender for job applicants.</p>
-                            <div className="flex gap-4">
-                                {(["Any", "Male", "Female"] as const).map((g) => (
-                                    <label key={g} className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="radio"
-                                            name="gender"
-                                            checked={manual.gender === g}
-                                            onChange={() => setManual((m) => ({ ...m, gender: g }))}
-                                            className="w-4 h-4 text-[#006e42]"
-                                        />
-                                        <span className="text-[14px] font-medium">{g}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </section>
-
-                        {/* Wage/Salary */}
-                        <section>
-                            <h2 className="text-[17px] font-extrabold text-[#111827] mb-2">Wage/Salary</h2>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-[13px] font-semibold text-[#555] mb-1">Wage Type</label>
-                                    <select
-                                        value={manual.wageType}
-                                        onChange={(e) => setManual((m) => ({ ...m, wageType: e.target.value }))}
-                                        className="w-full h-11 px-3 border border-[#E0E0E0] rounded-[10px] text-[14px]"
-                                    >
-                                        <option value="Hourly">Hourly</option>
-                                        <option value="Monthly">Monthly</option>
-                                        <option value="Fixed">Fixed</option>
-                                    </select>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-[13px] font-semibold text-[#555] mb-1">Minimum</label>
-                                        <Input type="number" placeholder="Min" value={manual.payMin} onChange={(e) => setManual((m) => ({ ...m, payMin: e.target.value }))} className="h-11" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-[13px] font-semibold text-[#555] mb-1">Maximum (optional)</label>
-                                        <Input type="number" placeholder="Max" value={manual.payMax} onChange={(e) => setManual((m) => ({ ...m, payMax: e.target.value }))} className="h-11" />
-                                    </div>
-                                </div>
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input type="checkbox" checked={manual.includeCommission} onChange={(e) => setManual((m) => ({ ...m, includeCommission: e.target.checked }))} className="rounded text-[#006e42]" />
-                                    <span className="text-[13px] font-semibold text-[#555]">Include commission on top of base pay</span>
-                                </label>
-                                <p className="text-[12px] text-[#888]">Example: sales, social, and service roles.</p>
-                                {manual.includeCommission && (
-                                    <div>
-                                        <label className="block text-[13px] font-semibold text-[#555] mb-1">Commission Structure</label>
-                                        <Input value={manual.commissionStructure} onChange={(e) => setManual((m) => ({ ...m, commissionStructure: e.target.value }))} placeholder="e.g. 50% of revenue, 20$ per signup." className="h-11" />
-                                    </div>
-                                )}
-                                <div>
-                                    <label className="block text-[13px] font-semibold text-[#555] mb-1">Payout Frequency</label>
-                                    <div className="flex flex-wrap gap-3">
-                                        {PAYOUT_FREQUENCIES.map((f) => (
-                                            <label key={f} className="flex items-center gap-2 cursor-pointer">
-                                                <input type="radio" name="payout" checked={manual.payoutFrequency === f} onChange={() => setManual((m) => ({ ...m, payoutFrequency: f }))} className="w-4 h-4 text-[#006e42]" />
-                                                <span className="text-[14px]">{f}</span>
+                                { /* Gender */}
+                                <section>
+                                    <p className="text-[13px] font-semibold text-[#555] mb-2">Preferred gender for job applicants.</p>
+                                    <div className="flex gap-4">
+                                        {(["Any", "Male", "Female"] as const).map((g) => (
+                                            <label key={g} className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="gender"
+                                                    checked={manual.gender === g}
+                                                    onChange={() => setManual((m) => ({ ...m, gender: g }))}
+                                                    className="w-4 h-4 text-[#006e42]"
+                                                />
+                                                <span className="text-[14px] font-medium">{g}</span>
                                             </label>
                                         ))}
                                     </div>
+                                </section>
+
+                                {/* Wage/Salary */}
+                                <section>
+                                    <h2 className="text-[17px] font-extrabold text-[#111827] mb-2">Wage/Salary</h2>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-[13px] font-semibold text-[#555] mb-1">Wage Type</label>
+                                            <select
+                                                value={manual.wageType}
+                                                onChange={(e) => setManual((m) => ({ ...m, wageType: e.target.value }))}
+                                                className="w-full h-11 px-3 border border-[#E0E0E0] rounded-[10px] text-[14px]"
+                                            >
+                                                <option value="Hourly">Hourly</option>
+                                                <option value="Monthly">Monthly</option>
+                                                <option value="Fixed">Fixed</option>
+                                            </select>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-[13px] font-semibold text-[#555] mb-1">Minimum</label>
+                                                <Input type="number" placeholder="Min" value={manual.payMin} onChange={(e) => setManual((m) => ({ ...m, payMin: e.target.value }))} className="h-11" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[13px] font-semibold text-[#555] mb-1">Maximum (optional)</label>
+                                                <Input type="number" placeholder="Max" value={manual.payMax} onChange={(e) => setManual((m) => ({ ...m, payMax: e.target.value }))} className="h-11" />
+                                            </div>
+                                        </div>
+                                        <label className="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" checked={manual.includeCommission} onChange={(e) => setManual((m) => ({ ...m, includeCommission: e.target.checked }))} className="rounded text-[#006e42]" />
+                                            <span className="text-[13px] font-semibold text-[#555]">Include commission on top of base pay</span>
+                                        </label>
+                                        <p className="text-[12px] text-[#888]">Example: sales, social, and service roles.</p>
+                                        {manual.includeCommission && (
+                                            <div>
+                                                <label className="block text-[13px] font-semibold text-[#555] mb-1">Commission Structure</label>
+                                                <Input value={manual.commissionStructure} onChange={(e) => setManual((m) => ({ ...m, commissionStructure: e.target.value }))} placeholder="e.g. 50% of revenue, 20$ per signup." className="h-11" />
+                                            </div>
+                                        )}
+                                        <div>
+                                            <label className="block text-[13px] font-semibold text-[#555] mb-1">Payout Frequency</label>
+                                            <div className="flex flex-wrap gap-3">
+                                                {PAYOUT_FREQUENCIES.map((f) => (
+                                                    <label key={f} className="flex items-center gap-2 cursor-pointer">
+                                                        <input type="radio" name="payout" checked={manual.payoutFrequency === f} onChange={() => setManual((m) => ({ ...m, payoutFrequency: f }))} className="w-4 h-4 text-[#006e42]" />
+                                                        <span className="text-[14px]">{f}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                {/* Payment Type */}
+                                <section>
+                                    <p className="text-[13px] font-semibold text-[#555] mb-2">How will you pay your workers?</p>
+                                    <div className="flex flex-wrap gap-3">
+                                        {PAYMENT_OPTIONS.map((opt) => (
+                                            <label key={opt} className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={manual.paymentTypes.includes(opt)}
+                                                    onChange={() => setManual((m) => ({
+                                                        ...m,
+                                                        paymentTypes: m.paymentTypes.includes(opt) ? m.paymentTypes.filter((x) => x !== opt) : [...m.paymentTypes, opt],
+                                                    }))}
+                                                    className="rounded text-[#006e42]"
+                                                />
+                                                <span className="text-[14px]">{opt}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </section>
+
+                                {/* Skills */}
+                                <section>
+                                    <p className="text-[13px] font-semibold text-[#555] mb-2">Select skills required to do this job.</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {SKILL_CHIPS.map((s) => (
+                                            <button
+                                                key={s}
+                                                type="button"
+                                                onClick={() => setManual((m) => ({
+                                                    ...m,
+                                                    skills: m.skills.includes(s) ? m.skills.filter((x) => x !== s) : [...m.skills, s],
+                                                }))}
+                                                className={`px-4 py-2 rounded-full text-[13px] font-semibold border transition-colors ${manual.skills.includes(s) ? "bg-[#006e42] text-white border-[#006e42]" : "bg-white border-[#E0E0E0] text-[#555] hover:border-[#006e42]/50"}`}
+                                            >
+                                                {s}
+                                            </button>
+                                        ))}
+                                        <button type="button" className="px-4 py-2 rounded-full text-[13px] font-semibold text-[#006e42] border border-[#006e42] hover:bg-[#eaf5ef]">
+                                            + Add suggestion
+                                        </button>
+                                    </div>
+                                </section>
+
+                                {/* Social media platforms */}
+                                <section>
+                                    <p className="text-[13px] font-semibold text-[#555] mb-2">Select social media platforms the job applicant will be working with.</p>
+                                    <div className="flex flex-wrap gap-3">
+                                        {SOCIAL_PLATFORMS.map((p) => (
+                                            <button
+                                                key={p}
+                                                type="button"
+                                                onClick={() => setManual((m) => ({
+                                                    ...m,
+                                                    platforms: m.platforms.includes(p) ? m.platforms.filter((x) => x !== p) : [...m.platforms, p],
+                                                }))}
+                                                className={`w-12 h-12 rounded-full flex items-center justify-center text-[10px] font-bold border transition-colors ${manual.platforms.includes(p) ? "bg-[#006e42] text-white border-[#006e42]" : "bg-white border-[#E0E0E0] hover:border-[#006e42]/50"}`}
+                                                title={p}
+                                            >
+                                                {p.slice(0, 2)}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </section>
+
+                                {/* Software */}
+                                <section>
+                                    <p className="text-[13px] font-semibold text-[#555] mb-2">Choose software that the job applicant must be familiar with.</p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {SOFTWARE_CHIPS.map((s) => (
+                                            <button
+                                                key={s}
+                                                type="button"
+                                                onClick={() => setManual((m) => ({
+                                                    ...m,
+                                                    software: m.software.includes(s) ? m.software.filter((x) => x !== s) : [...m.software, s],
+                                                }))}
+                                                className={`px-4 py-2 rounded-full text-[13px] font-semibold border transition-colors ${manual.software.includes(s) ? "bg-[#006e42] text-white border-[#006e42]" : "bg-white border-[#E0E0E0] text-[#555] hover:border-[#006e42]/50"}`}
+                                            >
+                                                {s}
+                                            </button>
+                                        ))}
+                                        <button type="button" className="px-4 py-2 rounded-full text-[13px] font-semibold text-[#006e42] border border-[#006e42] hover:bg-[#eaf5ef]">
+                                            + Add suggestion
+                                        </button>
+                                    </div>
+                                </section>
+
+                                {/* Language */}
+                                <section>
+                                    <p className="text-[13px] font-semibold text-[#555] mb-2">What languages do you expect your worker to speak?</p>
+                                    <div className="flex gap-2 items-center">
+                                        <select
+                                            value={manual.language}
+                                            onChange={(e) => setManual((m) => ({ ...m, language: e.target.value }))}
+                                            className="h-11 px-3 border border-[#E0E0E0] rounded-[10px] text-[14px] min-w-[180px] focus:ring-1 focus:ring-[#006e42]"
+                                        >
+                                            <option value="">Select languages</option>
+                                            <option value="English">English</option>
+                                            <option value="Spanish">Spanish</option>
+                                            <option value="French">French</option>
+                                            <option value="Swahili">Swahili</option>
+                                        </select>
+                                        <button type="button" className="px-4 py-2 rounded-full text-[13px] font-semibold text-[#006e42] border border-[#006e42] hover:bg-[#eaf5ef]">+ Add suggestion</button>
+                                    </div>
+                                </section>
+
+                                {/* Blocked Countries */}
+                                <section>
+                                    <p className="text-[13px] font-semibold text-[#555] mb-2">Select countries where this job should not be available.</p>
+                                    <select
+                                        multiple
+                                        value={manual.blockedCountries}
+                                        onChange={(e) => setManual((m) => ({
+                                            ...m,
+                                            blockedCountries: Array.from(e.target.selectedOptions, (o) => o.value),
+                                        }))}
+                                        className="w-full min-h-[80px] px-3 py-2 border border-[#E0E0E0] rounded-[10px] text-[14px]"
+                                    >
+                                        <option value="US">United States</option>
+                                        <option value="GB">United Kingdom</option>
+                                        <option value="KE">Kenya</option>
+                                        <option value="TZ">Tanzania</option>
+                                    </select>
+                                </section>
+
+                                {/* Qualification Tests */}
+                                <section>
+                                    <p className="text-[13px] font-semibold text-[#555] mb-2">Add tests the applicants must pass in order to apply for your job post.</p>
+                                    <div className="bg-[#eaf5ef] border border-[#006e42]/30 rounded-xl p-4 mb-4">
+                                        <p className="text-[13px] font-semibold text-[#111827] mb-1">Watch how it works!</p>
+                                        <p className="text-[12px] text-[#555] mb-2">See a preview of the tests from a user&apos;s perspective to understand their experience.</p>
+                                        <button type="button" className="text-[13px] font-bold text-[#006e42] hover:underline">Review Preview</button>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {QUALIFICATION_TESTS.map((t) => (
+                                            <label key={t.id} className="flex items-center justify-between cursor-pointer py-2 border-b border-[#f0f0f0]">
+                                                <span className="text-[14px] font-medium">{t.label}</span>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={manual.qualificationTests[t.id] ?? false}
+                                                    onChange={(e) => setManual((m) => ({ ...m, qualificationTests: { ...m.qualificationTests, [t.id]: e.target.checked } }))}
+                                                    className="rounded text-[#006e42] w-5 h-5"
+                                                />
+                                            </label>
+                                        ))}
+                                    </div>
+                                </section>
+
+                                {error && <p className="text-sm text-red-600">{error}</p>}
+
+                                <div className="flex flex-wrap items-center gap-4 pt-4">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="border-2 border-[#006e42] text-[#006e42] hover:bg-[#eaf5ef]"
+                                        onClick={() => router.push("/client/jobs")}
+                                    >
+                                        Save as draft
+                                    </Button>
+                                    <Button
+                                        disabled={loading || !manual.title || manual.description.length < 30}
+                                        className="bg-[#006e42] hover:bg-[#005c36]"
+                                        onClick={async () => {
+                                            setError("");
+                                            setLoading(true);
+                                            try {
+                                                const budgetNum = Math.max(1000, Number(manual.payMin) || 1000);
+                                                const deadlineStr = manual.deadline || (() => { const d = new Date(); d.setDate(d.getDate() + 7); return d.toISOString().slice(0, 10); })();
+                                                await jobService.createJob({
+                                                    title: manual.title,
+                                                    description: manual.description,
+                                                    budget: budgetNum,
+                                                    deadline: deadlineStr,
+                                                    category: manual.category || undefined,
+                                                    experienceLevel: (manual.experienceLevel as "JUNIOR" | "MID" | "SENIOR") || undefined,
+                                                    tags: manual.skills.length ? manual.skills : (manual.tags ? manual.tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined),
+                                                });
+                                                router.push("/client/jobs");
+                                            } catch (err: unknown) {
+                                                setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Failed to post job.");
+                                            } finally {
+                                                setLoading(false);
+                                            }
+                                        }}
+                                    >
+                                        {loading ? "Submitting…" : "Submit for review"}
+                                    </Button>
+                                    <Link href="/client/jobs" className="text-[14px] font-semibold text-[#666] hover:text-[#006e42]">
+                                        Back
+                                    </Link>
                                 </div>
-                            </div>
-                        </section>
-
-                        {/* Payment Type */}
-                        <section>
-                            <p className="text-[13px] font-semibold text-[#555] mb-2">How will you pay your workers?</p>
-                            <div className="flex flex-wrap gap-3">
-                                {PAYMENT_OPTIONS.map((opt) => (
-                                    <label key={opt} className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={manual.paymentTypes.includes(opt)}
-                                            onChange={() => setManual((m) => ({
-                                                ...m,
-                                                paymentTypes: m.paymentTypes.includes(opt) ? m.paymentTypes.filter((x) => x !== opt) : [...m.paymentTypes, opt],
-                                            }))}
-                                            className="rounded text-[#006e42]"
-                                        />
-                                        <span className="text-[14px]">{opt}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </section>
-
-                        {/* Skills */}
-                        <section>
-                            <p className="text-[13px] font-semibold text-[#555] mb-2">Select skills required to do this job.</p>
-                            <div className="flex flex-wrap gap-2">
-                                {SKILL_CHIPS.map((s) => (
-                                    <button
-                                        key={s}
-                                        type="button"
-                                        onClick={() => setManual((m) => ({
-                                            ...m,
-                                            skills: m.skills.includes(s) ? m.skills.filter((x) => x !== s) : [...m.skills, s],
-                                        }))}
-                                        className={`px-4 py-2 rounded-full text-[13px] font-semibold border transition-colors ${manual.skills.includes(s) ? "bg-[#006e42] text-white border-[#006e42]" : "bg-white border-[#E0E0E0] text-[#555] hover:border-[#006e42]/50"}`}
-                                    >
-                                        {s}
-                                    </button>
-                                ))}
-                                <button type="button" className="px-4 py-2 rounded-full text-[13px] font-semibold text-[#006e42] border border-[#006e42] hover:bg-[#eaf5ef]">
-                                    + Add suggestion
-                                </button>
-                            </div>
-                        </section>
-
-                        {/* Social media platforms */}
-                        <section>
-                            <p className="text-[13px] font-semibold text-[#555] mb-2">Select social media platforms the job applicant will be working with.</p>
-                            <div className="flex flex-wrap gap-3">
-                                {SOCIAL_PLATFORMS.map((p) => (
-                                    <button
-                                        key={p}
-                                        type="button"
-                                        onClick={() => setManual((m) => ({
-                                            ...m,
-                                            platforms: m.platforms.includes(p) ? m.platforms.filter((x) => x !== p) : [...m.platforms, p],
-                                        }))}
-                                        className={`w-12 h-12 rounded-full flex items-center justify-center text-[10px] font-bold border transition-colors ${manual.platforms.includes(p) ? "bg-[#006e42] text-white border-[#006e42]" : "bg-white border-[#E0E0E0] hover:border-[#006e42]/50"}`}
-                                        title={p}
-                                    >
-                                        {p.slice(0, 2)}
-                                    </button>
-                                ))}
-                            </div>
-                        </section>
-
-                        {/* Software */}
-                        <section>
-                            <p className="text-[13px] font-semibold text-[#555] mb-2">Choose software that the job applicant must be familiar with.</p>
-                            <div className="flex flex-wrap gap-2">
-                                {SOFTWARE_CHIPS.map((s) => (
-                                    <button
-                                        key={s}
-                                        type="button"
-                                        onClick={() => setManual((m) => ({
-                                            ...m,
-                                            software: m.software.includes(s) ? m.software.filter((x) => x !== s) : [...m.software, s],
-                                        }))}
-                                        className={`px-4 py-2 rounded-full text-[13px] font-semibold border transition-colors ${manual.software.includes(s) ? "bg-[#006e42] text-white border-[#006e42]" : "bg-white border-[#E0E0E0] text-[#555] hover:border-[#006e42]/50"}`}
-                                    >
-                                        {s}
-                                    </button>
-                                ))}
-                                <button type="button" className="px-4 py-2 rounded-full text-[13px] font-semibold text-[#006e42] border border-[#006e42] hover:bg-[#eaf5ef]">
-                                    + Add suggestion
-                                </button>
-                            </div>
-                        </section>
-
-                        {/* Language */}
-                        <section>
-                            <p className="text-[13px] font-semibold text-[#555] mb-2">What languages do you expect your worker to speak?</p>
-                            <div className="flex gap-2 items-center">
-                                <select
-                                    value={manual.language}
-                                    onChange={(e) => setManual((m) => ({ ...m, language: e.target.value }))}
-                                    className="h-11 px-3 border border-[#E0E0E0] rounded-[10px] text-[14px] min-w-[180px] focus:ring-1 focus:ring-[#006e42]"
-                                >
-                                    <option value="">Select languages</option>
-                                    <option value="English">English</option>
-                                    <option value="Spanish">Spanish</option>
-                                    <option value="French">French</option>
-                                    <option value="Swahili">Swahili</option>
-                                </select>
-                                <button type="button" className="px-4 py-2 rounded-full text-[13px] font-semibold text-[#006e42] border border-[#006e42] hover:bg-[#eaf5ef]">+ Add suggestion</button>
-                            </div>
-                        </section>
-
-                        {/* Blocked Countries */}
-                        <section>
-                            <p className="text-[13px] font-semibold text-[#555] mb-2">Select countries where this job should not be available.</p>
-                            <select
-                                multiple
-                                value={manual.blockedCountries}
-                                onChange={(e) => setManual((m) => ({
-                                    ...m,
-                                    blockedCountries: Array.from(e.target.selectedOptions, (o) => o.value),
-                                }))}
-                                className="w-full min-h-[80px] px-3 py-2 border border-[#E0E0E0] rounded-[10px] text-[14px]"
-                            >
-                                <option value="US">United States</option>
-                                <option value="GB">United Kingdom</option>
-                                <option value="KE">Kenya</option>
-                                <option value="TZ">Tanzania</option>
-                            </select>
-                        </section>
-
-                        {/* Qualification Tests */}
-                        <section>
-                            <p className="text-[13px] font-semibold text-[#555] mb-2">Add tests the applicants must pass in order to apply for your job post.</p>
-                            <div className="bg-[#eaf5ef] border border-[#006e42]/30 rounded-xl p-4 mb-4">
-                                <p className="text-[13px] font-semibold text-[#111827] mb-1">Watch how it works!</p>
-                                <p className="text-[12px] text-[#555] mb-2">See a preview of the tests from a user&apos;s perspective to understand their experience.</p>
-                                <button type="button" className="text-[13px] font-bold text-[#006e42] hover:underline">Review Preview</button>
-                            </div>
-                            <div className="space-y-3">
-                                {QUALIFICATION_TESTS.map((t) => (
-                                    <label key={t.id} className="flex items-center justify-between cursor-pointer py-2 border-b border-[#f0f0f0]">
-                                        <span className="text-[14px] font-medium">{t.label}</span>
-                                        <input
-                                            type="checkbox"
-                                            checked={manual.qualificationTests[t.id] ?? false}
-                                            onChange={(e) => setManual((m) => ({ ...m, qualificationTests: { ...m.qualificationTests, [t.id]: e.target.checked } }))}
-                                            className="rounded text-[#006e42] w-5 h-5"
-                                        />
-                                    </label>
-                                ))}
-                            </div>
-                        </section>
-
-                        {error && <p className="text-sm text-red-600">{error}</p>}
-
-                        <div className="flex flex-wrap items-center gap-4 pt-4">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                className="border-2 border-[#006e42] text-[#006e42] hover:bg-[#eaf5ef]"
-                                onClick={() => router.push("/client/jobs")}
-                            >
-                                Save as draft
-                            </Button>
-                            <Button
-                                disabled={loading || !manual.title || manual.description.length < 30}
-                                className="bg-[#006e42] hover:bg-[#005c36]"
-                                onClick={async () => {
-                                    setError("");
-                                    setLoading(true);
-                                    try {
-                                        const budgetNum = Math.max(1000, Number(manual.payMin) || 1000);
-                                    const deadlineStr = manual.deadline || (() => { const d = new Date(); d.setDate(d.getDate() + 7); return d.toISOString().slice(0, 10); })();
-                                    await jobService.createJob({
-                                            title: manual.title,
-                                            description: manual.description,
-                                            budget: budgetNum,
-                                            deadline: deadlineStr,
-                                            category: manual.category || undefined,
-                                            experienceLevel: (manual.experienceLevel as "JUNIOR" | "MID" | "SENIOR") || undefined,
-                                            tags: manual.skills.length ? manual.skills : (manual.tags ? manual.tags.split(",").map((t) => t.trim()).filter(Boolean) : undefined),
-                                        });
-                                        router.push("/client/jobs");
-                                    } catch (err: unknown) {
-                                        setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Failed to post job.");
-                                    } finally {
-                                        setLoading(false);
-                                    }
-                                }}
-                            >
-                                {loading ? "Submitting…" : "Submit for review"}
-                            </Button>
-                            <Link href="/client/jobs" className="text-[14px] font-semibold text-[#666] hover:text-[#006e42]">
-                                Back
-                            </Link>
-                        </div>
+                            </>
+                        )}
                     </div>
                 )}
 
