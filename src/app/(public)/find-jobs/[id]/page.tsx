@@ -8,7 +8,6 @@ import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import { Skeleton } from "@heroui/skeleton";
 import { jobService } from "@/services/job.service";
-import { dummyJobs } from "@/data/dummy-jobs";
 import { jobResponseToListItem } from "@/lib/format";
 import type { JobListItem } from "@/types";
 import type { JobResponseBackend } from "@/types";
@@ -30,14 +29,12 @@ export default function JobDetailPage() {
           setJob(j);
           setListItem(jobResponseToListItem(j));
         } else {
-          const sample = dummyJobs.find((d) => d.id === id);
-          setListItem(sample ?? null);
+          setListItem(null);
           setJob(null);
         }
       })
       .catch(() => {
-        const sample = dummyJobs.find((d) => d.id === id);
-        setListItem(sample ?? null);
+        setListItem(null);
         setJob(null);
       })
       .finally(() => setLoading(false));

@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-import { Card, CardBody, CardHeader, Button, Input } from "@heroui/react";
 import { getUsers, createUser, updateUser, deleteUser, type UserRow } from "../api/client";
 import { UserPlus, Pencil, UserX } from "lucide-react";
 import Modal from "../components/Modal";
+import PageHeader from "../components/PageHeader";
+import AdminCard from "../components/AdminCard";
+import AdminButton from "../components/AdminButton";
+import { AdminInput, AdminSelect, AdminCheckbox } from "../components/FormField";
 
 const ROLES = ["CLIENT", "FREELANCER", "MODERATOR", "EMPLOYER_ADMIN", "ADMIN", "SUPER_ADMIN"];
 
@@ -33,31 +36,26 @@ export default function Users() {
   useEffect(() => load(), [page]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Users</h1>
-          <p className="text-winga-muted-foreground">Create, edit, and manage employers and job seekers</p>
-        </div>
-        <Button
-          className="btn-primary-winga"
-          startContent={<UserPlus size={18} />}
-          onPress={() => {
-            setError("");
-            setCreateOpen(true);
-          }}
-        >
-          Create user
-        </Button>
-      </div>
+    <div className="space-y-6 max-w-6xl">
+      <PageHeader
+        title="Users"
+        subtitle="Create, edit, and manage employers and job seekers."
+        action={
+          <AdminButton
+            className="btn-primary-winga"
+            startContent={<UserPlus size={18} />}
+            onPress={() => { setError(""); setCreateOpen(true); }}
+          >
+            Create user
+          </AdminButton>
+        }
+      />
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">{error}</p>
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+          {error}
+        </div>
       )}
-      <Card className="border border-winga-border bg-white shadow-winga-card rounded-winga-lg">
-        <CardHeader className="px-6 pt-6 flex flex-row justify-between items-center">
-          <h3 className="font-semibold">All users</h3>
-        </CardHeader>
-        <CardBody className="px-6 pb-6">
+      <AdminCard title="All users">
           {loading ? (
             <div className="py-12 text-center text-winga-muted-foreground">Loading…</div>
           ) : (
@@ -83,7 +81,7 @@ export default function Users() {
                         <td className="py-3 px-4">{u.isVerified ? "Yes" : "No"}</td>
                         <td className="py-3 px-4">{u.isActive !== false ? "Yes" : "No"}</td>
                         <td className="py-3 px-4 flex gap-2">
-                          <Button
+                          <AdminButton
                             size="sm"
                             variant="flat"
                             isIconOnly
@@ -95,21 +93,21 @@ export default function Users() {
                             }}
                           >
                             <Pencil size={14} />
-                          </Button>
-                          <Button
+                          </AdminButton>
+                          <AdminButton
                             size="sm"
                             variant="flat"
-                            color="danger"
+                            className="text-red-600 hover:bg-red-50"
                             isIconOnly
                             aria-label="Deactivate"
-                            isDisabled={u.isActive === false}
+                            disabled={u.isActive === false}
                             onPress={() => {
                               setSelected(u);
                               setDeleteOpen(true);
                             }}
                           >
                             <UserX size={14} />
-                          </Button>
+                          </AdminButton>
                         </td>
                       </tr>
                     ))}
@@ -119,35 +117,32 @@ export default function Users() {
               <div className="flex justify-between items-center mt-4">
                 <p className="text-sm text-winga-muted-foreground">Total: {total}</p>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="flat" isDisabled={page === 0} onPress={() => setPage((p) => p - 1)}>
+                  <AdminButton size="sm" variant="flat" disabled={page === 0} onPress={() => setPage((p) => p - 1)}>
                     Previous
-                  </Button>
-                  <Button
+                  </AdminButton>
+                  <AdminButton
                     size="sm"
                     variant="flat"
-                    isDisabled={(page + 1) * 20 >= total}
+                    disabled={(page + 1) * 20 >= total}
                     onPress={() => setPage((p) => p + 1)}
                   >
                     Next
-                  </Button>
+                  </AdminButton>
                 </div>
               </div>
             </>
           )}
-        </CardBody>
-      </Card>
+      </AdminCard>
 
-      {/* Create User Modal - custom overlay so it always shows */}
       <Modal
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         title="Create user"
+        description="Add a new user to the platform. Choose role and set credentials."
         footer={
           <>
-            <Button variant="flat" onPress={() => setCreateOpen(false)}>
-              Cancel
-            </Button>
-            <Button
+            <AdminButton variant="flat" onPress={() => setCreateOpen(false)}>Cancel</AdminButton>
+            <AdminButton
               className="btn-primary-winga"
               onPress={() => {
                 const form = document.getElementById("create-user-form") as HTMLFormElement | null;
@@ -156,7 +151,7 @@ export default function Users() {
               isLoading={acting}
             >
               Create
-            </Button>
+            </AdminButton>
           </>
         }
       >
@@ -178,12 +173,11 @@ export default function Users() {
             setSelected(null);
           }}
           title="Edit user"
+          description="Update user details and status."
           footer={
             <>
-              <Button variant="flat" onPress={() => { setEditOpen(false); setSelected(null); }}>
-                Cancel
-              </Button>
-              <Button
+              <AdminButton variant="flat" onPress={() => { setEditOpen(false); setSelected(null); }}>Cancel</AdminButton>
+              <AdminButton
                 className="btn-primary-winga"
                 onPress={() => {
                   const form = document.getElementById("edit-user-form") as HTMLFormElement | null;
@@ -192,7 +186,7 @@ export default function Users() {
                 isLoading={acting}
               >
                 Save
-              </Button>
+              </AdminButton>
             </>
           }
         >
@@ -219,13 +213,12 @@ export default function Users() {
             setSelected(null);
           }}
           title="Deactivate user"
+          description="The user will not be able to log in. You can reactivate later from Edit user."
           footer={
             <>
-              <Button variant="flat" onPress={() => { setDeleteOpen(false); setSelected(null); }}>
-                Cancel
-              </Button>
-              <Button
-                color="danger"
+              <AdminButton variant="flat" onPress={() => { setDeleteOpen(false); setSelected(null); }}>Cancel</AdminButton>
+              <AdminButton
+                variant="danger"
                 onPress={() => {
                   setActing(true);
                   deleteUser(selected.id)
@@ -239,7 +232,7 @@ export default function Users() {
                 isLoading={acting}
               >
                 Deactivate
-              </Button>
+              </AdminButton>
             </>
           }
         >
@@ -289,54 +282,16 @@ function CreateUserForm({
   };
 
   return (
-    <form id="create-user-form" onSubmit={handleSubmit} className="flex flex-col gap-4 bg-white" style={{ backgroundColor: "#ffffff" }}>
-      <Input
-        label="Email"
-        type="email"
-        value={email}
-        onValueChange={setEmail}
-        placeholder="user@example.com"
-        isRequired
-        classNames={{ inputWrapper: "bg-white border-winga-border", input: "bg-white" }}
-      />
-      <Input
-        label="Full name"
-        value={fullName}
-        onValueChange={setFullName}
-        placeholder="John Doe"
-        isRequired
-        classNames={{ inputWrapper: "bg-white border-winga-border", input: "bg-white" }}
-      />
-      <Input
-        label="Password"
-        type="password"
-        value={password}
-        onValueChange={setPassword}
-        placeholder="Min 6 characters"
-        isRequired
-        classNames={{ inputWrapper: "bg-white border-winga-border", input: "bg-white" }}
-      />
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-foreground">Role</span>
-        <select
-          className="border border-winga-border rounded-xl px-3 py-2.5 bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-winga-primary focus:border-winga-primary"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          required
-        >
-          <option value="">Select role</option>
-          {ROLES.map((r) => (
-            <option key={r} value={r}>{r}</option>
-          ))}
-        </select>
-      </label>
-      <Input
-        label="Phone (optional)"
-        value={phoneNumber}
-        onValueChange={setPhoneNumber}
-        placeholder="+255..."
-        classNames={{ inputWrapper: "bg-white border-winga-border", input: "bg-white" }}
-      />
+    <form id="create-user-form" onSubmit={handleSubmit} className="flex flex-col gap-5 bg-white">
+      <AdminInput label="Email" type="email" value={email} onValueChange={setEmail} placeholder="user@example.com" required />
+      <AdminInput label="Full name" value={fullName} onValueChange={setFullName} placeholder="John Doe" required />
+      <AdminInput label="Password" type="password" value={password} onValueChange={setPassword} placeholder="Min 6 characters" required />
+      <AdminSelect label="Role" value={role} onChange={(e) => setRole(e.target.value)} required placeholder="Select role">
+        {ROLES.map((r) => (
+          <option key={r} value={r}>{r}</option>
+        ))}
+      </AdminSelect>
+      <AdminInput label="Phone (optional)" value={phoneNumber} onValueChange={setPhoneNumber} placeholder="+255..." />
     </form>
   );
 }
@@ -378,51 +333,18 @@ function EditUserForm({
   };
 
   return (
-    <form id="edit-user-form" onSubmit={handleSubmit} className="flex flex-col gap-4 bg-white" style={{ backgroundColor: "#ffffff" }}>
-      <Input
-        label="Full name"
-        value={fullName}
-        onValueChange={setFullName}
-        isRequired
-        classNames={{ inputWrapper: "bg-white border-winga-border", input: "bg-white" }}
-      />
-      <Input
-        label="Email"
-        type="email"
-        value={email}
-        onValueChange={setEmail}
-        isRequired
-        classNames={{ inputWrapper: "bg-white border-winga-border", input: "bg-white" }}
-      />
-      <Input
-        label="New password (leave blank to keep)"
-        type="password"
-        value={password}
-        onValueChange={setPassword}
-        placeholder="Optional"
-        classNames={{ inputWrapper: "bg-white border-winga-border", input: "bg-white" }}
-      />
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-foreground">Role</span>
-        <select
-          className="border border-winga-border rounded-xl px-3 py-2.5 bg-white text-foreground focus:outline-none focus:ring-2 focus:ring-winga-primary focus:border-winga-primary"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-        >
-          {ROLES.map((r) => (
-            <option key={r} value={r}>{r}</option>
-          ))}
-        </select>
-      </label>
-      <div className="flex gap-6">
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" checked={isVerified} onChange={(e) => setIsVerified(e.target.checked)} />
-          <span className="text-sm text-foreground">Verified</span>
-        </label>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} />
-          <span className="text-sm text-foreground">Active</span>
-        </label>
+    <form id="edit-user-form" onSubmit={handleSubmit} className="flex flex-col gap-5 bg-white">
+      <AdminInput label="Full name" value={fullName} onValueChange={setFullName} required />
+      <AdminInput label="Email" type="email" value={email} onValueChange={setEmail} required />
+      <AdminInput label="New password (leave blank to keep)" type="password" value={password} onValueChange={setPassword} placeholder="Optional" />
+      <AdminSelect label="Role" value={role} onChange={(e) => setRole(e.target.value)} placeholder="Select role">
+        {ROLES.map((r) => (
+          <option key={r} value={r}>{r}</option>
+        ))}
+      </AdminSelect>
+      <div className="flex flex-wrap gap-6 pt-1">
+        <AdminCheckbox label="Verified" checked={isVerified} onChange={setIsVerified} description="User is verified" />
+        <AdminCheckbox label="Active" checked={isActive} onChange={setIsActive} description="User can log in" />
       </div>
     </form>
   );

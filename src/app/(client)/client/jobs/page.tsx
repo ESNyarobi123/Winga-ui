@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { JobList } from "@/components/features/jobs/job-list";
 import { jobService } from "@/services/job.service";
-import { dummyJobs } from "@/data/dummy-jobs";
 import type { JobListItem } from "@/types";
 
 type Tab = "Live" | "Draft" | "Pending" | "Expired";
@@ -25,8 +24,8 @@ export default function ClientMyJobsPage() {
         setTotalPages(res.totalPages);
       })
       .catch(() => {
-        setJobs(dummyJobs.slice(0, 4));
-        setTotalPages(1);
+        setJobs([]);
+        setTotalPages(0);
       })
       .finally(() => setLoading(false));
   }, [page]);

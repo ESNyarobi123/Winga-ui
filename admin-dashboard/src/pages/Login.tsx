@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Input } from "@heroui/react";
 import { useAuth } from "../hooks/useAuth";
 import { ShieldCheck } from "lucide-react";
+import AdminButton from "../components/AdminButton";
+import { AdminInput } from "../components/FormField";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,10 +17,10 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    // Dev: use relative URL so Vite proxy (→ localhost:8080) is used and CORS/NetworkError is avoided
+    // Admin-only login: only ADMIN/SUPER_ADMIN can access dashboard
     const apiBase = import.meta.env.VITE_API_URL ?? "";
     try {
-      const res = await fetch(`${apiBase}/api/auth/login`, {
+      const res = await fetch(`${apiBase}/api/auth/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -85,35 +86,21 @@ export default function Login() {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <Input
+            <AdminInput
+              label="Email"
               type="email"
               placeholder="admin@winga.co.tz"
-              size="lg"
               value={email}
               onValueChange={setEmail}
-              isRequired
-              autoComplete="email"
-              aria-label="Email Address"
-              variant="bordered"
-              classNames={{
-                inputWrapper: "h-[56px] rounded-xl border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-[#006e42]",
-                input: "text-[#232426] text-[16px]",
-              }}
+              required
             />
-            <Input
+            <AdminInput
+              label="Password"
               type="password"
               placeholder="Password (••••••••)"
-              size="lg"
               value={password}
               onValueChange={setPassword}
-              isRequired
-              autoComplete="current-password"
-              aria-label="Password"
-              variant="bordered"
-              classNames={{
-                inputWrapper: "h-[56px] rounded-xl border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-[#006e42]",
-                input: "text-[#232426] text-[16px]",
-              }}
+              required
             />
 
             {error && (
@@ -122,18 +109,15 @@ export default function Login() {
               </p>
             )}
 
-            <Button
+            <AdminButton
               type="submit"
               size="lg"
               disabled={!email || !password || loading}
-              className={`w-full font-bold rounded-xl h-[56px] text-[16px] transition-colors mt-2 ${(!email || !password)
-                ? "bg-black/10 text-white cursor-not-allowed"
-                : "bg-[#006e42] text-white hover:bg-[#005c36] shadow-md"
-                }`}
+              className={`w-full font-bold rounded-xl h-[56px] text-[16px] mt-2 ${(!email || !password) ? "bg-black/10 text-white cursor-not-allowed" : "bg-[#006e42] text-white hover:bg-[#005c36] shadow-md"}`}
               isLoading={loading}
             >
               Sign In
-            </Button>
+            </AdminButton>
           </form>
         </div>
       </div>

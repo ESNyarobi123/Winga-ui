@@ -1,13 +1,13 @@
 import { useEffect } from "react";
 
 /**
- * Simple overlay modal that always shows on top (z-index 9999).
- * Use this when Hero UI Modal doesn't appear so Create/Edit/Delete flows work.
+ * Admin modal: consistent layout, optional description, form-friendly body and footer.
  */
 export default function Modal({
   open,
   onClose,
   title,
+  description,
   children,
   footer,
   size = "md",
@@ -15,6 +15,7 @@ export default function Modal({
   open: boolean;
   onClose: () => void;
   title: string;
+  description?: string;
   children: React.ReactNode;
   footer: React.ReactNode;
   size?: "sm" | "md" | "lg" | "xl";
@@ -42,29 +43,23 @@ export default function Modal({
       aria-modal="true"
       aria-labelledby="modal-title"
     >
-      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} onKeyDown={(e) => e.key === "Escape" && onClose()} />
       <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-        onKeyDown={(e) => e.key === "Escape" && onClose()}
-      />
-      {/* Content – solid white (inline style so it never goes transparent) */}
-      <div
-        className={`relative w-full ${maxW} rounded-2xl shadow-2xl border border-winga-border overflow-hidden modal-content-solid`}
-        style={{ backgroundColor: "#ffffff" }}
+        className={`relative w-full ${maxW} rounded-2xl shadow-2xl border border-winga-border overflow-hidden bg-white modal-content-solid`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="px-6 pt-6 pb-2" style={{ backgroundColor: "#ffffff" }}>
-          <h2 id="modal-title" className="text-lg font-semibold text-foreground">
+        <header className="px-6 pt-6 pb-4 border-b border-winga-border/50 bg-white">
+          <h2 id="modal-title" className="text-xl font-semibold text-foreground">
             {title}
           </h2>
-        </div>
-        <div className="px-6 py-4 max-h-[70vh] overflow-y-auto modal-form-body" style={{ backgroundColor: "#ffffff" }}>
+          {description && <p className="text-sm text-winga-muted-foreground mt-1">{description}</p>}
+        </header>
+        <div className="px-6 py-5 max-h-[65vh] overflow-y-auto modal-form-body bg-white">
           {children}
         </div>
-        <div className="px-6 py-4 border-t border-winga-border flex justify-end gap-2" style={{ backgroundColor: "#ffffff" }}>
+        <footer className="px-6 py-4 border-t border-winga-border flex justify-end gap-3 bg-white">
           {footer}
-        </div>
+        </footer>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { Search, Briefcase, Sparkles, Monitor, Smartphone, CreditCard, Globe, Languages, Users, ChevronDown } from "lucide-react";
 import { Input } from "@heroui/input";
@@ -10,9 +10,10 @@ import { Drawer, DrawerContent } from "@heroui/drawer";
 import { Modal, ModalContent, ModalBody, useDisclosure } from "@heroui/modal";
 import { WorkerList } from "@/components/features/workers/worker-list";
 import { WorkerDetailPanel } from "@/components/features/workers/worker-detail-panel";
-import { dummyWorkers } from "@/data/dummy-workers";
+import { workerService } from "@/services/worker.service";
 import { useAuth } from "@/hooks/use-auth";
 import { useT } from "@/lib/i18n";
+import type { WorkerListItem } from "@/types";
 
 const SORT_OPTIONS = ["Newest", "Recommended", "Experience"];
 
@@ -32,23 +33,38 @@ export default function FindWorkersPage() {
     const { user } = useAuth();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [searchQuery, setSearchQuery] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [sortBy, setSortBy] = useState("Newest");
-    const [selectedWorker, setSelectedWorker] = useState<any | null>(null);
+    const [workers, setWorkers] = useState<WorkerListItem[]>([]);
+    const [selectedWorker, setSelectedWorker] = useState<WorkerListItem | null>(null);
+
+    useEffect(() => {
+        let cancelled = false;
+        setIsLoading(true);
+        workerService
+            .getWorkers({ size: 50 })
+            .then((res) => {
+                if (!cancelled && res?.list !== undefined) setWorkers(res.list);
+            })
+            .catch(() => {
+                if (!cancelled) setWorkers([]);
+            })
+            .finally(() => {
+                if (!cancelled) setIsLoading(false);
+            });
+        return () => { cancelled = true; };
+    }, []);
 
     const filteredWorkers = useMemo(() => {
-        let list = [...dummyWorkers];
         const q = searchQuery.trim().toLowerCase();
-        if (q) {
-            list = list.filter(
-                (w) =>
-                    w.name.toLowerCase().includes(q) ||
-                    w.bio.toLowerCase().includes(q) ||
-                    w.tags.some((t) => t.toLowerCase().includes(q))
-            );
-        }
-        return list;
-    }, [searchQuery]);
+        if (!q) return workers;
+        return workers.filter(
+            (w) =>
+                w.name.toLowerCase().includes(q) ||
+                (w.description && w.description.toLowerCase().includes(q)) ||
+                w.tags.some((t) => t.toLowerCase().includes(q))
+        );
+    }, [workers, searchQuery]);
 
     const handleActionClick = (worker: any, e: React.MouseEvent) => {
         if (!user) {

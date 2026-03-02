@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import { Card, CardBody, CardHeader, Button, Select, SelectItem, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Checkbox } from "@heroui/react";
 import { getAdminProposals, updateProposalStatus, bulkUpdateProposalStatus, type ProposalRow } from "../api/client";
-// removed unused lucide-react imports
+import PageHeader from "../components/PageHeader";
+import AdminCard from "../components/AdminCard";
+import AdminButton from "../components/AdminButton";
+import Modal from "../components/Modal";
+import { AdminSelect } from "../components/FormField";
 
 const PROPOSAL_STATUSES = ["PENDING", "SHORTLISTED", "REJECTED", "HIRED"];
 
@@ -65,24 +68,16 @@ export default function Applications() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Applications</h1>
-        <p className="text-winga-muted-foreground mt-1 text-[15px]">Manage job proposals — filter by status or job, and perform bulk updates.</p>
-      </div>
+    <div className="space-y-6 max-w-6xl">
+      <PageHeader
+        title="Applications"
+        subtitle="Manage job proposals — filter by status or job, and perform bulk updates."
+      />
       <div className="flex gap-4 items-center flex-wrap">
-        <Select
-          label="Status"
-          placeholder="All"
-          className="max-w-[180px]"
-          selectedKeys={statusFilter ? [statusFilter] : ["ALL"]}
-          onSelectionChange={(s) => { const v = Array.from(s)[0] as string; setStatusFilter(v === "ALL" ? "" : v); setPage(0); }}
-        >
-          {[
-            <SelectItem key="ALL">All</SelectItem>,
-            ...PROPOSAL_STATUSES.map((s) => <SelectItem key={s}>{s}</SelectItem>)
-          ]}
-        </Select>
+        <AdminSelect label="Status" placeholder="All" className="max-w-[180px]" value={statusFilter || "ALL"} onChange={(e) => { const v = e.target.value; setStatusFilter(v === "ALL" ? "" : v); setPage(0); }}>
+          <option value="ALL">All</option>
+          {PROPOSAL_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+        </AdminSelect>
         <input
           type="number"
           placeholder="Filter by Job ID"
@@ -91,17 +86,13 @@ export default function Applications() {
           onChange={(e) => { setJobIdFilter(e.target.value); setPage(0); }}
         />
         {selectedIds.size > 0 && (
-          <Button className="bg-winga-primary text-white hover:bg-winga-primary-dark font-bold shadow-md h-10 px-5 rounded-xl ml-auto" onPress={() => setBulkStatusOpen(true)}>
+          <AdminButton className="bg-winga-primary text-white hover:bg-winga-primary-dark font-bold shadow-md h-10 px-5 rounded-xl ml-auto" onPress={() => setBulkStatusOpen(true)}>
             Update {selectedIds.size} Selected
-          </Button>
+          </AdminButton>
         )}
       </div>
-      {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">{error}</p>}
-      <Card className="border border-winga-border bg-white shadow-sm rounded-2xl overflow-hidden mt-6">
-        <CardHeader className="px-6 pt-6 pb-3 border-b border-winga-border/50 bg-gray-50/50">
-          <h3 className="font-bold text-lg text-foreground">All Applications</h3>
-        </CardHeader>
-        <CardBody className="px-6 pb-6">
+      {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">{error}</div>}
+      <AdminCard title="All applications">
           {loading ? (
             <div className="py-12 text-center text-winga-muted-foreground">Loading…</div>
           ) : (
@@ -111,7 +102,7 @@ export default function Applications() {
                   <thead>
                     <tr className="border-b border-winga-border bg-gray-50/50">
                       <th className="text-left py-4 px-6 w-10">
-                        <Checkbox isSelected={list.length > 0 && selectedIds.size === list.length} onValueChange={toggleSelectAll} color="primary" />
+                        <input type="checkbox" checked={list.length > 0 && selectedIds.size === list.length} onChange={toggleSelectAll} className="w-5 h-5 rounded border-2 border-gray-300 text-winga-primary focus:ring-winga-primary" />
                       </th>
                       <th className="text-left py-4 px-6 text-[13px] font-bold text-foreground uppercase tracking-wider">Job</th>
                       <th className="text-left py-4 px-6 text-[13px] font-bold text-foreground uppercase tracking-wider">Freelancer</th>
@@ -124,7 +115,7 @@ export default function Applications() {
                     {list.map((p) => (
                       <tr key={p.id} className="border-b border-winga-border/50 hover:bg-gray-50/50 transition-colors">
                         <td className="py-4 px-6">
-                          {p.status !== "HIRED" && <Checkbox isSelected={selectedIds.has(p.id)} onValueChange={() => toggleSelect(p.id)} color="primary" />}
+                          {p.status !== "HIRED" && <input type="checkbox" checked={selectedIds.has(p.id)} onChange={() => toggleSelect(p.id)} className="w-5 h-5 rounded border-2 border-gray-300 text-winga-primary focus:ring-winga-primary" />}
                         </td>
                         <td className="py-4 px-6">
                           <span className="font-bold text-foreground mr-1">#{p.jobId}</span> {p.jobTitle && <span className="text-winga-muted-foreground truncate max-w-[150px] inline-block align-bottom" title={p.jobTitle}>{p.jobTitle}</span>}
@@ -139,8 +130,8 @@ export default function Applications() {
                         <td className="py-4 px-6 flex gap-2 flex-wrap">
                           {p.status !== "HIRED" && p.status !== "REJECTED" && (
                             <>
-                              <Button size="sm" variant="flat" className="bg-blue-50 text-blue-600 hover:bg-blue-100 font-semibold rounded-lg" onPress={() => handleSingleStatus(p.id, "SHORTLISTED")} isLoading={acting}>Shortlist</Button>
-                              <Button size="sm" variant="flat" color="danger" className="font-semibold rounded-lg" onPress={() => handleSingleStatus(p.id, "REJECTED")} isLoading={acting}>Reject</Button>
+                              <AdminButton size="sm" variant="flat" className="bg-blue-50 text-blue-600 hover:bg-blue-100 font-semibold rounded-lg" onPress={() => handleSingleStatus(p.id, "SHORTLISTED")} isLoading={acting}>Shortlist</AdminButton>
+                              <AdminButton size="sm" variant="flat" className="text-red-600 hover:bg-red-50 font-semibold rounded-lg" onPress={() => handleSingleStatus(p.id, "REJECTED")} isLoading={acting}>Reject</AdminButton>
                             </>
                           )}
                         </td>
@@ -152,33 +143,29 @@ export default function Applications() {
               <div className="flex justify-between items-center mt-4">
                 <p className="text-sm text-winga-muted-foreground">Total: {total}</p>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="flat" isDisabled={page === 0} onPress={() => setPage((p) => p - 1)}>Previous</Button>
-                  <Button size="sm" variant="flat" isDisabled={(page + 1) * 20 >= total} onPress={() => setPage((p) => p + 1)}>Next</Button>
+                  <AdminButton size="sm" variant="flat" disabled={page === 0} onPress={() => setPage((p) => p - 1)}>Previous</AdminButton>
+                  <AdminButton size="sm" variant="flat" disabled={(page + 1) * 20 >= total} onPress={() => setPage((p) => p + 1)}>Next</AdminButton>
                 </div>
               </div>
             </>
           )}
-        </CardBody>
-      </Card>
+      </AdminCard>
 
-      <Modal isOpen={bulkStatusOpen} onClose={() => setBulkStatusOpen(false)} backdrop="blur">
-        <ModalContent className="rounded-2xl shadow-2xl border border-gray-100">
-          <ModalHeader className="border-b border-gray-100 bg-gray-50/50">
-            <div className="flex flex-col gap-1 mt-2">
-              <h2 className="text-xl font-bold">Bulk Update Status</h2>
-              <p className="text-sm font-normal text-gray-500">Update status for {selectedIds.size} applications.</p>
-            </div>
-          </ModalHeader>
-          <ModalBody className="py-6">
-            <Select label="New Status" selectedKeys={bulkStatus ? [bulkStatus] : []} onSelectionChange={(s) => setBulkStatus(Array.from(s)[0] as string)} variant="bordered" classNames={{ trigger: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl" }}>
-              {PROPOSAL_STATUSES.filter((s) => s !== "HIRED").map((s) => <SelectItem key={s}>{s}</SelectItem>)}
-            </Select>
-          </ModalBody>
-          <ModalFooter className="border-t border-gray-100 bg-gray-50/50">
-            <Button variant="flat" onPress={() => setBulkStatusOpen(false)} className="font-medium rounded-xl">Cancel</Button>
-            <Button className="bg-winga-primary text-white hover:bg-winga-primary-dark font-bold rounded-xl shadow-md" onPress={handleBulkStatus} isLoading={acting} isDisabled={!bulkStatus}>Apply Updates</Button>
-          </ModalFooter>
-        </ModalContent>
+      <Modal
+        open={bulkStatusOpen}
+        onClose={() => setBulkStatusOpen(false)}
+        title="Bulk Update Status"
+        description={`Update status for ${selectedIds.size} applications.`}
+        footer={
+          <>
+            <AdminButton variant="flat" onPress={() => setBulkStatusOpen(false)} className="font-medium rounded-xl">Cancel</AdminButton>
+            <AdminButton className="bg-winga-primary text-white hover:bg-winga-primary-dark font-bold rounded-xl shadow-md" onPress={handleBulkStatus} isLoading={acting} disabled={!bulkStatus}>Apply Updates</AdminButton>
+          </>
+        }
+      >
+        <AdminSelect label="New Status" value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value)} placeholder="Select status">
+          {PROPOSAL_STATUSES.filter((s) => s !== "HIRED").map((s) => <option key={s} value={s}>{s}</option>)}
+        </AdminSelect>
       </Modal>
     </div>
   );

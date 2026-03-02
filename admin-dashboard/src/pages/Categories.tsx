@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
-import { Card, CardBody, CardHeader, Button, Input, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "../api/client";
 import { Pencil } from "lucide-react";
+import PageHeader from "../components/PageHeader";
+import AdminCard from "../components/AdminCard";
+import AdminButton from "../components/AdminButton";
+import Modal from "../components/Modal";
+import { AdminInput } from "../components/FormField";
 
 type Category = { id: number; name: string; slug: string; sortOrder: number };
 
@@ -58,53 +62,35 @@ export default function Categories() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Job Categories</h1>
-        <p className="text-winga-muted-foreground mt-1 text-[15px]">Manage and organize job specializations on the platform.</p>
-      </div>
-      {error && <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm border border-red-100">{error}</div>}
-      <Card className="border border-winga-border bg-white shadow-sm rounded-2xl overflow-hidden">
-        <CardHeader className="px-6 pt-6 pb-2 border-b border-winga-border/50 bg-gray-50/50">
-          <h3 className="font-bold text-lg text-foreground">Add New Category</h3>
-        </CardHeader>
-        <CardBody className="px-6 py-6 flex flex-col sm:flex-row gap-4 items-start">
-          <Input
+    <div className="space-y-6 max-w-6xl">
+      <PageHeader
+        title="Job Categories"
+        subtitle="Manage and organize job specializations on the platform."
+      />
+      {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">{error}</div>}
+      <AdminCard title="Add new category" subtitle="Name and slug will appear in job posting.">
+        <div className="flex flex-col sm:flex-row gap-4 items-end">
+          <AdminInput
             label="Name"
             placeholder="e.g. OnlyFans Chatter"
             value={newName}
             onValueChange={setNewName}
             className="flex-1"
-            variant="bordered"
-            classNames={{
-              inputWrapper: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl",
-            }}
           />
-          <Input
+          <AdminInput
             label="Slug"
             placeholder="e.g. onlyfans-chatter"
             value={newSlug}
             onValueChange={setNewSlug}
             className="flex-1"
-            variant="bordered"
-            classNames={{
-              inputWrapper: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl",
-            }}
           />
-          <Button
-            className="bg-winga-primary text-white hover:bg-winga-primary-dark font-bold h-14 px-8 rounded-xl shadow-md sm:mt-1 hover:-translate-y-0.5 transition-transform"
-            onPress={handleCreate}
-          >
+          <AdminButton className="btn-primary-winga font-semibold h-12 px-6 rounded-xl shrink-0" onPress={handleCreate}>
             Create Category
-          </Button>
-        </CardBody>
-      </Card>
+          </AdminButton>
+        </div>
+      </AdminCard>
 
-      <Card className="border border-winga-border bg-white shadow-sm rounded-2xl">
-        <CardHeader className="px-6 pt-6 pb-2 border-b border-winga-border/50 bg-gray-50/50">
-          <h3 className="font-bold text-lg text-foreground">Existing Categories</h3>
-        </CardHeader>
-        <CardBody className="px-6 pb-6">
+      <AdminCard title="Existing categories">
           {loading ? (
             <div className="py-12 text-center text-winga-muted-foreground">Loading…</div>
           ) : (
@@ -121,56 +107,35 @@ export default function Categories() {
                       <span className="text-winga-muted-foreground font-medium">{c.sortOrder}</span>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="flat" isIconOnly aria-label="Edit" onPress={() => openEdit(c)} className="bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg">
+                      <AdminButton size="sm" variant="flat" isIconOnly aria-label="Edit" onPress={() => openEdit(c)} className="bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg">
                         <Pencil size={16} />
-                      </Button>
-                      <Button size="sm" color="danger" variant="flat" onPress={() => handleDelete(c.id)} className="rounded-lg font-medium">Delete</Button>
+                      </AdminButton>
+                      <AdminButton size="sm" variant="flat" className="text-red-600 hover:bg-red-50 rounded-lg font-medium" onPress={() => handleDelete(c.id)}>Delete</AdminButton>
                     </div>
                   </div>
                 </li>
               ))}
             </ul>
           )}
-        </CardBody>
-      </Card>
+      </AdminCard>
 
-      <Modal isOpen={editOpen} onClose={() => { setEditOpen(false); setEditing(null); }} backdrop="blur">
-        <ModalContent className="rounded-2xl shadow-2xl border border-gray-100">
-          <ModalHeader className="border-b border-gray-100 bg-gray-50/50">
-            <div className="flex flex-col gap-1">
-              <h2 className="text-xl font-bold">Edit Category</h2>
-              <p className="text-sm font-normal text-gray-500">Update category details and sorting order.</p>
-            </div>
-          </ModalHeader>
-          <ModalBody className="gap-5 py-6">
-            <Input
-              label="Name"
-              value={editName}
-              onValueChange={setEditName}
-              variant="bordered"
-              classNames={{ inputWrapper: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl" }}
-            />
-            <Input
-              label="Slug"
-              value={editSlug}
-              onValueChange={setEditSlug}
-              variant="bordered"
-              classNames={{ inputWrapper: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl" }}
-            />
-            <Input
-              label="Sort order"
-              type="number"
-              value={editSortOrder}
-              onValueChange={setEditSortOrder}
-              variant="bordered"
-              classNames={{ inputWrapper: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl" }}
-            />
-          </ModalBody>
-          <ModalFooter className="border-t border-gray-100 bg-gray-50/50">
-            <Button variant="flat" onPress={() => setEditOpen(false)} className="rounded-xl font-medium">Cancel</Button>
-            <Button className="bg-winga-primary text-white hover:bg-winga-primary-dark font-bold rounded-xl shadow-md" onPress={handleUpdate} isLoading={acting}>Save Changes</Button>
-          </ModalFooter>
-        </ModalContent>
+      <Modal
+        open={editOpen}
+        onClose={() => { setEditOpen(false); setEditing(null); }}
+        title="Edit Category"
+        description="Update category details and sorting order."
+        footer={
+          <>
+            <AdminButton variant="flat" onPress={() => setEditOpen(false)} className="rounded-xl font-medium">Cancel</AdminButton>
+            <AdminButton className="bg-winga-primary text-white hover:bg-winga-primary-dark font-bold rounded-xl shadow-md" onPress={handleUpdate} isLoading={acting}>Save Changes</AdminButton>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-5">
+          <AdminInput label="Name" value={editName} onValueChange={setEditName} />
+          <AdminInput label="Slug" value={editSlug} onValueChange={setEditSlug} />
+          <AdminInput label="Sort order" type="number" value={editSortOrder} onValueChange={setEditSortOrder} />
+        </div>
       </Modal>
     </div>
   );

@@ -10,7 +10,6 @@ import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/d
 import { Drawer, DrawerContent } from "@heroui/drawer";
 import { JobList } from "@/components/features/jobs/job-list";
 import { JobDetailPanel } from "@/components/features/jobs/job-detail-panel";
-import { dummyJobs } from "@/data/dummy-jobs";
 import { JOB_CATEGORIES } from "@/lib/constants";
 import { jobService } from "@/services/job.service";
 import { useAuth } from "@/hooks/use-auth";
@@ -33,8 +32,7 @@ export default function FindJobsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [jobs, setJobs] = useState<JobListItem[]>(dummyJobs);
-  const [useSample, setUseSample] = useState(true);
+  const [jobs, setJobs] = useState<JobListItem[]>([]);
   const [sortBy, setSortBy] = useState<typeof SORT_KEYS[number]>("newest");
   const [selectedJob, setSelectedJob] = useState<JobListItem | null>(null);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
@@ -52,16 +50,10 @@ export default function FindJobsPage() {
     jobService
       .getJobs({ keyword: searchQuery || undefined, category: selectedCategory ?? undefined, size: 50 })
       .then((res) => {
-        if (!cancelled && res?.list?.length !== undefined) {
-          setJobs(res.list.length > 0 ? res.list : dummyJobs);
-          setUseSample(res.list.length === 0);
-        }
+        if (!cancelled && res?.list !== undefined) setJobs(res.list);
       })
       .catch(() => {
-        if (!cancelled) {
-          setJobs(dummyJobs);
-          setUseSample(true);
-        }
+        if (!cancelled) setJobs([]);
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -72,7 +64,7 @@ export default function FindJobsPage() {
   }, [searchQuery, selectedCategory]);
 
   const filteredJobs = useMemo(() => {
-    let list = useSample ? [...jobs] : [...jobs];
+    let list = [...jobs];
     const q = searchQuery.trim().toLowerCase();
     if (q) {
       list = list.filter(
@@ -92,7 +84,7 @@ export default function FindJobsPage() {
     if (sortBy === "newest" && list.length > 0) list = [...list].sort((a, b) => getTime(b) - getTime(a));
     else if (sortBy === "oldest" && list.length > 0) list = [...list].sort((a, b) => getTime(a) - getTime(b));
     return list;
-  }, [jobs, searchQuery, selectedCategory, useSample, sortBy]);
+  }, [jobs, searchQuery, selectedCategory, sortBy]);
 
   return (
     <div className="min-h-screen bg-background">

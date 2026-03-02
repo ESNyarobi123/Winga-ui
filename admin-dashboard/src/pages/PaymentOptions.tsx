@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
-import { Card, CardBody, CardHeader, Button, Input, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
 import { getPaymentOptions, createPaymentOption, updatePaymentOption, deletePaymentOption, type PaymentOptionRow } from "../api/client";
 import { CreditCard, Pencil, Trash2 } from "lucide-react";
+import PageHeader from "../components/PageHeader";
+import AdminCard from "../components/AdminCard";
+import AdminButton from "../components/AdminButton";
+import Modal from "../components/Modal";
+import { AdminInput, AdminCheckbox } from "../components/FormField";
 
 export default function PaymentOptions() {
   const [list, setList] = useState<PaymentOptionRow[]>([]);
@@ -24,26 +28,18 @@ export default function PaymentOptions() {
   useEffect(() => load(), []);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Payment Options</h1>
-          <p className="text-winga-muted-foreground mt-1 text-[15px]">Manage payment methods (M-Pesa, Bank Transfer, PayPal, etc.)</p>
-        </div>
-        <Button
-          className="bg-winga-primary text-white hover:bg-winga-primary-dark font-bold shadow-md h-11 px-5 rounded-xl transition-transform hover:-translate-y-0.5"
-          startContent={<CreditCard size={18} />}
-          onPress={() => { setError(""); setCreateOpen(true); }}
-        >
-          Add Payment Option
-        </Button>
-      </div>
-      {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">{error}</p>}
-      <Card className="border border-winga-border bg-white shadow-sm rounded-2xl overflow-hidden mt-6">
-        <CardHeader className="px-6 pt-6 pb-3 border-b border-winga-border/50 bg-gray-50/50">
-          <h3 className="font-bold text-lg text-foreground">All Payment Options</h3>
-        </CardHeader>
-        <CardBody className="px-6 pb-6">
+    <div className="space-y-6 max-w-6xl">
+      <PageHeader
+        title="Payment Options"
+        subtitle="Manage payment methods (M-Pesa, Bank Transfer, PayPal, etc.)."
+        action={
+          <AdminButton className="btn-primary-winga" startContent={<CreditCard size={18} />} onPress={() => { setError(""); setCreateOpen(true); }}>
+            Add Payment Option
+          </AdminButton>
+        }
+      />
+      {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">{error}</div>}
+      <AdminCard title="All payment options">
           {loading ? (
             <div className="py-12 text-center text-winga-muted-foreground">Loading…</div>
           ) : list.length === 0 ? (
@@ -78,8 +74,8 @@ export default function PaymentOptions() {
                       </td>
                       <td className="py-4 px-6 font-medium">{o.sortOrder}</td>
                       <td className="py-4 px-6 flex gap-2">
-                        <Button size="sm" variant="flat" isIconOnly aria-label="Edit" className="bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg" onPress={() => { setSelected(o); setError(""); setEditOpen(true); }}><Pencil size={15} /></Button>
-                        <Button size="sm" variant="flat" color="danger" isIconOnly aria-label="Delete" className="rounded-lg" onPress={() => { setSelected(o); setDeleteOpen(true); }}><Trash2 size={15} /></Button>
+                        <AdminButton size="sm" variant="flat" isIconOnly aria-label="Edit" className="bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg" onPress={() => { setSelected(o); setError(""); setEditOpen(true); }}><Pencil size={15} /></AdminButton>
+                        <AdminButton size="sm" variant="flat" className="text-red-600 hover:bg-red-50 rounded-lg" isIconOnly aria-label="Delete" onPress={() => { setSelected(o); setDeleteOpen(true); }}><Trash2 size={15} /></AdminButton>
                       </td>
                     </tr>
                   ))}
@@ -87,8 +83,7 @@ export default function PaymentOptions() {
               </table>
             </div>
           )}
-        </CardBody>
-      </Card>
+      </AdminCard>
 
       <CreatePaymentOptionModal open={createOpen} onClose={() => setCreateOpen(false)} onSuccess={() => { setCreateOpen(false); load(); }} setError={setError} acting={acting} setActing={setActing} />
       {selected && <EditPaymentOptionModal option={selected} open={editOpen} onClose={() => { setEditOpen(false); setSelected(null); }} onSuccess={() => { setEditOpen(false); setSelected(null); load(); }} setError={setError} acting={acting} setActing={setActing} />}
@@ -124,29 +119,25 @@ function CreatePaymentOptionModal({ open, onClose, onSuccess, setError, acting, 
   };
 
   return (
-    <Modal isOpen={open} onClose={onClose} backdrop="blur">
-      <ModalContent className="rounded-2xl shadow-2xl border border-gray-100">
-        <ModalHeader className="border-b border-gray-100 bg-gray-50/50">
-          <div className="flex flex-col gap-1 mt-2">
-            <h2 className="text-xl font-bold">Add Payment Option</h2>
-            <p className="text-sm font-normal text-gray-500">Create a new available payment method.</p>
-          </div>
-        </ModalHeader>
-        <ModalBody className="gap-5 py-6">
-          <Input label="Name" value={name} onValueChange={setName} placeholder="e.g. M-Pesa" isRequired variant="bordered" classNames={{ inputWrapper: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl" }} />
-          <Input label="Slug" value={slug} onValueChange={setSlug} placeholder="e.g. mpesa" isRequired variant="bordered" classNames={{ inputWrapper: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl" }} />
-          <Input label="Description (optional)" value={description} onValueChange={setDescription} placeholder="Short description" variant="bordered" classNames={{ inputWrapper: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl" }} />
-          <Input label="Sort order" type="number" value={sortOrder} onValueChange={setSortOrder} variant="bordered" classNames={{ inputWrapper: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl" }} />
-          <label className="flex items-center gap-2 cursor-pointer group mt-2">
-            <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="w-5 h-5 rounded border-gray-300 text-winga-primary focus:ring-winga-primary transition-all" />
-            <span className="text-sm font-medium group-hover:text-winga-primary transition-colors">Active Method</span>
-          </label>
-        </ModalBody>
-        <ModalFooter className="border-t border-gray-100 bg-gray-50/50">
-          <Button variant="flat" onPress={onClose} className="font-medium rounded-xl">Cancel</Button>
-          <Button className="bg-winga-primary text-white hover:bg-winga-primary-dark font-bold rounded-xl shadow-md" onPress={handleSubmit} isLoading={acting}>Add Option</Button>
-        </ModalFooter>
-      </ModalContent>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Add Payment Option"
+      description="Create a new available payment method."
+      footer={
+        <>
+          <AdminButton variant="flat" onPress={onClose} className="font-medium rounded-xl">Cancel</AdminButton>
+          <AdminButton className="bg-winga-primary text-white hover:bg-winga-primary-dark font-bold rounded-xl shadow-md" onPress={handleSubmit} isLoading={acting}>Add Option</AdminButton>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-5">
+        <AdminInput label="Name" value={name} onValueChange={setName} placeholder="e.g. M-Pesa" required />
+        <AdminInput label="Slug" value={slug} onValueChange={setSlug} placeholder="e.g. mpesa" required />
+        <AdminInput label="Description (optional)" value={description} onValueChange={setDescription} placeholder="Short description" />
+        <AdminInput label="Sort order" type="number" value={sortOrder} onValueChange={setSortOrder} />
+        <AdminCheckbox label="Active method" checked={isActive} onChange={setIsActive} description="Show this option to users" />
+      </div>
     </Modal>
   );
 }
@@ -178,29 +169,25 @@ function EditPaymentOptionModal({ option, open, onClose, onSuccess, setError, ac
   };
 
   return (
-    <Modal isOpen={open} onClose={onClose} backdrop="blur">
-      <ModalContent className="rounded-2xl shadow-2xl border border-gray-100">
-        <ModalHeader className="border-b border-gray-100 bg-gray-50/50">
-          <div className="flex flex-col gap-1 mt-2">
-            <h2 className="text-xl font-bold">Edit Payment Option</h2>
-            <p className="text-sm font-normal text-gray-500">Modify existing payment method details.</p>
-          </div>
-        </ModalHeader>
-        <ModalBody className="gap-5 py-6">
-          <Input label="Name" value={name} onValueChange={setName} isRequired variant="bordered" classNames={{ inputWrapper: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl" }} />
-          <Input label="Slug" value={slug} onValueChange={setSlug} isRequired variant="bordered" classNames={{ inputWrapper: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl" }} />
-          <Input label="Description" value={description} onValueChange={setDescription} variant="bordered" classNames={{ inputWrapper: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl" }} />
-          <Input label="Sort order" type="number" value={sortOrder} onValueChange={setSortOrder} variant="bordered" classNames={{ inputWrapper: "border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-winga-primary h-14 rounded-xl" }} />
-          <label className="flex items-center gap-2 cursor-pointer group mt-2">
-            <input type="checkbox" checked={isActive} onChange={(e) => setIsActive(e.target.checked)} className="w-5 h-5 rounded border-gray-300 text-winga-primary focus:ring-winga-primary transition-all" />
-            <span className="text-sm font-medium group-hover:text-winga-primary transition-colors">Active Method</span>
-          </label>
-        </ModalBody>
-        <ModalFooter className="border-t border-gray-100 bg-gray-50/50">
-          <Button variant="flat" onPress={onClose} className="font-medium rounded-xl">Cancel</Button>
-          <Button className="bg-winga-primary text-white hover:bg-winga-primary-dark font-bold rounded-xl shadow-md" onPress={handleSubmit} isLoading={acting}>Save Changes</Button>
-        </ModalFooter>
-      </ModalContent>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Edit Payment Option"
+      description="Modify existing payment method details."
+      footer={
+        <>
+          <AdminButton variant="flat" onPress={onClose} className="font-medium rounded-xl">Cancel</AdminButton>
+          <AdminButton className="bg-winga-primary text-white hover:bg-winga-primary-dark font-bold rounded-xl shadow-md" onPress={handleSubmit} isLoading={acting}>Save Changes</AdminButton>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-5">
+        <AdminInput label="Name" value={name} onValueChange={setName} required />
+        <AdminInput label="Slug" value={slug} onValueChange={setSlug} required />
+        <AdminInput label="Description" value={description} onValueChange={setDescription} />
+        <AdminInput label="Sort order" type="number" value={sortOrder} onValueChange={setSortOrder} />
+        <AdminCheckbox label="Active method" checked={isActive} onChange={setIsActive} description="Show this option to users" />
+      </div>
     </Modal>
   );
 }
@@ -214,22 +201,19 @@ function DeletePaymentOptionModal({ option, open, onClose, onSuccess, setActing 
   };
 
   return (
-    <Modal isOpen={open} onClose={onClose} backdrop="blur">
-      <ModalContent className="rounded-2xl shadow-2xl border border-gray-100">
-        <ModalHeader className="border-b border-gray-100 bg-gray-50/50">
-          <div className="flex flex-col gap-1 mt-2">
-            <h2 className="text-xl font-bold">Delete Payment Option</h2>
-            <p className="text-sm font-normal text-gray-500">Confirm payment option deletion.</p>
-          </div>
-        </ModalHeader>
-        <ModalBody className="py-6">
-          <p className="text-foreground">Are you sure you want to delete <strong>{option.name}</strong>? This action cannot be undone.</p>
-        </ModalBody>
-        <ModalFooter className="border-t border-gray-100 bg-gray-50/50">
-          <Button variant="flat" onPress={onClose} className="font-medium rounded-xl">Cancel</Button>
-          <Button color="danger" onPress={handleConfirm} className="font-bold rounded-xl shadow-md">Confirm Delete</Button>
-        </ModalFooter>
-      </ModalContent>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Delete Payment Option"
+      description="Confirm payment option deletion."
+      footer={
+        <>
+          <AdminButton variant="flat" onPress={onClose} className="font-medium rounded-xl">Cancel</AdminButton>
+          <AdminButton variant="danger" onPress={handleConfirm} className="font-bold rounded-xl shadow-md">Confirm Delete</AdminButton>
+        </>
+      }
+    >
+      <p className="text-foreground">Are you sure you want to delete <strong>{option.name}</strong>? This action cannot be undone.</p>
     </Modal>
   );
 }

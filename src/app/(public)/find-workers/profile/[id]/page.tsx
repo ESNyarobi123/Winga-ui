@@ -2,46 +2,91 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ArrowLeft, Clock, Globe, CreditCard, Laptop, Type, Wifi, Camera } from "lucide-react";
-import { dummyWorkers } from "@/data/dummy-workers";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
+import { Skeleton } from "@heroui/skeleton";
+import { profileService } from "@/services/profile.service";
+import type { User } from "@/types";
 
 export default function WorkerProfilePage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
-    // In React 19 / Next.js 15, `params` is a Promise, so we must `use()` it.
     const resolvedParams = use(params);
-    const [worker, setWorker] = useState<any>(null);
+    const id = resolvedParams.id;
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [notFound, setNotFound] = useState(false);
 
     useEffect(() => {
-        const found = dummyWorkers.find(w => w.id === resolvedParams.id);
-        if (found) {
-            setWorker(found);
-        } else {
-            // fallback to first if not found
-            setWorker(dummyWorkers[0]);
-        }
-    }, [resolvedParams.id]);
+        if (!id) return;
+        setLoading(true);
+        setNotFound(false);
+        profileService
+            .getPublicProfile(id)
+            .then((u) => {
+                setUser(u);
+            })
+            .catch(() => {
+                setUser(null);
+                setNotFound(true);
+            })
+            .finally(() => setLoading(false));
+    }, [id]);
 
-    if (!worker) return null;
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-[#F9FAFB] pt-24 pb-20">
+                <div className="container max-w-6xl mx-auto px-4">
+                    <Skeleton className="h-8 w-32 rounded-lg mb-6" />
+                    <Skeleton className="h-48 w-full rounded-2xl mb-6" />
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                        <Skeleton className="md:col-span-4 h-64 rounded-2xl" />
+                        <Skeleton className="md:col-span-8 h-96 rounded-2xl" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (notFound || !user) {
+        return (
+            <div className="min-h-screen bg-[#F9FAFB] pt-24 pb-20 flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-gray-600 font-medium mb-4">Worker profile not found.</p>
+                    <Button as={Link} href="/find-workers" variant="flat" color="primary">Back to workers</Button>
+                </div>
+            </div>
+        );
+    }
+
+    const skillsArr = user.skills
+        ? (user.skills.includes(",") ? user.skills.split(",").map((s) => s.trim()) : [user.skills]).filter(Boolean)
+        : [];
+    const worker = {
+        id: String(user.id),
+        name: user.fullName ?? user.name ?? user.email ?? "—",
+        avatar: user.profileImageUrl ?? `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName ?? user.email ?? "U")}&background=006e42&color=fff`,
+        country: user.country ?? "—",
+        type: user.workType ?? "—",
+        bio: user.bio ?? "No bio yet.",
+        tags: skillsArr.length ? skillsArr : ["Available"],
+    };
 
     return (
         <div className="min-h-screen bg-[#F9FAFB] pt-24 pb-20">
             <div className="container max-w-6xl mx-auto px-4">
 
                 {/* Back button */}
-                <button
-                    onClick={() => router.back()}
-                    className="flex items-center text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors mb-6"
-                >
-                    <ArrowLeft className="w-4 h-4 mr-1" /> Back to workers
-                </button>
+                <Button as={Link} href="/find-workers" variant="light" size="sm" className="mb-6 -ml-2" startContent={<ArrowLeft className="w-4 h-4" />}>
+                    Back to workers
+                </Button>
 
                 {/* Top Header Card */}
                 <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                     <div className="flex items-center gap-6">
                         <img
-                            src={worker.avatar}
+                            src={worker.avatar || undefined}
                             alt={worker.name}
                             className="w-24 h-24 rounded-full object-cover border-[4px] border-white shadow-md"
                         />
@@ -81,19 +126,19 @@ export default function WorkerProfilePage({ params }: { params: Promise<{ id: st
                                     <span className="text-[13px] text-gray-500 font-semibold mb-1 flex items-center gap-1.5">
                                         <Clock className="w-[14px] h-[14px]" /> Timezone
                                     </span>
-                                    <span className="text-[14px] text-gray-900 font-bold">Africa/Nairobi (UTC+03:00)</span>
+                                    <span className="text-[14px] text-gray-900 font-bold">{user.timezone ?? "—"}</span>
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-[13px] text-gray-500 font-semibold mb-1 flex items-center gap-1.5">
                                         <Globe className="w-[14px] h-[14px]" /> Languages
                                     </span>
-                                    <span className="text-[14px] text-gray-900 font-bold">English - Fluent/Native</span>
+                                    <span className="text-[14px] text-gray-900 font-bold">{user.languages ?? "—"}</span>
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-[13px] text-gray-500 font-semibold mb-1 flex items-center gap-1.5">
                                         <CreditCard className="w-[14px] h-[14px]" /> Preferred Payment
                                     </span>
-                                    <span className="text-[14px] text-gray-900 font-bold">Any</span>
+                                    <span className="text-[14px] text-gray-900 font-bold">{user.paymentPreferences ?? "—"}</span>
                                 </div>
                             </div>
                         </div>

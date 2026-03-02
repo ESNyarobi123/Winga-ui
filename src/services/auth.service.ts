@@ -63,6 +63,12 @@ export const authService = {
     return persistAuth(data.data);
   },
 
+  /** Admin dashboard only: ADMIN / SUPER_ADMIN. Backend returns 403 for other roles. */
+  async adminLogin(email: string, password: string): Promise<{ user: User; token: string }> {
+    const { data } = await api.post<ApiResponse<AuthResponsePayload>>("/auth/admin/login", { email, password });
+    return persistAuth(data.data);
+  },
+
   async register(input: RegisterInput): Promise<{ user: User; token: string }> {
     const { data } = await api.post<ApiResponse<AuthResponsePayload>>("/auth/register", input);
     return persistAuth(data.data);

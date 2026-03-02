@@ -9,7 +9,6 @@ import { Skeleton } from "@heroui/skeleton";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 import { Pagination } from "@heroui/pagination";
 import { JobCardAdvanced } from "@/components/features/jobs/job-card-advanced";
-import { dummyJobs } from "@/data/dummy-jobs";
 import { jobService } from "@/services/job.service";
 import type { JobListItem } from "@/types";
 
@@ -35,7 +34,6 @@ export default function WorkerFindJobsPage() {
   const [sortBy, setSortBy] = useState("Newest");
   const [jobs, setJobs] = useState<JobListItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [useSample, setUseSample] = useState(false);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
   const PAGE_SIZE = 10;
@@ -52,22 +50,10 @@ export default function WorkerFindJobsPage() {
     jobService
       .getJobs({ keyword: searchQuery || undefined, category: selectedCategory ?? undefined, size: 50 })
       .then((res) => {
-        if (!cancelled) {
-          const list = res?.list ?? [];
-          if (list.length > 0) {
-            setJobs(list);
-            setUseSample(false);
-          } else {
-            setJobs(dummyJobs);
-            setUseSample(true);
-          }
-        }
+        if (!cancelled) setJobs(res?.list ?? []);
       })
       .catch(() => {
-        if (!cancelled) {
-          setJobs(dummyJobs);
-          setUseSample(true);
-        }
+        if (!cancelled) setJobs([]);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -95,28 +81,22 @@ export default function WorkerFindJobsPage() {
   }
 
   const filteredJobs = useMemo(() => {
-    let list: JobListItem[];
-    if (useSample) {
-      list = [...jobs];
-      const q = searchQuery.trim().toLowerCase();
-      if (q) {
-        list = list.filter(
-          (job) =>
-            job.title.toLowerCase().includes(q) ||
-            job.category.toLowerCase().includes(q) ||
-            job.clientName.toLowerCase().includes(q) ||
-            job.tags.some((t) => t.toLowerCase().includes(q))
-        );
-      }
-      if (selectedCategory) {
-        list = list.filter(
-          (job) => job.category.toLowerCase() === selectedCategory.toLowerCase()
-        );
-      }
-    } else {
-      list = [...jobs];
+    let list = [...jobs];
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      list = list.filter(
+        (job) =>
+          job.title.toLowerCase().includes(q) ||
+          job.category.toLowerCase().includes(q) ||
+          (job.clientName && job.clientName.toLowerCase().includes(q)) ||
+          job.tags.some((t) => t.toLowerCase().includes(q))
+      );
     }
-    // Sort by Newest / Oldest (by postedAt)
+    if (selectedCategory) {
+      list = list.filter(
+        (job) => job.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
     const getTime = (job: JobListItem) =>
       job.postedAt ? new Date(job.postedAt).getTime() : 0;
     if (sortBy === "Newest" && list.length > 0) {
@@ -125,7 +105,7 @@ export default function WorkerFindJobsPage() {
       list = [...list].sort((a, b) => getTime(a) - getTime(b));
     }
     return list;
-  }, [jobs, searchQuery, selectedCategory, useSample, sortBy]);
+  }, [jobs, searchQuery, selectedCategory, sortBy]);
 
   const paginatedJobs = useMemo(() => {
     const start = (currentPage - 1) * PAGE_SIZE;
