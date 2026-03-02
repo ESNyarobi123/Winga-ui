@@ -13,7 +13,7 @@ const workerArticles = [
         link: "#",
     },
     {
-        title: "Navigating Your First Gig on OFM Jobs",
+        title: "Navigating Your First Gig on Winga",
         summary: "A complete guide on what to expect, how to communicate with clients, and delivering great results.",
         link: "#",
     },

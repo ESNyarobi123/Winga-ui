@@ -1,32 +1,40 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { Search, Briefcase, Sparkles, Monitor, Smartphone, CreditCard, Globe, Languages, Users, ChevronDown } from "lucide-react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
+import { Drawer, DrawerContent } from "@heroui/drawer";
+import { Modal, ModalContent, ModalBody, useDisclosure } from "@heroui/modal";
 import { WorkerList } from "@/components/features/workers/worker-list";
+import { WorkerDetailPanel } from "@/components/features/workers/worker-detail-panel";
 import { dummyWorkers } from "@/data/dummy-workers";
+import { useAuth } from "@/hooks/use-auth";
 import { useT } from "@/lib/i18n";
 
 const SORT_OPTIONS = ["Newest", "Recommended", "Experience"];
 
 const FILTERS = [
-  { label: "Employment Type", icon: Briefcase },
-  { label: "Skills & Expertise", icon: Sparkles },
-  { label: "Software", icon: Monitor },
-  { label: "Social Media", icon: Smartphone },
-  { label: "Preferred Payment", icon: CreditCard },
-  { label: "Country", icon: Globe },
-  { label: "Languages", icon: Languages },
-  { label: "Gender", icon: Users },
+    { label: "Employment Type", icon: Briefcase },
+    { label: "Skills & Expertise", icon: Sparkles },
+    { label: "Software", icon: Monitor },
+    { label: "Social Media", icon: Smartphone },
+    { label: "Preferred Payment", icon: CreditCard },
+    { label: "Country", icon: Globe },
+    { label: "Languages", icon: Languages },
+    { label: "Gender", icon: Users },
 ] as const;
 
 export default function FindWorkersPage() {
     const t = useT();
+    const { user } = useAuth();
+    const { isOpen, onOpen, onClose } = useDisclosure();
     const [searchQuery, setSearchQuery] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [sortBy, setSortBy] = useState("Newest");
+    const [selectedWorker, setSelectedWorker] = useState<any | null>(null);
 
     const filteredWorkers = useMemo(() => {
         let list = [...dummyWorkers];
@@ -41,6 +49,14 @@ export default function FindWorkersPage() {
         }
         return list;
     }, [searchQuery]);
+
+    const handleActionClick = (worker: any, e: React.MouseEvent) => {
+        if (!user) {
+            onOpen();
+        } else {
+            console.log("Logged in action for:", worker);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-background">
@@ -126,7 +142,70 @@ export default function FindWorkersPage() {
                     </Dropdown>
                 </div>
 
-                <WorkerList workers={filteredWorkers} isLoading={isLoading} skeletonCount={4} />
+                <div className="flex flex-col gap-6 min-h-[480px]">
+                    <div className="flex-1 w-full max-w-[900px] mx-auto">
+                        <WorkerList
+                            workers={filteredWorkers}
+                            isLoading={isLoading}
+                            skeletonCount={4}
+                            onWorkerSelect={setSelectedWorker}
+                            onActionClick={handleActionClick}
+                        />
+                    </div>
+
+                    <Drawer
+                        isOpen={!!selectedWorker}
+                        onOpenChange={(isOpen) => {
+                            if (!isOpen) setSelectedWorker(null);
+                        }}
+                        placement="right"
+                        hideCloseButton
+                        classNames={{
+                            base: "w-full sm:max-w-[480px] bg-white rounded-l-2xl shadow-2xl overflow-hidden",
+                            body: "p-0",
+                            header: "hidden",
+                        }}
+                    >
+                        <DrawerContent>
+                            {() => (
+                                <WorkerDetailPanel
+                                    worker={selectedWorker}
+                                    onClose={() => setSelectedWorker(null)}
+                                />
+                            )}
+                        </DrawerContent>
+                    </Drawer>
+
+                    {/* Authentication Required Modal */}
+                    <Modal
+                        isOpen={isOpen}
+                        onOpenChange={(open) => !open && onClose()}
+                        placement="center"
+                        hideCloseButton={false}
+                        classNames={{
+                            base: "rounded-[24px] shadow-2xl max-w-[460px] p-2",
+                            closeButton: "top-4 right-4 focus:outline-none hover:bg-gray-100 z-10",
+                        }}
+                    >
+                        <ModalContent>
+                            <>
+                                <ModalBody className="pt-8 pb-6 px-8 gap-0">
+                                    <h2 className="text-[28px] font-extrabold text-gray-900 mb-3 text-center leading-tight">Authentication Required</h2>
+                                    <p className="text-[17px] text-gray-800 font-medium text-center mb-8">
+                                        Looking to contact a worker? Sign up to get started!
+                                    </p>
+                                    <Button
+                                        as={Link}
+                                        href={`/login?returnUrl=${encodeURIComponent("/find-workers")}`}
+                                        className="w-full bg-[#006B3E] hover:bg-[#005a35] text-white font-bold h-14 rounded-xl text-[16px] shadow-md mb-2"
+                                    >
+                                        Log In / Sign Up
+                                    </Button>
+                                </ModalBody>
+                            </>
+                        </ModalContent>
+                    </Modal>
+                </div>
             </div>
         </div>
     );

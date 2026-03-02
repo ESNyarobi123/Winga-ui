@@ -2,29 +2,40 @@
 @plugin "../../hero.cjs";
 
 /* ============================================================
-   OFM Jobs matching theme
+   Winga matching theme
    Primary: Green | Background: White | Accents: Light Gray
    ============================================================ */
 @theme {
   /* Brand palette */
-  --color-primary: #006e42;          /* OFM Jobs Green */
+  --color-primary: #006e42;
+  /* Winga Green */
   --color-primary-dark: #005c36;
-  --color-primary-light: #dfede8;    /* Selected Chip Background */
+  --color-primary-light: #dfede8;
+  /* Selected Chip Background */
 
   /* Semantic */
-  --color-background: #ffffff;       /* Main page background */
-  --color-foreground: #000000;       /* Primary text */
+  --color-background: #ffffff;
+  /* Main page background */
+  --color-foreground: #000000;
+  /* Primary text */
   --color-primary-foreground: #ffffff;
-  --color-muted: #f3f4f6;            /* Search bar and default chips */
-  --color-muted-foreground: #666666; /* Metadata */
+  --color-muted: #f3f4f6;
+  /* Search bar and default chips */
+  --color-muted-foreground: #666666;
+  /* Metadata */
   --color-card: #ffffff;
   --color-card-foreground: #000000;
-  --color-border: #f0f0f0;           /* Soft border */
-  --color-input: #e0e0e0;            /* Search input border */
+  --color-border: #f0f0f0;
+  /* Soft border */
+  --color-input: #e0e0e0;
+  /* Search input border */
   --color-ring: #006e42;
-  --radius-lg: 1rem;                 /* 16px border radius */
-  --radius-xl: 1.25rem;              /* 20px */
-  --radius-2xl: 3.125rem;            /* 50px */
+  --radius-lg: 1rem;
+  /* 16px border radius */
+  --radius-xl: 1.25rem;
+  /* 20px */
+  --radius-2xl: 3.125rem;
+  /* 50px */
 }
 
 /* Hero UI: use Winga green as primary (plugin expects these for color="primary") */
@@ -50,6 +61,7 @@
   box-shadow: 0 0 0 2px #006e42 !important;
   border-color: #006e42 !important;
 }
+
 input:focus,
 [data-slot="inputWrapper"] input:focus {
   outline: none !important;

@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { Card, CardBody, CardHeader, Button, Spinner } from "@heroui/react";
 import { getDashboardOverview } from "../api/client";
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -15,7 +15,7 @@ import {
   Cell,
   Legend,
 } from "recharts";
-import { Briefcase, FileText, TrendingUp, DollarSign, UserCheck, Shield, BarChart3 } from "lucide-react";
+import { Briefcase, FileText, TrendingUp, DollarSign, UserCheck, Shield, BarChart3, ArrowUpRight, ArrowDownRight } from "lucide-react";
 
 const COLORS = ["#006e42", "#005c36", "#99cfbb", "#f59e0b", "#64748b"];
 
@@ -63,13 +63,13 @@ export default function Dashboard() {
   if (!data) return null;
 
   const metrics = [
-    { label: "Active Jobs", value: data.activeJobs, icon: Briefcase, color: "text-winga-primary", bg: "bg-winga-primary-light" },
-    { label: "Applications (Today)", value: data.applicationsToday, icon: FileText, color: "text-winga-primary-dark", bg: "bg-primary-100" },
-    { label: "Applications (Month)", value: data.applicationsThisMonth, icon: TrendingUp, color: "text-winga-primary", bg: "bg-winga-primary-light" },
-    { label: "Hires Made", value: data.hiresMade, icon: UserCheck, color: "text-amber-700", bg: "bg-amber-100" },
-    { label: "Response Rate %", value: data.responseRatePercent.toFixed(1), icon: BarChart3, color: "text-winga-primary-dark", bg: "bg-primary-100" },
-    { label: "Revenue", value: data.revenue ?? 0, icon: DollarSign, color: "text-winga-primary", bg: "bg-winga-primary-light" },
-    { label: "Pending Moderation", value: data.pendingModerationCount, icon: Shield, color: "text-orange-600", bg: "bg-orange-100" },
+    { label: "Active Jobs", value: data.activeJobs, icon: Briefcase, color: "text-winga-primary", bg: "bg-winga-primary-light/50", trend: "+12%", up: true },
+    { label: "Applications (Today)", value: data.applicationsToday, icon: FileText, color: "text-[#005c36]", bg: "bg-[#005c36]/10", trend: "+5%", up: true },
+    { label: "Applications (Month)", value: data.applicationsThisMonth, icon: TrendingUp, color: "text-winga-primary", bg: "bg-winga-primary-light/50", trend: "+18%", up: true },
+    { label: "Hires Made", value: data.hiresMade, icon: UserCheck, color: "text-amber-600", bg: "bg-amber-100/50", trend: "+2%", up: true },
+    { label: "Response Rate", value: `${data.responseRatePercent.toFixed(1)}%`, icon: BarChart3, color: "text-[#005c36]", bg: "bg-[#005c36]/10", trend: "-1%", up: false },
+    { label: "Revenue", value: `$${data.revenue ?? 0}`, icon: DollarSign, color: "text-winga-primary", bg: "bg-winga-primary-light/50", trend: "+8%", up: true },
+    { label: "Pending Moderation", value: data.pendingModerationCount, icon: Shield, color: "text-orange-600", bg: "bg-orange-100/50", trend: "-3%", up: false },
   ];
 
   const pieData = data.topCategories.map((c, i) => ({
@@ -81,20 +81,26 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-winga-muted-foreground mt-0.5">Platform overview and real-time metrics</p>
+        <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Welcome back, Admin 👋</h1>
+        <p className="text-winga-muted-foreground mt-1 text-[15px]">Here is what's happening on your platform today.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {metrics.map(({ label, value, icon: Icon, color, bg }) => (
-          <Card key={label} className="border border-winga-border bg-white shadow-winga-card hover:shadow-winga-card-hover transition-shadow rounded-winga-lg">
-            <CardBody className="flex flex-row items-center gap-4 p-5">
-              <div className={`p-3 rounded-winga-lg ${bg} ${color}`}>
-                <Icon size={24} strokeWidth={2} />
+        {metrics.map(({ label, value, icon: Icon, color, bg, trend, up }) => (
+          <Card key={label} className="group border border-winga-border bg-white shadow-winga-card hover:shadow-lg transition-all duration-300 rounded-2xl hover:-translate-y-1">
+            <CardBody className="flex flex-col gap-3 p-5">
+              <div className="flex items-center justify-between w-full">
+                <div className={`p-3 rounded-xl ${bg} ${color} backdrop-blur-md`}>
+                  <Icon size={22} strokeWidth={2.5} className="group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <div className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${up ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                  {up ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                  {trend}
+                </div>
               </div>
-              <div>
-                <p className="text-winga-muted-foreground text-sm">{label}</p>
-                <p className="text-xl font-bold text-foreground">{value}</p>
+              <div className="mt-2">
+                <p className="text-winga-muted-foreground text-[14px] font-medium">{label}</p>
+                <p className="text-2xl font-bold text-foreground mt-1 tracking-tight">{value}</p>
               </div>
             </CardBody>
           </Card>
@@ -109,13 +115,21 @@ export default function Dashboard() {
           <CardBody className="px-6 pb-6">
             <div className="h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data.applicationsOverTime || []}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="date" stroke="#666" />
-                  <YAxis stroke="#666" />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="count" stroke="#006e42" strokeWidth={2} />
-                </LineChart>
+                <AreaChart data={data.applicationsOverTime || []}>
+                  <defs>
+                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#006e42" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#006e42" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                  <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
+                  <Tooltip
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Area type="monotone" dataKey="count" stroke="#006e42" strokeWidth={3} fillOpacity={1} fill="url(#colorCount)" />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
           </CardBody>

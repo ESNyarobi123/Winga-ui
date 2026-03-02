@@ -40,9 +40,12 @@ export default function Layout() {
   return (
     <div className="flex h-screen w-full bg-winga-muted">
       <aside className="w-64 shrink-0 border-r border-winga-border bg-white flex flex-col shadow-winga-card">
-        <div className="p-5 border-b border-winga-border">
-          <h2 className="font-bold text-lg text-winga-primary">Winga Admin</h2>
-          <p className="text-xs text-winga-muted-foreground">OFM Jobs</p>
+        <div className="p-6 border-b border-winga-border/50">
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={28} className="text-winga-primary drop-shadow-sm" strokeWidth={2.5} />
+            <h2 className="font-extrabold text-xl tracking-tight text-foreground">Winga</h2>
+          </div>
+          <p className="text-[13px] font-medium text-winga-muted-foreground mt-1 ml-1">Admin Portal</p>
         </div>
         <nav className="flex-1 p-3 space-y-0.5">
           {nav.map(({ to, label, icon: Icon }) => (
@@ -50,28 +53,50 @@ export default function Layout() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-winga-lg text-sm font-medium transition-all duration-200 ${
-                  isActive
-                    ? "bg-winga-primary text-white shadow-sm"
-                    : "text-winga-muted-foreground hover:bg-winga-primary-light hover:text-winga-primary-dark"
+                `group flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-semibold transition-all duration-300 relative ${isActive
+                  ? "bg-winga-primary/10 text-winga-primary"
+                  : "text-winga-muted-foreground hover:bg-gray-100 hover:text-foreground"
                 }`
               }
             >
-              <Icon size={20} strokeWidth={2} />
-              {label}
+              {({ isActive }) => (
+                <>
+                  {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-winga-primary rounded-r-md"></div>}
+                  <Icon size={20} strokeWidth={isActive ? 2.5 : 2} className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                  {label}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
-        <div className="p-3 border-t border-winga-border flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-winga-primary-light flex items-center justify-center text-winga-primary font-semibold text-sm">A</div>
-          <span className="flex-1 text-sm truncate text-foreground">Admin</span>
-          <Button size="sm" variant="light" isIconOnly aria-label="Logout" onPress={handleLogout} className="text-winga-muted-foreground hover:bg-winga-primary-light hover:text-winga-primary">
-            <LogOut size={18} />
+        <div className="p-4 border-t border-winga-border/50 flex items-center gap-3 bg-gray-50/50">
+          <div className="w-10 h-10 rounded-full bg-winga-primary/20 flex items-center justify-center text-winga-primary font-bold shadow-inner">A</div>
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <span className="text-sm font-bold truncate text-foreground">Admin User</span>
+            <span className="text-xs truncate text-winga-muted-foreground">admin@winga.co.tz</span>
+          </div>
+          <Button size="sm" variant="light" isIconOnly aria-label="Logout" onPress={handleLogout} className="text-winga-muted-foreground hover:bg-red-50 hover:text-red-600 transition-colors rounded-xl">
+            <LogOut size={18} strokeWidth={2.5} />
           </Button>
         </div>
       </aside>
-      <main className="flex-1 overflow-auto p-6 bg-winga-muted">
-        <Outlet />
+      <main className="flex-1 overflow-auto bg-gray-50/50 flex flex-col">
+        {/* Top Navbar */}
+        <header className="h-16 bg-white border-b border-winga-border/50 flex items-center justify-between px-6 shrink-0">
+          <div className="flex items-center gap-2 text-winga-muted-foreground">
+            {/* Can add breadcrumbs or page title here later */}
+          </div>
+          <div className="flex items-center gap-4">
+            <Button isIconOnly variant="light" className="relative text-winga-muted-foreground hover:text-foreground rounded-full">
+              <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></div>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>
+            </Button>
+          </div>
+        </header>
+
+        <div className="p-6 flex-1">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

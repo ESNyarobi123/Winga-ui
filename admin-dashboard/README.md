@@ -1,4 +1,4 @@
-# Winga Admin Dashboard (OFM Jobs)
+# Winga Admin Dashboard
 
 Admin panel for Winga — Super Admin + Employer dashboard (Hero UI).  
 Lives inside **Winga ui** so you run one workspace; backend stays on :8080, admin on :5174.

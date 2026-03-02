@@ -35,7 +35,7 @@ export default function ClientUpgradePage() {
                     One Platform. Every Hiring Tool You Need.
                 </h2>
                 <p className="text-[15px] text-[#555] max-w-[700px] mx-auto mb-10 font-medium">
-                    Take a quick tour of the OFM Jobs platform features natively built for agencies,
+                    Take a quick tour of the Winga platform features natively built for agencies,
                     talent scouts, and top talent — all on one powerful platform minus the hiring constraints.
                 </p>
 
@@ -263,13 +263,12 @@ export default function ClientUpgradePage() {
 
                 <div className="space-y-3">
                     {[
-                        "What is OFM Jobs?",
-                        "Is OFM Jobs a recruitment agency?",
-                        "How quickly will I find a hire?",
-                        "What happens if I cancel?",
-                        "What is an OFM Jobs Team member?",
-                        "How much does OFM Jobs cost?",
-                        "Can I use OFM Jobs for free?"
+                        "What is Winga?",
+                        "Is Winga a recruitment agency?",
+                        "How do I hire talent on Winga?",
+                        "What is an Winga Team member?",
+                        "How much does Winga cost?",
+                        "Can I use Winga for free?"
                     ].map((q, idx) => (
                         <div key={idx} className="bg-white border border-[#E8E8E8] rounded-2xl px-6 py-4 flex items-center justify-between cursor-pointer hover:border-[#006e42]/30 transition-colors shadow-sm">
                             <h4 className="text-[14px] font-bold text-[#111827]">{q}</h4>

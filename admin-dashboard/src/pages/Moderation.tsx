@@ -42,13 +42,13 @@ export default function Moderation() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Job moderation</h1>
-        <p className="text-winga-muted-foreground">Approve or reject jobs before they go live</p>
+        <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Job Moderation</h1>
+        <p className="text-winga-muted-foreground mt-1 text-[15px]">Review and approve or reject job postings before they go live.</p>
       </div>
       {error && <p className="text-sm text-danger">{error}</p>}
-      <Card className="border border-winga-border bg-white shadow-winga-card rounded-winga-lg">
-        <CardHeader className="px-6 pt-6">
-          <h3 className="font-semibold">Pending approval</h3>
+      <Card className="border border-winga-border bg-white shadow-sm rounded-2xl overflow-hidden">
+        <CardHeader className="px-6 pt-6 pb-3 border-b border-winga-border/50 bg-gray-50/50">
+          <h3 className="font-bold text-lg text-foreground">Pending Approval</h3>
         </CardHeader>
         <CardBody className="px-6 pb-6">
           {loading ? (
@@ -58,14 +58,17 @@ export default function Moderation() {
           ) : (
             <ul className="divide-y divide-winga-border">
               {jobs.map((job) => (
-                <li key={job.id} className="py-4 flex flex-wrap items-center justify-between gap-4 first:pt-0">
-                  <div>
-                    <p className="font-medium">{job.title}</p>
-                    <p className="text-sm text-winga-muted-foreground">{job.category} · {job.proposalCount ?? 0} applications</p>
+                <li key={job.id} className="py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-gray-50 px-6 -mx-6">
+                  <div className="flex flex-col gap-1">
+                    <p className="font-bold text-[16px] text-foreground">{job.title}</p>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-semibold bg-gray-100 px-2 py-0.5 rounded-md text-winga-muted-foreground">{job.category}</span>
+                      <span className="text-sm text-winga-muted-foreground">{job.proposalCount ?? 0} applications</span>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" className="btn-primary-winga" isLoading={acting === job.id} onPress={() => handleModerate(job.id, "APPROVED")}>Approve</Button>
-                    <Button size="sm" color="danger" variant="flat" isLoading={acting === job.id} onPress={() => handleModerate(job.id, "REJECTED")}>Reject</Button>
+                  <div className="flex gap-3">
+                    <Button size="sm" className="bg-winga-primary text-white hover:bg-winga-primary-dark font-medium shadow-sm transition-transform hover:-translate-y-0.5 rounded-lg px-4" isLoading={acting === job.id} onPress={() => handleModerate(job.id, "APPROVED")}>Approve</Button>
+                    <Button size="sm" color="danger" variant="flat" className="font-medium rounded-lg" isLoading={acting === job.id} onPress={() => handleModerate(job.id, "REJECTED")}>Reject</Button>
                   </div>
                 </li>
               ))}

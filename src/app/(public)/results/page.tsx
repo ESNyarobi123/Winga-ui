@@ -40,9 +40,9 @@ const VIDEOS = [
 ];
 
 const TESTIMONIALS = [
-    { name: "Danielle R.", role: "General Creator", quote: "OFM Jobs gave me the flexibility I needed. I can now work with clients worldwide from home and manage my own schedule.", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face" },
+    { name: "Danielle R.", role: "General Creator", quote: "Winga gave me the flexibility I needed. I can now work with clients worldwide from home and manage my own schedule.", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face" },
     { name: "Marco L.", role: "Virtual Assistant", quote: "From application to my first paycheck, the process was clear and supportive. I finally feel like I'm building a real career.", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face" },
-    { name: "Bea N.", role: "Social Media Manager", quote: "I landed my dream remote role through OFM Jobs. The team really cares about matching the right people with the right opportunities.", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" },
+    { name: "Bea N.", role: "Social Media Manager", quote: "I landed my dream remote role through Winga. The team really cares about matching the right people with the right opportunities.", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face" },
     { name: "RJ F.", role: "Graphic Designer", quote: "Working remotely for international clients has changed my life. The platform is professional and the support is always there when you need it.", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face" },
     { name: "Lenie A.", role: "Customer Support VA", quote: "I was nervous at first, but the community and resources here made everything easier. Now I have stable income and more time for my family.", avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face" },
 ];
@@ -118,14 +118,14 @@ export default function RealResultsPage() {
                 </div>
             </section>
 
-            {/* Video testimonials – "Lives Transformed Through OFM Jobs" */}
+            {/* Video testimonials – "Lives Transformed Through Winga" */}
             <section className="py-20 bg-gray-50/80">
                 <div className="container px-4 mx-auto">
                     <h2 className="text-[32px] md:text-[40px] font-bold text-primary text-center mb-6">
-                        Lives Transformed Through OFM Jobs
+                        Lives Transformed Through Winga
                     </h2>
                     <p className="text-center text-gray-600 max-w-4xl mx-auto mb-12 text-[16px] leading-relaxed">
-                        Meet the People Behind the Stories. These aren&apos;t actors or influencers—they&apos;re real members of the OFM Jobs community. From virtual
+                        Meet the People Behind the Stories. These aren&apos;t actors or influencers—they&apos;re real members of the Winga community. From virtual
                         assistants and chatters, to social media managers and operators, these are the faces of people who took a chance and landed real, remote
                         work. In their own words, they share what it was like to apply, get hired, and finally work on their own terms.
                     </p>
@@ -156,11 +156,10 @@ export default function RealResultsPage() {
                         <Button
                             size="lg"
                             radius="full"
-                            className={`min-w-[140px] font-bold text-[15px] transition-all ${
-                                activeTab === "employer"
+                            className={`min-w-[140px] font-bold text-[15px] transition-all ${activeTab === "employer"
                                     ? "bg-primary text-white shadow-md"
                                     : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 shadow-sm"
-                            }`}
+                                }`}
                             onPress={() => setActiveTab("employer")}
                         >
                             Employers
@@ -168,11 +167,10 @@ export default function RealResultsPage() {
                         <Button
                             size="lg"
                             radius="full"
-                            className={`min-w-[140px] font-bold text-[15px] transition-all ${
-                                activeTab === "worker"
+                            className={`min-w-[140px] font-bold text-[15px] transition-all ${activeTab === "worker"
                                     ? "bg-primary text-white shadow-md"
                                     : "bg-white text-gray-500 border border-gray-200 hover:bg-gray-50 shadow-sm"
-                            }`}
+                                }`}
                             onPress={() => setActiveTab("worker")}
                         >
                             Workers

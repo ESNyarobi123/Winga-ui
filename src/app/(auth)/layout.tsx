@@ -38,7 +38,7 @@ export default function AuthLayout({
           </Link>
         </div>
       </div>
-      <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:flex-none lg:w-[600px]">
+      <div className="flex-1 flex flex-col justify-center px-4 sm:px-12 lg:flex-1 bg-white">
         <div className="mx-auto w-full max-w-md">
           {children}
         </div>

@@ -5,12 +5,16 @@ interface WorkerListProps {
     workers: any[];
     isLoading: boolean;
     skeletonCount?: number;
+    onWorkerSelect?: (worker: any) => void;
+    onActionClick?: (worker: any, e: React.MouseEvent) => void;
 }
 
 export function WorkerList({
     workers,
     isLoading,
     skeletonCount = 4,
+    onWorkerSelect,
+    onActionClick,
 }: WorkerListProps) {
     if (isLoading) {
         return (
@@ -56,7 +60,12 @@ export function WorkerList({
     return (
         <div className="space-y-4 mb-20">
             {workers.map((worker) => (
-                <WorkerCard key={worker.id} {...worker} />
+                <WorkerCard
+                    key={worker.id}
+                    {...worker}
+                    onClick={() => onWorkerSelect?.(worker)}
+                    onActionClick={(e) => onActionClick?.(worker, e)}
+                />
             ))}
         </div>
     );

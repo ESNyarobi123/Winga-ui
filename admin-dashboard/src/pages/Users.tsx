@@ -167,7 +167,6 @@ export default function Users() {
           }}
           setError={setError}
           setActing={setActing}
-          acting={acting}
         />
       </Modal>
 
@@ -258,12 +257,10 @@ function CreateUserForm({
   onSuccess,
   setError,
   setActing,
-  acting,
 }: {
   onSuccess: () => void;
   setError: (s: string) => void;
   setActing: (b: boolean) => void;
-  acting: boolean;
 }) {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");

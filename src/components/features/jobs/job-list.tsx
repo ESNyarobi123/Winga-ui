@@ -11,6 +11,14 @@ type JobListProps = {
   skeletonCount?: number;
   /** Override link per job (e.g. client: /client/jobs/:id for applicants) */
   getJobHref?: (job: JobListItem) => string;
+  /** When set, clicking a job calls this instead of navigating (e.g. open right-side detail panel) */
+  onJobSelect?: (job: JobListItem) => void;
+  /** Optional: which job id is selected (for highlight) */
+  selectedJobId?: string | null;
+  /** Optional: which job ids are saved (for bookmark state) */
+  savedJobIds?: Set<string>;
+  /** Optional: callback when user toggles save on a job */
+  onSaveToggle?: (jobId: string) => void;
 };
 
 export function JobList({
@@ -18,6 +26,10 @@ export function JobList({
   isLoading = false,
   skeletonCount = 4,
   getJobHref,
+  onJobSelect,
+  selectedJobId = null,
+  savedJobIds,
+  onSaveToggle,
 }: JobListProps) {
   if (isLoading) {
     return (
@@ -43,7 +55,11 @@ export function JobList({
         <JobCardAdvanced
           key={job.id}
           {...job}
-          href={getJobHref ? getJobHref(job) : `/find-jobs/${job.id}`}
+          href={onJobSelect ? undefined : (getJobHref ? getJobHref(job) : `/find-jobs/${job.id}`)}
+          onSelect={onJobSelect}
+          selected={selectedJobId != null && String(job.id) === String(selectedJobId)}
+          saved={savedJobIds?.has(String(job.id))}
+          onSaveToggle={onSaveToggle}
         />
       ))}
     </div>

@@ -1,6 +1,7 @@
 import { getAuthHeaders } from "../hooks/useAuth";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8080";
+// Dev: empty = relative URL so Vite proxy (→ localhost:8080) is used; prod: set VITE_API_URL to full API URL
+const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
 export type ApiResponse<T> = {
   success: boolean;

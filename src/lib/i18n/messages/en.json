@@ -76,7 +76,21 @@
     "bestMatch": "Best Match",
     "noJobsFound": "No jobs found",
     "experienceLevel": "Experience level",
-    "selectCategory": "Select category"
+    "selectCategory": "Select category",
+    "jobDescription": "Job Description",
+    "wageSalary": "Wage/Salary",
+    "wage": "Wage",
+    "payoutFrequency": "Payout Frequency",
+    "paymentType": "Payment type",
+    "skillsExpertise": "Skills & Expertise",
+    "preferredGender": "Preferred Gender",
+    "socialMedia": "Social Media",
+    "languages": "Languages",
+    "apply": "Apply",
+    "loginToApply": "Please log in to apply for this job.",
+    "any": "Any",
+    "fullTime": "Full-time",
+    "backToJobs": "Back to jobs"
   },
   "bid": {
     "yourBid": "Your Bid",

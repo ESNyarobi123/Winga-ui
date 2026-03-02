@@ -97,7 +97,7 @@ export default function RegisterPage() {
             />
 
             <Checkbox isRequired classNames={{ label: "text-sm text-default-500" }}>
-              I agree to the OFM Jobs{" "}
+              I agree to the Winga{" "}
               <Link href="#" className="font-semibold text-[#006e42] hover:underline">Privacy Policy</Link>
               {" "}and{" "}
               <Link href="#" className="font-semibold text-[#006e42] hover:underline">Terms and Conditions</Link>

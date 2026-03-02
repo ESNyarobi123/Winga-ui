@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
+import { Checkbox } from "@heroui/checkbox";
 import { Skeleton } from "@heroui/skeleton";
 import { authService } from "@/services/auth.service";
 import { useUserStore } from "@/store/use-user-store";
@@ -20,6 +21,7 @@ export default function LoginPage() {
   const setUser = useUserStore((s) => s.setUser);
   const [step, setStep] = useState<Step>("EMAIL");
   const [email, setEmail] = useState("");
+  const [agreed, setAgreed] = useState(false);
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -78,41 +80,59 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full max-w-md p-6">
+    <div className="w-full max-w-[440px] p-6 mx-auto sm:p-0">
       {step === "EMAIL" && (
         <>
-          <h1 className="text-4xl font-extrabold mb-3 text-foreground">{t("auth.welcomeBack")}</h1>
-          <p className="text-default-500 text-sm mb-6 pb-2">
-            {t("auth.enterEmailToStart")}
+          <h1 className="text-[40px] font-bold mb-2 text-[#232426] leading-tight">Welcome</h1>
+          <p className="text-[#6b7280] text-[16px] mb-8">
+            Please enter your email to get started...
           </p>
 
-          <form onSubmit={handleEmailSubmit} className="space-y-5">
+          <form onSubmit={handleEmailSubmit} className="space-y-6">
             <Input
               type="email"
-              placeholder={t("auth.enterEmail")}
+              placeholder="Enter email"
               size="lg"
               value={email}
               onValueChange={setEmail}
               isRequired
               aria-label="Email"
               classNames={{
-                inputWrapper: "rounded-xl border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-[#006e42] data-[focus-visible=true]:border-[#006e42] data-[focus-visible=true]:shadow-[0_0_0_2px_#006e42]",
-                input: "text-foreground",
+                inputWrapper: "h-[52px] rounded-xl border border-gray-300 bg-white shadow-none data-[hover=true]:border-gray-400 data-[focus=true]:border-[#006e42] data-[focus-visible=true]:border-[#006e42] data-[focus-visible=true]:shadow-[0_0_0_1px_#006e42]",
+                input: "text-[#232426] text-[16px]",
               }}
             />
 
+            <div className="flex items-start gap-2 mt-4">
+              <Checkbox
+                isSelected={agreed}
+                onValueChange={setAgreed}
+                size="md"
+                color="primary"
+                classNames={{
+                  wrapper: "rounded-[4px] border-gray-300 before:border-gray-300 group-data-[selected=true]:border-[#006E42] group-data-[selected=true]:bg-[#006E42]",
+                }}
+              />
+              <span className="text-[14px] text-gray-500 leading-snug">
+                I agree to the Winga <Link href="#" className="text-[#006E42] hover:underline">Privacy Policy</Link> and <Link href="#" className="text-[#006E42] hover:underline">Terms and Conditions.</Link>
+              </span>
+            </div>
+
             {error && <p className="text-sm text-danger">{error}</p>}
-            <Button type="submit" size="lg" className="w-full font-bold rounded-xl h-12 bg-[#006e42] text-white hover:bg-[#005c36]" isLoading={loading}>
-              {loading ? t("common.sending") : t("common.submit")}
+
+            <Button
+              type="submit"
+              size="lg"
+              disabled={!email || !agreed || loading}
+              className={`w-full font-bold rounded-xl h-[52px] text-[16px] transition-colors ${(!email || !agreed)
+                ? "bg-black/10 text-white cursor-not-allowed"
+                : "bg-[#006e42] text-white hover:bg-[#005c36]"
+                }`}
+              isLoading={loading}
+            >
+              Submit
             </Button>
           </form>
-
-          <p className="mt-8 text-center text-sm text-default-500">
-            {t("auth.noAccount")}{" "}
-            <Link href="/register" className="text-[#006e42] font-semibold hover:underline">
-              {t("common.signUp")}
-            </Link>
-          </p>
         </>
       )}
 
@@ -144,7 +164,7 @@ export default function LoginPage() {
               onValueChange={setOtp}
               maxLength={6}
               classNames={{
-                inputWrapper: "rounded-xl border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-[#006e42] data-[focus-visible=true]:border-[#006e42] data-[focus-visible=true]:shadow-[0_0_0_2px_#006e42]",
+                inputWrapper: "h-[56px] rounded-xl border border-gray-300 bg-white shadow-none data-[hover=true]:border-gray-400 data-[focus=true]:border-[#006e42] data-[focus-visible=true]:border-[#006e42] data-[focus-visible=true]:shadow-[0_0_0_1px_#006e42]",
                 input: "text-center tracking-[0.4em] font-medium text-lg text-foreground",
               }}
               isRequired
@@ -152,19 +172,27 @@ export default function LoginPage() {
             />
 
             {error && <p className="text-sm text-danger">{error}</p>}
-            <Button type="submit" color="primary" size="lg" className="w-full font-semibold" isLoading={loading}>
-              {loading ? t("common.verifying") : t("auth.verifyOtp")}
+            <Button
+              type="submit"
+              size="lg"
+              className={`w-full font-bold rounded-xl h-[52px] text-[16px] transition-colors ${!otp || otp.length !== 6
+                ? "bg-black/10 text-white cursor-not-allowed"
+                : "bg-[#006e42] text-white hover:bg-[#005c36]"
+                }`}
+              isLoading={loading}
+              disabled={!otp || otp.length !== 6 || loading}
+            >
+              Verify OTP
             </Button>
 
             <Button
               type="button"
               variant="bordered"
-              color="primary"
               size="lg"
-              className="w-full font-semibold mt-2"
+              className="w-full font-bold rounded-xl h-[52px] text-[16px] mt-2 border-gray-300 text-gray-700 hover:bg-gray-50"
               onPress={() => authService.sendOtp(email)}
             >
-              {t("auth.resendOtp")}
+              Resend OTP
             </Button>
           </form>
         </div>

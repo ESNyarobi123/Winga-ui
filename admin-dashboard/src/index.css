@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Winga / OFM Jobs color combo – same as main Winga UI */
+/* Winga color combo – same as main Winga UI */
 :root {
   --winga-primary: #006e42;
   --winga-primary-dark: #005c36;
@@ -43,7 +43,10 @@ body {
 [data-slot="input"] {
   background-color: #ffffff !important;
 }
-input, select, textarea {
+
+input,
+select,
+textarea {
   background-color: #ffffff !important;
 }
 
@@ -52,10 +55,12 @@ input, select, textarea {
 .modal-content-solid * {
   box-sizing: border-box;
 }
+
 .modal-form-body,
 .modal-form-body form {
   background-color: #ffffff !important;
 }
+
 .modal-form-body [data-slot="inputWrapper"],
 .modal-form-body [data-slot="input"],
 .modal-form-body input,
@@ -71,6 +76,7 @@ input, select, textarea {
 .heroui-modal-content {
   background-color: #ffffff !important;
 }
+
 [data-slot="header"],
 [data-slot="body"],
 [data-slot="footer"],
@@ -79,12 +85,14 @@ input, select, textarea {
 .heroui-modal-content [data-slot="footer"] {
   background-color: #ffffff !important;
 }
+
 /* Force every div inside modal content to have solid bg */
 .heroui-modal-content,
 .heroui-modal-content div,
 .heroui-modal-content form {
   background-color: #ffffff !important;
 }
+
 /* Inputs inside any modal stay white */
 .heroui-modal-content [data-slot="inputWrapper"],
 .heroui-modal-content [data-slot="input"],
@@ -100,10 +108,12 @@ input, select, textarea {
   color: #ffffff !important;
   transition: background-color 0.2s, transform 0.1s;
 }
+
 .btn-primary-winga:hover {
   background-color: #005c36 !important;
   transform: translateY(-1px);
 }
+
 .btn-primary-winga:active {
   transform: translateY(0);
 }

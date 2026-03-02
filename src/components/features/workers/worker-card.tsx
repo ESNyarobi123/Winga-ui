@@ -10,6 +10,8 @@ interface WorkerCardProps {
     avatar: string;
     bio: string;
     tags: string[];
+    onClick?: () => void;
+    onActionClick?: (e: React.MouseEvent) => void;
 }
 
 export function WorkerCard({
@@ -21,9 +23,14 @@ export function WorkerCard({
     avatar,
     bio,
     tags,
+    onClick,
+    onActionClick,
 }: WorkerCardProps) {
     return (
-        <div className="bg-white rounded-2xl p-6 shadow-[0px_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0px_4px_24px_rgba(0,0,0,0.08)] transition-shadow duration-300 border border-border/50">
+        <div
+            className="bg-white rounded-2xl p-6 shadow-[0px_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0px_4px_24px_rgba(0,0,0,0.08)] transition-shadow duration-300 border border-border/50 cursor-pointer"
+            onClick={onClick}
+        >
             <div className="flex flex-col md:flex-row gap-6">
                 {/* Avatar */}
                 <div className="flex-shrink-0">
@@ -65,14 +72,24 @@ export function WorkerCard({
                     </div>
                 </div>
 
-                {/* Actions Layout like OFM */}
+                {/* Actions Layout like Winga */}
                 <div className="flex flex-col gap-3 justify-center border-t md:border-t-0 md:border-l border-border/50 pt-4 md:pt-0 md:pl-6 min-w-[180px]">
-                    <Button className="w-full bg-[#006E42] hover:bg-[#005a35] text-white rounded-full font-bold h-11 shadow-sm">
+                    <Button
+                        className="w-full bg-[#006E42] hover:bg-[#005a35] text-white rounded-full font-bold h-11 shadow-sm"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onActionClick?.(e);
+                        }}
+                    >
                         <Mail className="w-4 h-4 mr-2" /> Message
                     </Button>
                     <Button
                         variant="outline"
                         className="w-full rounded-full font-bold h-11 text-[#006E42] border-[#006E42]/20 hover:bg-[#E6F3EE] hover:text-[#006E42]"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onActionClick?.(e);
+                        }}
                     >
                         Contact Info <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>

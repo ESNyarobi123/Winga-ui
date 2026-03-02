@@ -76,7 +76,21 @@
     "bestMatch": "Vinavyolingana",
     "noJobsFound": "Hakuna kazi zilizopatikana",
     "experienceLevel": "Kiwango cha uzoefu",
-    "selectCategory": "Chagua kategoria"
+    "selectCategory": "Chagua kategoria",
+    "jobDescription": "Maelezo ya Kazi",
+    "wageSalary": "Mshahara/Malipo",
+    "wage": "Mshahara",
+    "payoutFrequency": "Mzunguko wa Malipo",
+    "paymentType": "Aina ya malipo",
+    "skillsExpertise": "Ujuzi na Utaalamu",
+    "preferredGender": "Jinsia Inayopendelea",
+    "socialMedia": "Mitandao ya Kijamii",
+    "languages": "Lugha",
+    "apply": "Omba",
+    "loginToApply": "Tafadhali ingia kwenye akaunti yako ili kuomba kazi hii.",
+    "any": "Yoyote",
+    "fullTime": "Muda kamili",
+    "backToJobs": "Rudi kwenye kazi"
   },
   "bid": {
     "yourBid": "Bid Yako",

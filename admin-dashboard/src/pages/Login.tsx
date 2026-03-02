@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Card, CardBody, CardHeader, Input } from "@heroui/react";
+import { Button, Input } from "@heroui/react";
 import { useAuth } from "../hooks/useAuth";
 import { ShieldCheck } from "lucide-react";
 
@@ -16,7 +16,8 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const apiBase = import.meta.env.VITE_API_URL || "http://localhost:8080";
+    // Dev: use relative URL so Vite proxy (→ localhost:8080) is used and CORS/NetworkError is avoided
+    const apiBase = import.meta.env.VITE_API_URL ?? "";
     try {
       const res = await fetch(`${apiBase}/api/auth/login`, {
         method: "POST",
@@ -47,80 +48,94 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left: Winga brand panel */}
-      <div className="hidden lg:flex lg:w-[42%] bg-winga-primary flex-col justify-between p-12 text-white">
-        <div>
-          <div className="flex items-center gap-2 text-white/90">
-            <ShieldCheck size={28} strokeWidth={2} />
-            <span className="font-semibold text-lg">Winga</span>
+    <div className="flex min-h-screen bg-white">
+      {/* Left Pane - Brand Pattern */}
+      <div className="hidden lg:flex lg:flex-1 relative overflow-hidden bg-[#eaf3ed] justify-center items-center flex-col">
+        {/* Decorative Circles */}
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-winga-primary/20 mix-blend-multiply"></div>
+        <div className="absolute top-[-5%] right-[-15%] w-[600px] h-[600px] rounded-full bg-winga-primary mix-blend-multiply"></div>
+        <div className="absolute bottom-[-15%] left-[-20%] w-[700px] h-[700px] rounded-full bg-[#005c36] mix-blend-multiply"></div>
+        <div className="absolute bottom-[-10%] left-[10%] w-[400px] h-[400px] rounded-full bg-winga-primary/40 mix-blend-multiply"></div>
+
+        {/* Brand Content */}
+        <div className="z-10 flex flex-col items-center justify-center text-center px-12">
+          <div className="flex items-center gap-3 text-white mb-6">
+            <ShieldCheck size={48} strokeWidth={2.5} className="drop-shadow-md" />
+            <span className="font-extrabold text-[40px] tracking-tight drop-shadow-md">Winga Admin</span>
           </div>
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold leading-tight max-w-xs">
-            Admin panel for OFM Jobs
+          <h2 className="text-[28px] font-bold text-white mb-4 max-w-md drop-shadow-sm leading-tight">
+            Command Center for Winga
           </h2>
-          <p className="mt-3 text-white/80 text-sm max-w-sm">
-            Manage jobs, users, categories, and moderation from one place.
+          <p className="text-white/90 text-[18px] max-w-sm drop-shadow-sm">
+            Manage jobs, users, categories, and moderation from one central place.
           </p>
         </div>
-        <p className="text-white/60 text-xs">Winga — OFM Jobs</p>
+
+        <p className="absolute bottom-8 text-white/70 text-sm font-medium z-10 w-full text-center">
+          © {new Date().getFullYear()} Winga — Secure Admin Portal
+        </p>
       </div>
 
       {/* Right: Form */}
-      <div className="flex-1 flex items-center justify-center bg-winga-muted p-6">
-        <Card className="w-full max-w-md border border-winga-border bg-white shadow-winga-card-hover rounded-winga-xl overflow-hidden">
-          <CardHeader className="flex flex-col gap-1 pb-0 pt-10 px-10">
-            <h1 className="text-2xl font-bold text-winga-primary">Winga Admin</h1>
-            <p className="text-winga-muted-foreground text-sm">Sign in to continue</p>
-          </CardHeader>
-          <CardBody className="p-10 pt-6">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-              <Input
-                type="email"
-                label="Email"
-                placeholder="admin@winga.co.tz"
-                value={email}
-                onValueChange={setEmail}
-                isRequired
-                autoComplete="email"
-                variant="bordered"
-                classNames={{
-                  inputWrapper: "border-winga-border hover:border-winga-primary/50 focus-within:!border-winga-primary",
-                  input: "text-foreground",
-                }}
-              />
-              <Input
-                type="password"
-                label="Password"
-                placeholder="••••••••"
-                value={password}
-                onValueChange={setPassword}
-                isRequired
-                autoComplete="current-password"
-                variant="bordered"
-                classNames={{
-                  inputWrapper: "border-winga-border hover:border-winga-primary/50 focus-within:!border-winga-primary",
-                  input: "text-foreground",
-                }}
-              />
-              {error && (
-                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
-                  {error}
-                </p>
-              )}
-              <Button
-                type="submit"
-                className="btn-primary-winga font-medium rounded-xl h-12"
-                size="lg"
-                fullWidth
-                isLoading={loading}
-              >
-                Sign in
-              </Button>
-            </form>
-          </CardBody>
-        </Card>
+      <div className="flex-1 flex flex-col justify-center px-4 sm:px-12 bg-white">
+        <div className="mx-auto w-full max-w-[440px] p-6 sm:p-0">
+          <h1 className="text-[40px] font-bold mb-2 text-[#232426] leading-tight">Welcome Back</h1>
+          <p className="text-[#6b7280] text-[16px] mb-8">
+            Sign in to access the administrator dashboard.
+          </p>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <Input
+              type="email"
+              placeholder="admin@winga.co.tz"
+              size="lg"
+              value={email}
+              onValueChange={setEmail}
+              isRequired
+              autoComplete="email"
+              aria-label="Email Address"
+              variant="bordered"
+              classNames={{
+                inputWrapper: "h-[56px] rounded-xl border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-[#006e42]",
+                input: "text-[#232426] text-[16px]",
+              }}
+            />
+            <Input
+              type="password"
+              placeholder="Password (••••••••)"
+              size="lg"
+              value={password}
+              onValueChange={setPassword}
+              isRequired
+              autoComplete="current-password"
+              aria-label="Password"
+              variant="bordered"
+              classNames={{
+                inputWrapper: "h-[56px] rounded-xl border-2 border-gray-200 bg-white shadow-sm data-[hover=true]:border-gray-300 data-[focus=true]:border-[#006e42]",
+                input: "text-[#232426] text-[16px]",
+              }}
+            />
+
+            {error && (
+              <p className="text-sm text-danger-500 font-medium">
+                {error}
+              </p>
+            )}
+
+            <Button
+              type="submit"
+              size="lg"
+              disabled={!email || !password || loading}
+              className={`w-full font-bold rounded-xl h-[56px] text-[16px] transition-colors mt-2 ${(!email || !password)
+                ? "bg-black/10 text-white cursor-not-allowed"
+                : "bg-[#006e42] text-white hover:bg-[#005c36] shadow-md"
+                }`}
+              isLoading={loading}
+            >
+              Sign In
+            </Button>
+          </form>
+        </div>
       </div>
     </div>
   );

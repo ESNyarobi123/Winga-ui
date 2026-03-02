@@ -7,7 +7,9 @@ import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
+import { Drawer, DrawerContent } from "@heroui/drawer";
 import { JobList } from "@/components/features/jobs/job-list";
+import { JobDetailPanel } from "@/components/features/jobs/job-detail-panel";
 import { dummyJobs } from "@/data/dummy-jobs";
 import { JOB_CATEGORIES } from "@/lib/constants";
 import { jobService } from "@/services/job.service";
@@ -34,6 +36,8 @@ export default function FindJobsPage() {
   const [jobs, setJobs] = useState<JobListItem[]>(dummyJobs);
   const [useSample, setUseSample] = useState(true);
   const [sortBy, setSortBy] = useState<typeof SORT_KEYS[number]>("newest");
+  const [selectedJob, setSelectedJob] = useState<JobListItem | null>(null);
+  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (user?.role === "FREELANCER") {
@@ -154,11 +158,10 @@ export default function FindJobsPage() {
                 key={cat.name}
                 variant="bordered"
                 size="md"
-                className={`cursor-pointer font-semibold text-[14px] transition-all rounded-xl min-h-[44px] px-4 ${
-                  isSelected
+                className={`cursor-pointer font-semibold text-[14px] transition-all rounded-xl min-h-[44px] px-4 ${isSelected
                     ? "bg-primary-50 text-primary border-primary/50 shadow-sm border"
                     : "bg-white text-gray-800 border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm border"
-                }`}
+                  }`}
                 startContent={<span className="text-base">{cat.icon}</span>}
                 onClose={isSelected ? () => setSelectedCategory(null) : undefined}
                 onClick={() => setSelectedCategory(isSelected ? null : cat.name)}
@@ -198,7 +201,61 @@ export default function FindJobsPage() {
           </Dropdown>
         </div>
 
-        <JobList jobs={filteredJobs} isLoading={isLoading} skeletonCount={4} />
+        {/* List of jobs + Details Drawer */}
+        <div className="flex flex-col gap-6 min-h-[480px]">
+          <div className="flex-1 w-full max-w-[900px] mx-auto">
+            <JobList
+              jobs={filteredJobs}
+              isLoading={isLoading}
+              skeletonCount={4}
+              onJobSelect={(job) => setSelectedJob(job)}
+              selectedJobId={selectedJob?.id ?? null}
+              savedJobIds={savedJobIds}
+              onSaveToggle={(jobId) => {
+                setSavedJobIds((prev) => {
+                  const next = new Set(prev);
+                  if (next.has(jobId)) next.delete(jobId);
+                  else next.add(jobId);
+                  return next;
+                });
+              }}
+            />
+          </div>
+
+          <Drawer
+            isOpen={!!selectedJob}
+            onOpenChange={(isOpen) => {
+              if (!isOpen) setSelectedJob(null);
+            }}
+            placement="right"
+            hideCloseButton
+            classNames={{
+              base: "w-full sm:max-w-[480px] bg-white rounded-l-2xl shadow-2xl overflow-hidden",
+              body: "p-0",
+              header: "hidden",
+            }}
+          >
+            <DrawerContent>
+              {() => (
+                <JobDetailPanel
+                  job={selectedJob}
+                  onClose={() => setSelectedJob(null)}
+                  onApply={() => { }}
+                  isLoggedIn={!!user}
+                  saved={savedJobIds.has(String(selectedJob?.id))}
+                  onSaveToggle={(jobId) => {
+                    setSavedJobIds((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(jobId)) next.delete(jobId);
+                      else next.add(jobId);
+                      return next;
+                    });
+                  }}
+                />
+              )}
+            </DrawerContent>
+          </Drawer>
+        </div>
       </div>
     </div>
   );

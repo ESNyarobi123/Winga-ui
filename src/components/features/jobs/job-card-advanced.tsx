@@ -5,8 +5,12 @@ import { Bookmark, BookmarkCheck, CheckCircle } from "lucide-react";
 import type { JobListItem } from "@/types";
 
 type JobCardAdvancedProps = JobListItem & {
-  /** Optional: show as link wrapper */
+  /** Optional: show as link wrapper. If onSelect is set, navigation is disabled and card is clickable in-place. */
   href?: string;
+  /** When set, clicking the card calls this instead of navigating (e.g. open right-side detail panel). */
+  onSelect?: (job: JobListItem) => void;
+  /** When true, show as selected (e.g. border highlight when detail panel is open). */
+  selected?: boolean;
   /** Whether this job is saved by the current user */
   saved?: boolean;
   /** Called when user clicks bookmark (save/unsave). If not set, bookmark click does nothing. */
@@ -24,16 +28,21 @@ export function JobCardAdvanced({
   postedAt,
   isVerified,
   href,
+  onSelect,
+  selected = false,
   saved = false,
   onSaveToggle,
+  ...restJob
 }: JobCardAdvancedProps) {
   const to = href ?? `/find-jobs/${id}`;
   const jobId = String(id);
   const showBudgetOnly = /monthly|weekly|hourly/i.test(budget);
+  const job: JobListItem = { id, title, category, tags, budget, budgetType, clientName, postedAt, isVerified, ...restJob };
 
-  return (
-    <Link href={to} className="block group mb-4">
-      <div className="relative bg-white p-6 rounded-[20px] border border-[#E0E0E0] shadow-sm hover:border-primary/50 transition-colors cursor-pointer flex justify-between items-start gap-4">
+  const content = (
+      <div className={`relative bg-white p-6 rounded-[20px] border shadow-sm transition-colors cursor-pointer flex justify-between items-start gap-4 ${
+        selected ? "border-primary ring-2 ring-primary/20" : "border-[#E0E0E0] hover:border-primary/50"
+      }`}>
 
         {/* Left Side: Information Stack */}
         <div className="flex flex-col gap-1.5 flex-1 min-w-0">
@@ -99,6 +108,21 @@ export function JobCardAdvanced({
           </button>
         </div>
       </div>
-    </Link>
   );
+
+  if (onSelect) {
+    return (
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => onSelect(job)}
+        onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onSelect(job)}
+        className="block group mb-4 cursor-pointer"
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return <Link href={to} className="block group mb-4">{content}</Link>;
 }
