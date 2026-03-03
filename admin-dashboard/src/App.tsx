@@ -8,8 +8,10 @@ import Applications from "./pages/Applications";
 import Contracts from "./pages/Contracts";
 import Users from "./pages/Users";
 import Categories from "./pages/Categories";
+import FilterOptions from "./pages/FilterOptions";
 import PaymentOptions from "./pages/PaymentOptions";
 import SubscriptionPlans from "./pages/SubscriptionPlans";
+import QualificationTests from "./pages/QualificationTests";
 import Disputes from "./pages/Disputes";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
@@ -55,8 +57,10 @@ export default function App() {
           <Route path="contracts" element={<Contracts />} />
           <Route path="users" element={<Users />} />
           <Route path="categories" element={<Categories />} />
+          <Route path="filter-options" element={<FilterOptions />} />
           <Route path="payment-options" element={<PaymentOptions />} />
           <Route path="subscription-plans" element={<SubscriptionPlans />} />
+          <Route path="qualification-tests" element={<QualificationTests />} />
           <Route path="disputes" element={<Disputes />} />
           <Route path="settings" element={<Settings />} />
         </Route>

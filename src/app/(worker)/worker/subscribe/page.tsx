@@ -65,13 +65,10 @@ export default function WorkerSubscribePage() {
                     Valid for {plan.durationDays} days
                   </li>
                 </ul>
-                <Button
-                  as={Link}
-                  href="/worker/find-jobs"
-                  variant="outline"
-                  className="w-full font-semibold rounded-xl"
-                >
-                  {t("subscription.subscribe")}
+                <Button variant="outline" className="w-full font-semibold rounded-xl">
+                  <Link href="/worker/find-jobs" className="flex items-center justify-center w-full h-full">
+                    {t("subscription.subscribe")}
+                  </Link>
                 </Button>
                 <p className="text-xs text-muted-foreground mt-2 text-center">
                   Payment via M-Pesa / Tigo / Airtel coming soon.

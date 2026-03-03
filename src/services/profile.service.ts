@@ -67,6 +67,22 @@ export interface RatingSummary {
   reviewCount: number;
 }
 
+/** Backend WorkerTestResultResponse (completed tests for profile) */
+export interface CompletedTestItem {
+  testId: number;
+  testName: string;
+  testSlug: string;
+  testType: string;
+  minScore: number;
+  maxScore: number;
+  maxAttempts: number;
+  attemptsCount: number;
+  bestScore: number | null;
+  status: string;
+  completedAt: string | null;
+  addedToProfile: boolean;
+}
+
 /** Backend ReviewResponse */
 export interface ReviewItem {
   id: number;
@@ -122,6 +138,18 @@ export const profileService = {
   async getRatingSummary(userId: string | number): Promise<RatingSummary> {
     const { data } = await api.get<ApiResponse<RatingSummary>>(`/users/${userId}/rating`);
     return data.data;
+  },
+
+  /** GET /users/:id/completed-tests — qualification tests completed by this user (for profile) */
+  async getCompletedTests(userId: string | number): Promise<CompletedTestItem[]> {
+    const { data } = await api.get<ApiResponse<CompletedTestItem[]>>(`/users/${userId}/completed-tests`);
+    return data.data ?? [];
+  },
+
+  /** GET /users/:id/experiences — work experiences (public profile) */
+  async getExperiencesForUser(userId: string | number): Promise<WorkExperienceItem[]> {
+    const { data } = await api.get<ApiResponse<WorkExperienceItem[]>>(`/users/${userId}/experiences`);
+    return data.data ?? [];
   },
 
   /** GET /users/me/profile-checklist — worker: completeness % and missing required fields */

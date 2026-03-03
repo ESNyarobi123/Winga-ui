@@ -15,12 +15,12 @@ import { useAuth } from "@/hooks/use-auth";
 import { useT } from "@/lib/i18n";
 import type { JobListItem } from "@/types";
 
-const FILTERS = [
-  { label: "Employment Type", icon: Briefcase },
-  { label: "Social Media", icon: Smartphone },
-  { label: "Software", icon: Laptop },
-  { label: "Languages", icon: Globe },
-] as const;
+type FilterOptions = {
+  employmentTypes: { id: number; name: string; slug: string }[];
+  socialMedia: { id: number; name: string; slug: string }[];
+  software: { id: number; name: string; slug: string }[];
+  languages: { id: number; name: string; slug: string }[];
+};
 
 const SORT_KEYS = ["newest", "oldest", "bestMatch"] as const;
 
@@ -36,6 +36,16 @@ export default function FindJobsPage() {
   const [selectedJob, setSelectedJob] = useState<JobListItem | null>(null);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
   const [categories, setCategories] = useState<string[]>([]);
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    employmentTypes: [],
+    socialMedia: [],
+    software: [],
+    languages: [],
+  });
+  const [selectedEmploymentType, setSelectedEmploymentType] = useState<string | null>(null);
+  const [selectedSocialMedia, setSelectedSocialMedia] = useState<string | null>(null);
+  const [selectedSoftware, setSelectedSoftware] = useState<string | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.role === "FREELANCER") {
@@ -49,17 +59,29 @@ export default function FindJobsPage() {
   }, []);
 
   useEffect(() => {
+    jobService.getFilterOptions().then(setFilterOptions).catch(() => { });
+  }, []);
+
+  useEffect(() => {
     if (!user) return;
     jobService.getSavedJobs({ size: 200 }).then((res) => {
       setSavedJobIds(new Set((res?.list ?? []).map((j) => String(j.id))));
-    }).catch(() => {});
+    }).catch(() => { });
   }, [user]);
 
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
     jobService
-      .getJobs({ keyword: searchQuery.trim() || undefined, category: selectedCategory ?? undefined, size: 50 })
+      .getJobs({
+        keyword: searchQuery.trim() || undefined,
+        category: selectedCategory ?? undefined,
+        employmentType: selectedEmploymentType ?? undefined,
+        socialMedia: selectedSocialMedia ?? undefined,
+        software: selectedSoftware ?? undefined,
+        language: selectedLanguage ?? undefined,
+        size: 50,
+      })
       .then((res) => {
         if (!cancelled && res?.list !== undefined) setJobs(res.list);
       })
@@ -72,7 +94,7 @@ export default function FindJobsPage() {
     return () => {
       cancelled = true;
     };
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, selectedEmploymentType, selectedSocialMedia, selectedSoftware, selectedLanguage]);
 
   const filteredJobs = useMemo(() => {
     const list = [...jobs];
@@ -122,24 +144,93 @@ export default function FindJobsPage() {
       </section>
 
       <div className="max-w-[1000px] mx-auto px-4 py-10">
-        {/* Top row: dropdown filters – neutral, rounded, subtle border, icon + chevron */}
+        {/* Top row: dropdown filters — fetched from API (GET /jobs/filter-options) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {FILTERS.map(({ label, icon: Icon }) => (
-            <Button
-              key={label}
-              variant="bordered"
-              className="justify-between h-[52px] px-4 rounded-xl bg-white border border-gray-200 text-gray-800 font-semibold text-[14px] hover:bg-gray-50 hover:border-gray-300 shadow-sm min-w-0"
-              startContent={<Icon className="w-[18px] h-[18px] text-gray-600 shrink-0" strokeWidth={2} />}
-              endContent={<ChevronDown className="w-4 h-4 text-gray-400 shrink-0" strokeWidth={2} />}
-            >
-              <span className="truncate">{label}</span>
-            </Button>
-          ))}
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                variant="bordered"
+                className="w-full justify-between h-[52px] px-4 rounded-xl bg-white border border-gray-200 text-gray-800 font-semibold text-[14px] hover:bg-gray-50 hover:border-gray-300 shadow-sm min-w-0"
+                endContent={<ChevronDown className="w-4 h-4 text-gray-400 shrink-0" strokeWidth={2} />}
+              >
+                <span className="flex items-center gap-2 min-w-0 truncate">
+                  <Briefcase className="w-[18px] h-[18px] text-gray-600 shrink-0" strokeWidth={2} />
+                  <span className="truncate">{selectedEmploymentType ? filterOptions.employmentTypes.find((o) => o.slug === selectedEmploymentType)?.name ?? selectedEmploymentType : "Employment Type"}</span>
+                </span>
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Employment type" selectedKeys={selectedEmploymentType ? [selectedEmploymentType] : ["__any__"]} selectionMode="single" onSelectionChange={(keys) => { const k = Array.from(keys)[0] as string; setSelectedEmploymentType(k === "__any__" || !k ? null : k); }}>
+              {[
+                <DropdownItem key="__any__" textValue="Any">Any</DropdownItem>,
+                ...filterOptions.employmentTypes.map((o) => (<DropdownItem key={o.slug} textValue={o.name}>{o.name}</DropdownItem>))
+              ] as any}
+            </DropdownMenu>
+          </Dropdown>
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                variant="bordered"
+                className="w-full justify-between h-[52px] px-4 rounded-xl bg-white border border-gray-200 text-gray-800 font-semibold text-[14px] hover:bg-gray-50 hover:border-gray-300 shadow-sm min-w-0"
+                endContent={<ChevronDown className="w-4 h-4 text-gray-400 shrink-0" strokeWidth={2} />}
+              >
+                <span className="flex items-center gap-2 min-w-0 truncate">
+                  <Smartphone className="w-[18px] h-[18px] text-gray-600 shrink-0" strokeWidth={2} />
+                  <span className="truncate">{selectedSocialMedia ? filterOptions.socialMedia.find((o) => o.slug === selectedSocialMedia)?.name ?? selectedSocialMedia : "Social Media"}</span>
+                </span>
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Social media" selectedKeys={selectedSocialMedia ? [selectedSocialMedia] : ["__any__"]} selectionMode="single" onSelectionChange={(keys) => { const k = Array.from(keys)[0] as string; setSelectedSocialMedia(k === "__any__" || !k ? null : k); }}>
+              {[
+                <DropdownItem key="__any__" textValue="Any">Any</DropdownItem>,
+                ...filterOptions.socialMedia.map((o) => (<DropdownItem key={o.slug} textValue={o.name}>{o.name}</DropdownItem>))
+              ] as any}
+            </DropdownMenu>
+          </Dropdown>
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                variant="bordered"
+                className="w-full justify-between h-[52px] px-4 rounded-xl bg-white border border-gray-200 text-gray-800 font-semibold text-[14px] hover:bg-gray-50 hover:border-gray-300 shadow-sm min-w-0"
+                endContent={<ChevronDown className="w-4 h-4 text-gray-400 shrink-0" strokeWidth={2} />}
+              >
+                <span className="flex items-center gap-2 min-w-0 truncate">
+                  <Laptop className="w-[18px] h-[18px] text-gray-600 shrink-0" strokeWidth={2} />
+                  <span className="truncate">{selectedSoftware ? filterOptions.software.find((o) => o.slug === selectedSoftware)?.name ?? selectedSoftware : "Software"}</span>
+                </span>
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Software" selectedKeys={selectedSoftware ? [selectedSoftware] : ["__any__"]} selectionMode="single" onSelectionChange={(keys) => { const k = Array.from(keys)[0] as string; setSelectedSoftware(k === "__any__" || !k ? null : k); }}>
+              {[
+                <DropdownItem key="__any__" textValue="Any">Any</DropdownItem>,
+                ...filterOptions.software.map((o) => (<DropdownItem key={o.slug} textValue={o.name}>{o.name}</DropdownItem>))
+              ] as any}
+            </DropdownMenu>
+          </Dropdown>
+          <Dropdown>
+            <DropdownTrigger>
+              <Button
+                variant="bordered"
+                className="w-full justify-between h-[52px] px-4 rounded-xl bg-white border border-gray-200 text-gray-800 font-semibold text-[14px] hover:bg-gray-50 hover:border-gray-300 shadow-sm min-w-0"
+                endContent={<ChevronDown className="w-4 h-4 text-gray-400 shrink-0" strokeWidth={2} />}
+              >
+                <span className="flex items-center gap-2 min-w-0 truncate">
+                  <Globe className="w-[18px] h-[18px] text-gray-600 shrink-0" strokeWidth={2} />
+                  <span className="truncate">{selectedLanguage ? filterOptions.languages.find((o) => o.slug === selectedLanguage)?.name ?? selectedLanguage : "Languages"}</span>
+                </span>
+              </Button>
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Languages" selectedKeys={selectedLanguage ? [selectedLanguage] : ["__any__"]} selectionMode="single" onSelectionChange={(keys) => { const k = Array.from(keys)[0] as string; setSelectedLanguage(k === "__any__" || !k ? null : k); }}>
+              {[
+                <DropdownItem key="__any__" textValue="Any">Any</DropdownItem>,
+                ...filterOptions.languages.map((o) => (<DropdownItem key={o.slug} textValue={o.name}>{o.name}</DropdownItem>))
+              ] as any}
+            </DropdownMenu>
+          </Dropdown>
         </div>
 
-        {/* Category tags – from API (admin-managed), rounded pills */}
+        {/* Category tags – from API GET /jobs/categories (admin-managed) */}
         <div className="flex flex-wrap items-center gap-3 mb-10">
-          {categories.length > 0 && categories.map((catName) => {
+          {categories.map((catName) => {
             const isSelected = selectedCategory === catName;
             return (
               <Chip
@@ -147,8 +238,8 @@ export default function FindJobsPage() {
                 variant="bordered"
                 size="md"
                 className={`cursor-pointer font-semibold text-[14px] transition-all rounded-xl min-h-[44px] px-4 ${isSelected
-                    ? "bg-primary-50 text-primary border-primary/50 shadow-sm border"
-                    : "bg-white text-gray-800 border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm border"
+                  ? "bg-primary-50 text-primary border-primary/50 shadow-sm border"
+                  : "bg-white text-gray-800 border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm border"
                   }`}
                 startContent={<span className="text-base">🛠</span>}
                 onClose={isSelected ? () => setSelectedCategory(null) : undefined}
@@ -158,6 +249,7 @@ export default function FindJobsPage() {
               </Chip>
             );
           })}
+          {categories.length === 0 && <span className="text-sm text-gray-500">Loading categories…</span>}
         </div>
 
         {/* Sort – same neutral style */}
@@ -203,10 +295,10 @@ export default function FindJobsPage() {
                 if (!user) return;
                 const saved = savedJobIds.has(jobId);
                 if (saved) {
-                  jobService.unsaveJob(jobId).catch(() => {});
+                  jobService.unsaveJob(jobId).catch(() => { });
                   setSavedJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
                 } else {
-                  jobService.saveJob(jobId).catch(() => {});
+                  jobService.saveJob(jobId).catch(() => { });
                   setSavedJobIds((prev) => new Set(prev).add(jobId));
                 }
               }}
@@ -238,10 +330,10 @@ export default function FindJobsPage() {
                     if (!user) return;
                     const saved = savedJobIds.has(jobId);
                     if (saved) {
-                      jobService.unsaveJob(jobId).catch(() => {});
+                      jobService.unsaveJob(jobId).catch(() => { });
                       setSavedJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
                     } else {
-                      jobService.saveJob(jobId).catch(() => {});
+                      jobService.saveJob(jobId).catch(() => { });
                       setSavedJobIds((prev) => new Set(prev).add(jobId));
                     }
                   }}

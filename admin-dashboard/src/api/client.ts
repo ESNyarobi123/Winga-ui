@@ -369,6 +369,77 @@ export async function deleteSubscriptionPlan(id: number) {
   return api(`/admin/subscription-plans/${id}`, { method: "DELETE" });
 }
 
+// ─── Qualification tests (worker tests: min/max score, status; completed → profile) ─
+export type QualificationTestRow = {
+  id: number;
+  name: string;
+  slug: string;
+  testType: string;
+  minScore: number;
+  maxScore: number;
+  maxAttempts: number;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt?: string;
+};
+
+export async function getQualificationTests() {
+  return api<QualificationTestRow[]>("/admin/qualification-tests");
+}
+
+export async function createQualificationTest(body: {
+  name: string;
+  slug: string;
+  testType: string;
+  minScore: number;
+  maxScore: number;
+  maxAttempts: number;
+  isActive?: boolean;
+  sortOrder?: number;
+}) {
+  return api<QualificationTestRow>("/admin/qualification-tests", { method: "POST", body: JSON.stringify(body) });
+}
+
+export async function updateQualificationTest(
+  id: number,
+  body: Partial<{ name: string; slug: string; testType: string; minScore: number; maxScore: number; maxAttempts: number; isActive: boolean; sortOrder: number }>
+) {
+  return api<QualificationTestRow>(`/admin/qualification-tests/${id}`, { method: "PUT", body: JSON.stringify(body) });
+}
+
+export async function deleteQualificationTest(id: number) {
+  return api(`/admin/qualification-tests/${id}`, { method: "DELETE" });
+}
+
+// ─── Filter options (Employment Type, Social Media, Software, Languages) ─────
+export const FILTER_OPTION_TYPES = ["EMPLOYMENT_TYPE", "SOCIAL_MEDIA", "SOFTWARE", "LANGUAGE"] as const;
+export type FilterOptionType = (typeof FILTER_OPTION_TYPES)[number];
+
+export type FilterOptionRow = {
+  id: number;
+  type?: string;
+  name: string;
+  slug: string;
+  sortOrder?: number;
+  createdAt?: string;
+};
+
+export async function getFilterOptions(type: FilterOptionType) {
+  return api<FilterOptionRow[]>(`/admin/filter-options?type=${type}`);
+}
+
+export async function createFilterOption(body: { type: FilterOptionType; name: string; slug: string; sortOrder?: number }) {
+  return api<FilterOptionRow>("/admin/filter-options", { method: "POST", body: JSON.stringify(body) });
+}
+
+export async function updateFilterOption(id: number, body: { type: FilterOptionType; name: string; slug: string; sortOrder?: number }) {
+  return api<FilterOptionRow>(`/admin/filter-options/${id}`, { method: "PUT", body: JSON.stringify(body) });
+}
+
+export async function deleteFilterOption(id: number) {
+  return api(`/admin/filter-options/${id}`, { method: "DELETE" });
+}
+
 export async function getDisputes(page = 0, size = 20) {
   return api<{ content: unknown[] }>(`/admin/disputes?page=${page}&size=${size}`);
 }

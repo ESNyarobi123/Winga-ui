@@ -1,7 +1,30 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { Search, Briefcase, Smartphone, Laptop, Globe, ChevronDown } from "lucide-react";
+import {
+    Search,
+    Briefcase,
+    FileText,
+    Code,
+    Globe,
+    ChevronDown,
+    Smartphone,
+    Laptop,
+    Wrench,
+    MessageCircle,
+    PenLine,
+    Palette,
+    Rocket,
+    Film,
+    TrendingUp,
+    Target,
+    DollarSign,
+    Lightbulb,
+    Keyboard,
+    Headphones,
+    MoreHorizontal,
+    type LucideIcon,
+} from "lucide-react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Chip } from "@heroui/chip";
@@ -14,109 +37,131 @@ import type { JobListItem } from "@/types";
 
 const SORT_OPTIONS = ["Newest", "Oldest", "Best Match"] as const;
 
+/** Icon per category (like in the reference image: Chatting=speech, Copywriting=pen, etc.) */
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+    General: Wrench,
+    Chatting: MessageCircle,
+    Copywriting: PenLine,
+    "Graphic Design": Palette,
+    Development: Rocket,
+    Editing: Film,
+    Marketing: TrendingUp,
+    Recruitment: Target,
+    Sales: Briefcase,
+    AI: Lightbulb,
+    Finance: DollarSign,
+    "Data Entry": Keyboard,
+    "IT Support": Headphones,
+    Uandishi: FileText,
+    Other: MoreHorizontal,
+};
+function getCategoryIcon(name: string): LucideIcon {
+    return CATEGORY_ICONS[name] ?? Wrench;
+}
+
 type FilterOptions = {
-  employmentTypes: { id: number; name: string; slug: string }[];
-  socialMedia: { id: number; name: string; slug: string }[];
-  software: { id: number; name: string; slug: string }[];
-  languages: { id: number; name: string; slug: string }[];
+    employmentTypes: { id: number; name: string; slug: string }[];
+    socialMedia: { id: number; name: string; slug: string }[];
+    software: { id: number; name: string; slug: string }[];
+    languages: { id: number; name: string; slug: string }[];
 };
 
 export default function WorkerFindJobsPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState("Newest");
-  const [jobs, setJobs] = useState<JobListItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
-  const [currentPage, setCurrentPage] = useState(1);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
-    employmentTypes: [],
-    socialMedia: [],
-    software: [],
-    languages: [],
-  });
-  const [selectedEmploymentType, setSelectedEmploymentType] = useState<string | null>(null);
-  const [selectedSocialMedia, setSelectedSocialMedia] = useState<string | null>(null);
-  const [selectedSoftware, setSelectedSoftware] = useState<string | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
-  const PAGE_SIZE = 10;
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [sortBy, setSortBy] = useState("Newest");
+    const [jobs, setJobs] = useState<JobListItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
+    const [currentPage, setCurrentPage] = useState(1);
+    const [categories, setCategories] = useState<string[]>([]);
+    const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+        employmentTypes: [],
+        socialMedia: [],
+        software: [],
+        languages: [],
+    });
+    const [selectedEmploymentType, setSelectedEmploymentType] = useState<string | null>(null);
+    const [selectedSocialMedia, setSelectedSocialMedia] = useState<string | null>(null);
+    const [selectedSoftware, setSelectedSoftware] = useState<string | null>(null);
+    const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+    const PAGE_SIZE = 10;
 
-  useEffect(() => {
-    jobService.getCategories().then(setCategories).catch(() => setCategories([]));
-  }, []);
+    useEffect(() => {
+        jobService.getCategories().then(setCategories).catch(() => setCategories([]));
+    }, []);
 
-  useEffect(() => {
-    jobService.getFilterOptions().then(setFilterOptions).catch(() => {});
-  }, []);
+    useEffect(() => {
+        jobService.getFilterOptions().then(setFilterOptions).catch(() => { });
+    }, []);
 
-  useEffect(() => {
-    jobService.getSavedJobs({ size: 200 }).then((res) => {
-      setSavedJobIds(new Set(res.list.map((j) => String(j.id))));
-    }).catch(() => {});
-  }, []);
+    useEffect(() => {
+        jobService.getSavedJobs({ size: 200 }).then((res) => {
+            setSavedJobIds(new Set(res.list.map((j) => String(j.id))));
+        }).catch(() => { });
+    }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    jobService
-      .getJobs({
-        keyword: searchQuery || undefined,
-        category: selectedCategory ?? undefined,
-        employmentType: selectedEmploymentType ?? undefined,
-        socialMedia: selectedSocialMedia ?? undefined,
-        software: selectedSoftware ?? undefined,
-        language: selectedLanguage ?? undefined,
-        size: 50,
-      })
-      .then((res) => {
-        if (!cancelled) setJobs(res?.list ?? []);
-      })
-      .catch(() => {
-        if (!cancelled) setJobs([]);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [searchQuery, selectedCategory, selectedEmploymentType, selectedSocialMedia, selectedSoftware, selectedLanguage]);
+    useEffect(() => {
+        let cancelled = false;
+        setLoading(true);
+        jobService
+            .getJobs({
+                keyword: searchQuery || undefined,
+                category: selectedCategory ?? undefined,
+                employmentType: selectedEmploymentType ?? undefined,
+                socialMedia: selectedSocialMedia ?? undefined,
+                software: selectedSoftware ?? undefined,
+                language: selectedLanguage ?? undefined,
+                size: 50,
+            })
+            .then((res) => {
+                if (!cancelled) setJobs(res?.list ?? []);
+            })
+            .catch(() => {
+                if (!cancelled) setJobs([]);
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [searchQuery, selectedCategory, selectedEmploymentType, selectedSocialMedia, selectedSoftware, selectedLanguage]);
 
-  function handleSaveToggle(jobId: string) {
-    const saved = savedJobIds.has(jobId);
-    if (saved) {
-      jobService.unsaveJob(jobId).then(() => {
-        setSavedJobIds((prev) => {
-          const next = new Set(prev);
-          next.delete(jobId);
-          return next;
-        });
-      }).catch(() => {});
-    } else {
-      jobService.saveJob(jobId).then(() => {
-        setSavedJobIds((prev) => new Set(prev).add(jobId));
-      }).catch(() => {});
+    function handleSaveToggle(jobId: string) {
+        const saved = savedJobIds.has(jobId);
+        if (saved) {
+            jobService.unsaveJob(jobId).then(() => {
+                setSavedJobIds((prev) => {
+                    const next = new Set(prev);
+                    next.delete(jobId);
+                    return next;
+                });
+            }).catch(() => { });
+        } else {
+            jobService.saveJob(jobId).then(() => {
+                setSavedJobIds((prev) => new Set(prev).add(jobId));
+            }).catch(() => { });
+        }
     }
-  }
 
-  const filteredJobs = useMemo(() => {
-    const list = [...jobs];
-    const getTime = (job: JobListItem) => (job.createdAt ? new Date(job.createdAt).getTime() : 0);
-    if (sortBy === "Newest" && list.length > 0) {
-      return [...list].sort((a, b) => getTime(b) - getTime(a));
-    }
-    if (sortBy === "Oldest" && list.length > 0) {
-      return [...list].sort((a, b) => getTime(a) - getTime(b));
-    }
-    return list;
-  }, [jobs, sortBy]);
+    const filteredJobs = useMemo(() => {
+        const list = [...jobs];
+        const getTime = (job: JobListItem) => (job.createdAt ? new Date(job.createdAt).getTime() : 0);
+        if (sortBy === "Newest" && list.length > 0) {
+            return [...list].sort((a, b) => getTime(b) - getTime(a));
+        }
+        if (sortBy === "Oldest" && list.length > 0) {
+            return [...list].sort((a, b) => getTime(a) - getTime(b));
+        }
+        return list;
+    }, [jobs, sortBy]);
 
-  const paginatedJobs = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    return filteredJobs.slice(start, start + PAGE_SIZE);
-  }, [filteredJobs, currentPage]);
-  const totalPages = Math.max(1, Math.ceil(filteredJobs.length / PAGE_SIZE));
+    const paginatedJobs = useMemo(() => {
+        const start = (currentPage - 1) * PAGE_SIZE;
+        return filteredJobs.slice(start, start + PAGE_SIZE);
+    }, [filteredJobs, currentPage]);
+    const totalPages = Math.max(1, Math.ceil(filteredJobs.length / PAGE_SIZE));
 
     return (
         <div className="min-h-screen bg-background">
@@ -179,146 +224,181 @@ export default function WorkerFindJobsPage() {
 
             {/* Filters + Jobs */}
             <div className="max-w-[980px] mx-auto px-6 py-6">
-                {/* Dropdown Filters — each trigger: icon + label in one flex cell to avoid misalignment */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                    <Dropdown>
-                        <DropdownTrigger>
-                            <Button
-                                variant="bordered"
-                                color="primary"
-                                className="w-full justify-start font-semibold text-[13.5px] min-w-0"
-                                endContent={<ChevronDown className="w-4 h-4 shrink-0 text-default-400" />}
+                {/* Top row: dropdown filters — fetched from API (GET /jobs/filter-options) */}
+                <div className="mb-8 space-y-5">
+                    {/* Top row: four filter dropdowns */}
+                    <div className="flex flex-wrap gap-4 mb-2">
+                        <Dropdown>
+                            <DropdownTrigger>
+                                <Button
+                                    variant="bordered"
+                                    className="rounded-full bg-white hover:bg-default-50 border border-default-200 text-foreground font-semibold text-[14px] min-w-[210px] justify-between h-[46px] px-6 shadow-sm"
+                                    endContent={<ChevronDown className="w-4 h-4 shrink-0 text-default-400" />}
+                                >
+                                    <span className="flex items-center gap-3 min-w-0 truncate">
+                                        <Briefcase className="w-[18px] h-[18px] shrink-0 text-default-500" strokeWidth={2} />
+                                        <span className="truncate">{selectedEmploymentType ? filterOptions.employmentTypes.find((o) => o.slug === selectedEmploymentType)?.name ?? selectedEmploymentType : "Employment Type"}</span>
+                                    </span>
+                                </Button>
+                            </DropdownTrigger>
+                            <DropdownMenu
+                                aria-label="Employment type"
+                                selectedKeys={selectedEmploymentType ? [selectedEmploymentType] : ["__any__"]}
+                                selectionMode="single"
+                                onSelectionChange={(keys) => {
+                                    const k = Array.from(keys)[0] as string;
+                                    setSelectedEmploymentType(k === "__any__" || !k ? null : k);
+                                }}
                             >
-                                <span className="flex items-center gap-2 min-w-0 truncate">
-                                    <Briefcase className="w-4 h-4 shrink-0" strokeWidth={2} />
-                                    <span className="truncate">{selectedEmploymentType ? filterOptions.employmentTypes.find((o) => o.slug === selectedEmploymentType)?.name ?? selectedEmploymentType : "Employment Type"}</span>
-                                </span>
-                            </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu
-                            aria-label="Employment type"
-                            selectedKeys={selectedEmploymentType ? [selectedEmploymentType] : ["__any__"]}
-                            selectionMode="single"
-                            onSelectionChange={(keys) => {
-                                const k = Array.from(keys)[0] as string;
-                                setSelectedEmploymentType(k === "__any__" || !k ? null : k);
-                            }}
-                        >
-                            <DropdownItem key="__any__" textValue="Any">Any</DropdownItem>
-                            {filterOptions.employmentTypes.map((o) => (
-                                <DropdownItem key={o.slug} textValue={o.name}>{o.name}</DropdownItem>
-                            ))}
-                        </DropdownMenu>
-                    </Dropdown>
-                    <Dropdown>
-                        <DropdownTrigger>
-                            <Button
-                                variant="bordered"
-                                color="primary"
-                                className="w-full justify-start font-semibold text-[13.5px] min-w-0"
-                                endContent={<ChevronDown className="w-4 h-4 shrink-0 text-default-400" />}
+                                {[
+                                    <DropdownItem key="__any__" textValue="Any">Any</DropdownItem>,
+                                    ...filterOptions.employmentTypes.map((o) => (
+                                        <DropdownItem key={o.slug} textValue={o.name}>{o.name}</DropdownItem>
+                                    )),
+                                    ...(filterOptions.employmentTypes.length === 0 ? [
+                                        <DropdownItem key="__empty_et__" isDisabled textValue="No options — add in Admin" className="italic text-default-400">No options — add in Admin</DropdownItem>
+                                    ] : [])
+                                ] as any}
+                            </DropdownMenu>
+                        </Dropdown>
+                        <Dropdown>
+                            <DropdownTrigger>
+                                <Button
+                                    variant="bordered"
+                                    className="rounded-full bg-white hover:bg-default-50 border border-default-200 text-foreground font-semibold text-[14px] min-w-[210px] justify-between h-[46px] px-6 shadow-sm"
+                                    endContent={<ChevronDown className="w-4 h-4 shrink-0 text-default-400" />}
+                                >
+                                    <span className="flex items-center gap-3 min-w-0 truncate">
+                                        <Smartphone className="w-[18px] h-[18px] shrink-0 text-default-500" strokeWidth={2} />
+                                        <span className="truncate">{selectedSocialMedia ? filterOptions.socialMedia.find((o) => o.slug === selectedSocialMedia)?.name ?? selectedSocialMedia : "Social Media"}</span>
+                                    </span>
+                                </Button>
+                            </DropdownTrigger>
+                            <DropdownMenu
+                                aria-label="Social media"
+                                selectedKeys={selectedSocialMedia ? [selectedSocialMedia] : ["__any__"]}
+                                selectionMode="single"
+                                onSelectionChange={(keys) => {
+                                    const k = Array.from(keys)[0] as string;
+                                    setSelectedSocialMedia(k === "__any__" || !k ? null : k);
+                                }}
                             >
-                                <span className="flex items-center gap-2 min-w-0 truncate">
-                                    <Smartphone className="w-4 h-4 shrink-0" strokeWidth={2} />
-                                    <span className="truncate">{selectedSocialMedia ? filterOptions.socialMedia.find((o) => o.slug === selectedSocialMedia)?.name ?? selectedSocialMedia : "Social Media"}</span>
-                                </span>
-                            </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu
-                            aria-label="Social media"
-                            selectedKeys={selectedSocialMedia ? [selectedSocialMedia] : ["__any__"]}
-                            selectionMode="single"
-                            onSelectionChange={(keys) => {
-                                const k = Array.from(keys)[0] as string;
-                                setSelectedSocialMedia(k === "__any__" || !k ? null : k);
-                            }}
-                        >
-                            <DropdownItem key="__any__" textValue="Any">Any</DropdownItem>
-                            {filterOptions.socialMedia.map((o) => (
-                                <DropdownItem key={o.slug} textValue={o.name}>{o.name}</DropdownItem>
-                            ))}
-                        </DropdownMenu>
-                    </Dropdown>
-                    <Dropdown>
-                        <DropdownTrigger>
-                            <Button
-                                variant="bordered"
-                                color="primary"
-                                className="w-full justify-start font-semibold text-[13.5px] min-w-0"
-                                endContent={<ChevronDown className="w-4 h-4 shrink-0 text-default-400" />}
+                                {[
+                                    <DropdownItem key="__any__" textValue="Any">Any</DropdownItem>,
+                                    ...filterOptions.socialMedia.map((o) => (
+                                        <DropdownItem key={o.slug} textValue={o.name}>{o.name}</DropdownItem>
+                                    )),
+                                    ...(filterOptions.socialMedia.length === 0 ? [
+                                        <DropdownItem key="__empty_sm__" isDisabled textValue="No options — add in Admin" className="italic text-default-400">No options — add in Admin</DropdownItem>
+                                    ] : [])
+                                ] as any}
+                            </DropdownMenu>
+                        </Dropdown>
+                        <Dropdown>
+                            <DropdownTrigger>
+                                <Button
+                                    variant="bordered"
+                                    className="rounded-full bg-white hover:bg-default-50 border border-default-200 text-foreground font-semibold text-[14px] min-w-[210px] justify-between h-[46px] px-6 shadow-sm"
+                                    endContent={<ChevronDown className="w-4 h-4 shrink-0 text-default-400" />}
+                                >
+                                    <span className="flex items-center gap-3 min-w-0 truncate">
+                                        <Laptop className="w-[18px] h-[18px] shrink-0 text-default-500" strokeWidth={2} />
+                                        <span className="truncate">{selectedSoftware ? filterOptions.software.find((o) => o.slug === selectedSoftware)?.name ?? selectedSoftware : "Software"}</span>
+                                    </span>
+                                </Button>
+                            </DropdownTrigger>
+                            <DropdownMenu
+                                aria-label="Software"
+                                selectedKeys={selectedSoftware ? [selectedSoftware] : ["__any__"]}
+                                selectionMode="single"
+                                onSelectionChange={(keys) => {
+                                    const k = Array.from(keys)[0] as string;
+                                    setSelectedSoftware(k === "__any__" || !k ? null : k);
+                                }}
                             >
-                                <span className="flex items-center gap-2 min-w-0 truncate">
-                                    <Laptop className="w-4 h-4 shrink-0" strokeWidth={2} />
-                                    <span className="truncate">{selectedSoftware ? filterOptions.software.find((o) => o.slug === selectedSoftware)?.name ?? selectedSoftware : "Software"}</span>
-                                </span>
-                            </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu
-                            aria-label="Software"
-                            selectedKeys={selectedSoftware ? [selectedSoftware] : ["__any__"]}
-                            selectionMode="single"
-                            onSelectionChange={(keys) => {
-                                const k = Array.from(keys)[0] as string;
-                                setSelectedSoftware(k === "__any__" || !k ? null : k);
-                            }}
-                        >
-                            <DropdownItem key="__any__" textValue="Any">Any</DropdownItem>
-                            {filterOptions.software.map((o) => (
-                                <DropdownItem key={o.slug} textValue={o.name}>{o.name}</DropdownItem>
-                            ))}
-                        </DropdownMenu>
-                    </Dropdown>
-                    <Dropdown>
-                        <DropdownTrigger>
-                            <Button
-                                variant="bordered"
-                                color="primary"
-                                className="w-full justify-start font-semibold text-[13.5px] min-w-0"
-                                endContent={<ChevronDown className="w-4 h-4 shrink-0 text-default-400" />}
+                                {[
+                                    <DropdownItem key="__any__" textValue="Any">Any</DropdownItem>,
+                                    ...filterOptions.software.map((o) => (
+                                        <DropdownItem key={o.slug} textValue={o.name}>{o.name}</DropdownItem>
+                                    )),
+                                    ...(filterOptions.software.length === 0 ? [
+                                        <DropdownItem key="__empty_sw__" isDisabled textValue="No options — add in Admin" className="italic text-default-400">No options — add in Admin</DropdownItem>
+                                    ] : [])
+                                ] as any}
+                            </DropdownMenu>
+                        </Dropdown>
+                        <Dropdown>
+                            <DropdownTrigger>
+                                <Button
+                                    variant="bordered"
+                                    className="rounded-full bg-white hover:bg-default-50 border border-default-200 text-foreground font-semibold text-[14px] min-w-[210px] justify-between h-[46px] px-6 shadow-sm"
+                                    endContent={<ChevronDown className="w-4 h-4 shrink-0 text-default-400" />}
+                                >
+                                    <span className="flex items-center gap-3 min-w-0 truncate">
+                                        <Globe className="w-[18px] h-[18px] shrink-0 text-default-500" strokeWidth={2} />
+                                        <span className="truncate">{selectedLanguage ? filterOptions.languages.find((o) => o.slug === selectedLanguage)?.name ?? selectedLanguage : "Languages"}</span>
+                                    </span>
+                                </Button>
+                            </DropdownTrigger>
+                            <DropdownMenu
+                                aria-label="Languages"
+                                selectedKeys={selectedLanguage ? [selectedLanguage] : ["__any__"]}
+                                selectionMode="single"
+                                onSelectionChange={(keys) => {
+                                    const k = Array.from(keys)[0] as string;
+                                    setSelectedLanguage(k === "__any__" || !k ? null : k);
+                                }}
                             >
-                                <span className="flex items-center gap-2 min-w-0 truncate">
-                                    <Globe className="w-4 h-4 shrink-0" strokeWidth={2} />
-                                    <span className="truncate">{selectedLanguage ? filterOptions.languages.find((o) => o.slug === selectedLanguage)?.name ?? selectedLanguage : "Languages"}</span>
-                                </span>
-                            </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu
-                            aria-label="Languages"
-                            selectedKeys={selectedLanguage ? [selectedLanguage] : ["__any__"]}
-                            selectionMode="single"
-                            onSelectionChange={(keys) => {
-                                const k = Array.from(keys)[0] as string;
-                                setSelectedLanguage(k === "__any__" || !k ? null : k);
-                            }}
-                        >
-                            <DropdownItem key="__any__" textValue="Any">Any</DropdownItem>
-                            {filterOptions.languages.map((o) => (
-                                <DropdownItem key={o.slug} textValue={o.name}>{o.name}</DropdownItem>
-                            ))}
-                        </DropdownMenu>
-                    </Dropdown>
+                                {[
+                                    <DropdownItem key="__any__" textValue="Any">Any</DropdownItem>,
+                                    ...filterOptions.languages.map((o) => (
+                                        <DropdownItem key={o.slug} textValue={o.name}>{o.name}</DropdownItem>
+                                    )),
+                                    ...(filterOptions.languages.length === 0 ? [
+                                        <DropdownItem key="__empty_lang__" isDisabled textValue="No options — add in Admin" className="italic text-default-400">No options — add in Admin</DropdownItem>
+                                    ] : [])
+                                ] as any}
+                            </DropdownMenu>
+                        </Dropdown>
+                    </div>
+
+                    {/* Category tags */}
+                    <div className="flex flex-wrap gap-3 mb-10">
+                        {categories.map((catName) => {
+                            const isSelected = selectedCategory === catName;
+
+                            // Map icon based on name or fallback
+                            const getIcon = () => {
+                                const n = catName.toLowerCase();
+                                if (n.includes('dev') || n.includes('code')) return <Code className={`w-4 h-4 shrink-0 ${isSelected ? "text-primary-foreground" : "text-default-500"}`} strokeWidth={2} />;
+                                if (n.includes('design') || n.includes('art')) return <Palette className={`w-4 h-4 shrink-0 ${isSelected ? "text-primary-foreground" : "text-default-500"}`} strokeWidth={2} />;
+                                if (n.includes('mark') || n.includes('sale')) return <TrendingUp className={`w-4 h-4 shrink-0 ${isSelected ? "text-primary-foreground" : "text-default-500"}`} strokeWidth={2} />;
+                                if (n.includes('write') || n.includes('uandishi') || n.includes('copy')) return <PenLine className={`w-4 h-4 shrink-0 ${isSelected ? "text-primary-foreground" : "text-default-500"}`} strokeWidth={2} />;
+                                if (n.includes('data') || n.includes('admin')) return <Keyboard className={`w-4 h-4 shrink-0 ${isSelected ? "text-primary-foreground" : "text-default-500"}`} strokeWidth={2} />;
+                                if (n.includes('support') || n.includes('chat')) return <MessageCircle className={`w-4 h-4 shrink-0 ${isSelected ? "text-primary-foreground" : "text-default-500"}`} strokeWidth={2} />;
+                                if (n.includes('video') || n.includes('film')) return <Film className={`w-4 h-4 shrink-0 ${isSelected ? "text-primary-foreground" : "text-default-500"}`} strokeWidth={2} />;
+                                if (n.includes('general')) return <Globe className={`w-4 h-4 shrink-0 ${isSelected ? "text-primary-foreground" : "text-default-500"}`} strokeWidth={2} />;
+                                return <Rocket className={`w-4 h-4 shrink-0 ${isSelected ? "text-primary-foreground" : "text-default-500"}`} strokeWidth={2} />;
+                            };
+
+                            return (
+                                <button
+                                    key={catName}
+                                    type="button"
+                                    onClick={() => setSelectedCategory(isSelected ? null : catName)}
+                                    className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-[14px] font-semibold border transition-all ${isSelected
+                                        ? "bg-primary text-primary-foreground border-primary shadow-sm ring-2 ring-primary/20"
+                                        : "bg-white hover:bg-default-50 border-default-200 text-[#3f4044] shadow-sm hover:border-default-300"
+                                        }`}
+                                >
+                                    {getIcon()}
+                                    {catName}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
 
-                {/* Category Pills – from API */}
-                <div className="flex flex-wrap gap-2.5 mb-6">
-                    {categories.map((catName) => {
-                        const isSelected = selectedCategory === catName;
-                        return (
-                            <Chip
-                                key={catName}
-                                variant={isSelected ? "solid" : "bordered"}
-                                color="primary"
-                                size="md"
-                                className="cursor-pointer font-semibold"
-                                startContent="🛠"
-                                onClose={isSelected ? () => setSelectedCategory(null) : undefined}
-                                onClick={() => setSelectedCategory(isSelected ? null : catName)}
-                            >
-                                {catName}
-                            </Chip>
-                        );
-                    })}
-                </div>
 
                 {/* New Jobs bar (green bar, Sort by Newest dropdown on right like image) */}
                 <div className="flex items-center justify-between bg-primary text-primary-foreground px-4 py-3 rounded-t-xl mb-0">

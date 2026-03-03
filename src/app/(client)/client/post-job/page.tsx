@@ -1,18 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { jobService } from "@/services/job.service";
-import { JOB_CATEGORIES } from "@/lib/constants";
 import { LocationFields } from "@/components/features/location/location-fields";
 import { useT } from "@/lib/i18n";
 
 const EMPLOYMENT_TYPES = ["Full-time", "Part-time", "Contract", "Freelance"];
 const PAYMENT_OPTIONS = ["Bank Transfer", "PayPal", "Paxum", "Skrill", "Wise", "Venmo", "Crypto"];
-const SKILL_CHIPS = ["General", "Chatting", "Copywriting", "Graphic Design", "Development", "Editing", "Marketing", "Proofreading", "QA", "Finance", "Sales"];
 const SOFTWARE_CHIPS = ["After Effects", "Canva", "ChatGPT", "Discord", "Notion", "OnlyFans CRM", "Office", "Photoshop", "Premiere Pro", "Telegram", "Trello", "Zoom"];
 const SOCIAL_PLATFORMS = ["OnlyFans", "Instagram", "Telegram", "TikTok", "Discord", "Twitter", "YouTube", "Facebook", "Snapchat", "Twitch", "Reddit", "Pinterest", "LinkedIn", "WhatsApp"];
 const PAYOUT_FREQUENCIES = ["Weekly", "Bi-weekly", "Monthly", "Once-off"];
@@ -60,6 +58,11 @@ export default function ClientPostJobPage() {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [categories, setCategories] = useState<string[]>([]);
+
+    useEffect(() => {
+        jobService.getCategories().then(setCategories).catch(() => setCategories([]));
+    }, []);
 
     return (
         <div className="min-h-screen bg-[#fafafa]">
@@ -198,8 +201,8 @@ export default function ClientPostJobPage() {
                                         className="w-full h-11 px-3 border border-[#E0E0E0] rounded-[10px] text-[14px] focus:outline-none focus:ring-1 focus:ring-[#006e42]"
                                     >
                                         <option value="">Select category</option>
-                                        {JOB_CATEGORIES.map((cat) => (
-                                            <option key={cat.name} value={cat.name}>{cat.name}</option>
+                                        {categories.map((name) => (
+                                            <option key={name} value={name}>{name}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -449,11 +452,11 @@ export default function ClientPostJobPage() {
                                     </div>
                                 </section>
 
-                                {/* Skills */}
+                                {/* Skills / Tags — same categories as find-jobs (from API, admin-managed) */}
                                 <section>
-                                    <p className="text-[13px] font-semibold text-[#555] mb-2">Select skills required to do this job.</p>
+                                    <p className="text-[13px] font-semibold text-[#555] mb-2">Select skills or tags for this job (same as job categories).</p>
                                     <div className="flex flex-wrap gap-2">
-                                        {SKILL_CHIPS.map((s) => (
+                                        {(categories.length ? categories : ["General", "Chatting", "Copywriting", "Graphic Design", "Development", "Editing", "Marketing"]).map((s) => (
                                             <button
                                                 key={s}
                                                 type="button"
@@ -466,9 +469,6 @@ export default function ClientPostJobPage() {
                                                 {s}
                                             </button>
                                         ))}
-                                        <button type="button" className="px-4 py-2 rounded-full text-[13px] font-semibold text-[#006e42] border border-[#006e42] hover:bg-[#eaf5ef]">
-                                            + Add suggestion
-                                        </button>
                                     </div>
                                 </section>
 

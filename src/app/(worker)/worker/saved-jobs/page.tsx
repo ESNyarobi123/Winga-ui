@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Bookmark, BookmarkCheck } from "lucide-react";
 import { Card, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";
@@ -9,10 +10,11 @@ import { Skeleton } from "@heroui/skeleton";
 import { jobService } from "@/services/job.service";
 import type { JobListItem } from "@/types";
 
-/** Local shape for the saved job card (from API JobListItem) */
+/** Card shape from API (GET /jobs/saved) */
 type SavedJobCard = {
   id: string;
   title: string;
+  category?: string;
   type: string;
   postedAt: string;
   salary: string;
@@ -26,6 +28,7 @@ function toSavedCard(j: JobListItem): SavedJobCard {
   return {
     id: j.id,
     title: j.title,
+    category: j.category,
     type: j.budgetType ?? "Fixed Price",
     postedAt: j.postedAt,
     salary: j.budget,
@@ -80,7 +83,8 @@ export default function WorkerSavedJobsPage() {
                 ) : (
                     <div className="space-y-4">
                         {activeJobs.map((job) => (
-                            <Card key={job.id} className="border border-default-200 hover:border-primary/30 transition-all" shadow="sm">
+                            <Link key={job.id} href={`/worker/find-jobs/${job.id}`} className="block">
+                            <Card className="border border-default-200 hover:border-primary/30 transition-all cursor-pointer" shadow="sm">
                                 <CardBody className="p-5">
                                     <div className="flex items-start justify-between gap-4">
                                         <div className="flex-1 min-w-0">
@@ -94,6 +98,7 @@ export default function WorkerSavedJobsPage() {
                                             )}
                                             <div className="flex flex-wrap items-center gap-3 mb-1">
                                                 <h2 className="text-lg font-bold text-foreground">{job.title}</h2>
+                                                {job.category && <Chip size="sm" variant="flat" className="bg-primary/10 text-primary">{job.category}</Chip>}
                                                 <Chip size="sm" color="primary" variant="flat">{job.type}</Chip>
                                                 <span className="text-[13px] text-default-400">Posted {job.postedAt}</span>
                                             </div>
@@ -106,18 +111,21 @@ export default function WorkerSavedJobsPage() {
                                                 ))}
                                             </div>
                                         </div>
-                                        <Button
-                                            isIconOnly
-                                            color="primary"
-                                            size="lg"
-                                            aria-label={job.saved ? "Remove from saved" : "Save job"}
-                                            onPress={() => toggleSave(job.id)}
-                                        >
-                                            <BookmarkCheck className="w-5 h-5 text-primary-foreground" strokeWidth={2.5} />
-                                        </Button>
-                                    </div>
+                                        <div onClick={(e) => e.stopPropagation()} role="presentation">
+                                            <Button
+                                                isIconOnly
+                                                color="primary"
+                                                size="lg"
+                                                aria-label="Remove from saved"
+                                                onPress={() => toggleSave(job.id)}
+                                            >
+                                                <BookmarkCheck className="w-5 h-5 text-primary-foreground" strokeWidth={2.5} />
+                                            </Button>
+                                        </div>
+                                        </div>
                                 </CardBody>
                             </Card>
+                            </Link>
                         ))}
                     </div>
                 )}

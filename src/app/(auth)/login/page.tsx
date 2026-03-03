@@ -103,34 +103,36 @@ export default function LoginPage() {
               }}
             />
 
-            <div className="flex items-start gap-2 mt-4">
+            <div className="mt-6">
               <Checkbox
                 isSelected={agreed}
                 onValueChange={setAgreed}
                 size="md"
-                color="primary"
+                radius="sm"
                 classNames={{
-                  wrapper: "rounded-[4px] border-gray-300 before:border-gray-300 group-data-[selected=true]:border-[#006E42] group-data-[selected=true]:bg-[#006E42]",
+                  base: "p-0 m-0 w-full max-w-full items-start gap-3 cursor-pointer",
+                  wrapper: "mt-0.5 w-[22px] h-[22px] border-[2px] border-gray-300 before:border-none group-data-[hover=true]:border-[#006E42] group-data-[selected=true]:border-[#006E42] after:bg-[#006E42] transition-colors",
+                  icon: "text-white",
+                  label: "text-[14px] text-gray-600 leading-snug m-0 select-none",
                 }}
-              />
-              <span className="text-[14px] text-gray-500 leading-snug">
-                I agree to the Winga <Link href="#" className="text-[#006E42] hover:underline">Privacy Policy</Link> and <Link href="#" className="text-[#006E42] hover:underline">Terms and Conditions.</Link>
-              </span>
+              >
+                I agree to the Winga <Link href="#" className="text-[#006E42] font-medium hover:underline relative after:content-[''] after:absolute after:-bottom-[1px] after:left-0 after:w-0 after:h-[1.5px] after:bg-[#006E42] after:transition-all hover:after:w-full">Privacy Policy</Link> and <Link href="#" className="text-[#006E42] font-medium hover:underline relative after:content-[''] after:absolute after:-bottom-[1px] after:left-0 after:w-0 after:h-[1.5px] after:bg-[#006E42] after:transition-all hover:after:w-full">Terms and Conditions.</Link>
+              </Checkbox>
             </div>
 
-            {error && <p className="text-sm text-danger">{error}</p>}
+            {error && <p className="text-sm text-danger mt-2">{error}</p>}
 
             <Button
               type="submit"
               size="lg"
-              disabled={!email || !agreed || loading}
-              className={`w-full font-bold rounded-xl h-[52px] text-[16px] transition-colors ${(!email || !agreed)
-                ? "bg-black/10 text-white cursor-not-allowed"
-                : "bg-[#006e42] text-white hover:bg-[#005c36]"
+              isDisabled={!email || !agreed || loading}
+              className={`w-full mt-2 font-bold rounded-xl h-[52px] text-[16px] transition-all duration-300 ease-out overflow-hidden relative ${(!email || !agreed)
+                ? "bg-gray-200 text-gray-400 opacity-70"
+                : "bg-[#006e42] text-white shadow-[0_4px_14px_0_rgba(0,110,66,0.39)] hover:shadow-[0_6px_20px_rgba(0,110,66,0.23)] hover:bg-[#005c36] hover:-translate-y-1 active:translate-y-0"
                 }`}
               isLoading={loading}
             >
-              Submit
+              {loading ? "Please wait..." : "Continue"}
             </Button>
           </form>
         </>
@@ -171,16 +173,17 @@ export default function LoginPage() {
               aria-label="OTP"
             />
 
-            {error && <p className="text-sm text-danger">{error}</p>}
+            {error && <p className="text-sm text-danger mt-2">{error}</p>}
+
             <Button
               type="submit"
               size="lg"
-              className={`w-full font-bold rounded-xl h-[52px] text-[16px] transition-colors ${!otp || otp.length !== 6
-                ? "bg-black/10 text-white cursor-not-allowed"
-                : "bg-[#006e42] text-white hover:bg-[#005c36]"
+              isDisabled={!otp || otp.length !== 6 || loading}
+              className={`w-full mt-4 font-bold rounded-xl h-[52px] text-[16px] transition-all duration-300 ease-out relative overflow-hidden ${!otp || otp.length !== 6
+                ? "bg-gray-200 text-gray-400 opacity-70"
+                : "bg-[#006e42] text-white shadow-[0_4px_14px_0_rgba(0,110,66,0.39)] hover:shadow-[0_6px_20px_rgba(0,110,66,0.23)] hover:bg-[#005c36] hover:-translate-y-1 active:translate-y-0"
                 }`}
               isLoading={loading}
-              disabled={!otp || otp.length !== 6 || loading}
             >
               Verify OTP
             </Button>
@@ -189,7 +192,7 @@ export default function LoginPage() {
               type="button"
               variant="bordered"
               size="lg"
-              className="w-full font-bold rounded-xl h-[52px] text-[16px] mt-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="w-full font-bold rounded-xl h-[52px] text-[16px] mt-2 border-2 border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 hover:-translate-y-0.5"
               onPress={() => authService.sendOtp(email)}
             >
               Resend OTP

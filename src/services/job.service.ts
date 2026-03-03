@@ -51,7 +51,7 @@ export const jobService = {
     return data.data ?? [];
   },
 
-  /** GET /jobs/filter-options — employment types, social media, software, languages (for registration & find-jobs) */
+  /** GET /jobs/filter-options — employment types, social media, software, languages (admin-managed; seed in v8) */
   async getFilterOptions(): Promise<{
     employmentTypes: { id: number; name: string; slug: string }[];
     socialMedia: { id: number; name: string; slug: string }[];
@@ -59,17 +59,20 @@ export const jobService = {
     languages: { id: number; name: string; slug: string }[];
   }> {
     const { data } = await api.get<ApiResponse<{
-      employmentTypes?: { id: number; type?: string; name: string; slug: string; sortOrder?: number }[];
-      socialMedia?: { id: number; type?: string; name: string; slug: string; sortOrder?: number }[];
-      software?: { id: number; type?: string; name: string; slug: string; sortOrder?: number }[];
-      languages?: { id: number; type?: string; name: string; slug: string; sortOrder?: number }[];
+      employmentTypes?: { id: number; name: string; slug: string; sortOrder?: number }[];
+      socialMedia?: { id: number; name: string; slug: string; sortOrder?: number }[];
+      software?: { id: number; name: string; slug: string; sortOrder?: number }[];
+      languages?: { id: number; name: string; slug: string; sortOrder?: number }[];
     }>>("/jobs/filter-options");
-    const raw = data.data;
+    const raw = data?.data ?? data;
+    const o = (raw as Record<string, unknown>) ?? {};
+    const map = (arr: unknown) =>
+      Array.isArray(arr) ? arr.map((x: { id?: number; name?: string; slug?: string }) => ({ id: x.id ?? 0, name: String(x.name ?? ""), slug: String(x.slug ?? "") })) : [];
     return {
-      employmentTypes: raw?.employmentTypes?.map((o) => ({ id: o.id, name: o.name, slug: o.slug })) ?? [],
-      socialMedia: raw?.socialMedia?.map((o) => ({ id: o.id, name: o.name, slug: o.slug })) ?? [],
-      software: raw?.software?.map((o) => ({ id: o.id, name: o.name, slug: o.slug })) ?? [],
-      languages: raw?.languages?.map((o) => ({ id: o.id, name: o.name, slug: o.slug })) ?? [],
+      employmentTypes: map(o.employmentTypes),
+      socialMedia: map(o.socialMedia),
+      software: map(o.software),
+      languages: map(o.languages),
     };
   },
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Pencil, Plus, Trash2, AlignLeft, Camera, Check, Image, Award } from "lucide-react";
+import { Pencil, Plus, Trash2, AlignLeft, Camera, Check, Image, Award, ClipboardCheck } from "lucide-react";
 import { Card, CardBody } from "@heroui/card";
 import { Button } from "@heroui/button";
 import { Avatar } from "@heroui/avatar";
@@ -10,7 +10,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@herou
 import { Chip } from "@heroui/chip";
 import { authService } from "@/services/auth.service";
 import { profileService } from "@/services/profile.service";
-import type { ProfileChecklistResponse, WorkExperienceItem } from "@/services/profile.service";
+import type { ProfileChecklistResponse, WorkExperienceItem, CompletedTestItem } from "@/services/profile.service";
 import { portfolioService } from "@/services/portfolio.service";
 import { certificationService } from "@/services/certification.service";
 import { useAuth } from "@/hooks/use-auth";
@@ -96,6 +96,7 @@ export default function WorkerProfilePage() {
     const [checklist, setChecklist] = useState<ProfileChecklistResponse | null>(null);
     const [saveError, setSaveError] = useState<string | null>(null);
     const [experiences, setExperiences] = useState<WorkExperienceItem[]>([]);
+    const [completedTests, setCompletedTests] = useState<CompletedTestItem[]>([]);
 
     function loadProfile() {
         setLoading(true);
@@ -140,6 +141,7 @@ export default function WorkerProfilePage() {
             .then((user) => {
                 if (user?.id != null) {
                     profileService.getRatingSummary(String(user.id)).then(setRating).catch(() => setRating(null));
+                    profileService.getCompletedTests(String(user.id)).then(setCompletedTests).catch(() => setCompletedTests([]));
                 }
             })
             .then(() => {
@@ -360,6 +362,27 @@ export default function WorkerProfilePage() {
                                             {c.issuer && <p className="text-sm text-default-500">{c.issuer}</p>}
                                         </div>
                                         <a href={c.fileUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">View</a>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+
+                    <div>
+                        <h2 className="text-[17px] font-bold text-primary mb-3 flex items-center gap-2">
+                            <ClipboardCheck className="w-5 h-5" /> Completed tests
+                        </h2>
+                        {completedTests.length === 0 ? (
+                            <p className="text-default-500 text-sm">Complete qualification tests on My tests to show them here.</p>
+                        ) : (
+                            <ul className="space-y-2">
+                                {completedTests.map((t) => (
+                                    <li key={t.testId} className="flex items-center justify-between rounded-lg border border-success-200 dark:border-success-500/30 bg-success-50/30 dark:bg-success-500/5 p-3">
+                                        <div>
+                                            <p className="font-medium text-foreground">{t.testName}</p>
+                                            {t.bestScore != null && <p className="text-sm text-default-500">Best score: {t.bestScore}</p>}
+                                        </div>
+                                        <Chip size="sm" color="success" variant="flat">Passed</Chip>
                                     </li>
                                 ))}
                             </ul>
