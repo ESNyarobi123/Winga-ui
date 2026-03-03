@@ -24,7 +24,7 @@ export function jobResponseToListItem(j: JobResponseBackend): JobListItem {
     title: j.title,
     description: j.description,
     category: j.category ?? "General",
-    tags: Array.isArray(j.tags) ? j.tags.filter(Boolean) : (typeof j.tags === "string" && j.tags ? j.tags.split(",").map((s) => s.trim()).filter(Boolean) : []),
+    tags: Array.isArray(j.tags) ? j.tags.filter(Boolean) : (typeof (j.tags as any) === "string" && (j.tags as any) ? (j.tags as any).split(",").map((s: string) => s.trim()).filter(Boolean) : []),
     budget: formatBudgetTzs(j.budget),
     budgetType: "Fixed Price",
     clientName: j.client?.fullName ?? "Client",

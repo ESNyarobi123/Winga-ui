@@ -116,7 +116,7 @@ export default function Users() {
               variant="flat"
               startContent={<Download size={18} />}
               isLoading={exporting}
-              isDisabled={selectedIds.size === 0}
+              disabled={selectedIds.size === 0}
               onPress={async () => {
                 if (selectedIds.size === 0) return;
                 setExporting(true);
@@ -134,7 +134,7 @@ export default function Users() {
             </AdminButton>
             <AdminButton
               variant="flat"
-              isDisabled={selectedIds.size === 0}
+              disabled={selectedIds.size === 0}
               isLoading={acting}
               startContent={<CheckCircle size={18} />}
               onPress={async () => {

@@ -231,9 +231,8 @@ export default function WorkerFindJobsPage() {
                         <Dropdown>
                             <DropdownTrigger>
                                 <Button
-                                    variant="bordered"
-                                    className="rounded-full bg-white hover:bg-default-50 border border-default-200 text-foreground font-semibold text-[14px] min-w-[210px] justify-between h-[46px] px-6 shadow-sm"
-                                    endContent={<ChevronDown className="w-4 h-4 shrink-0 text-default-400" />}
+                                    className="rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-800 font-semibold text-[14px] min-w-[210px] justify-between h-[46px] px-6 shadow-sm min-w-0"
+                                    endContent={<ChevronDown className="w-4 h-4 shrink-0 text-gray-400" />}
                                 >
                                     <span className="flex items-center gap-3 min-w-0 truncate">
                                         <Briefcase className="w-[18px] h-[18px] shrink-0 text-default-500" strokeWidth={2} />
@@ -264,9 +263,8 @@ export default function WorkerFindJobsPage() {
                         <Dropdown>
                             <DropdownTrigger>
                                 <Button
-                                    variant="bordered"
-                                    className="rounded-full bg-white hover:bg-default-50 border border-default-200 text-foreground font-semibold text-[14px] min-w-[210px] justify-between h-[46px] px-6 shadow-sm"
-                                    endContent={<ChevronDown className="w-4 h-4 shrink-0 text-default-400" />}
+                                    className="rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-800 font-semibold text-[14px] min-w-[210px] justify-between h-[46px] px-6 shadow-sm min-w-0"
+                                    endContent={<ChevronDown className="w-4 h-4 shrink-0 text-gray-400" />}
                                 >
                                     <span className="flex items-center gap-3 min-w-0 truncate">
                                         <Smartphone className="w-[18px] h-[18px] shrink-0 text-default-500" strokeWidth={2} />
@@ -297,9 +295,8 @@ export default function WorkerFindJobsPage() {
                         <Dropdown>
                             <DropdownTrigger>
                                 <Button
-                                    variant="bordered"
-                                    className="rounded-full bg-white hover:bg-default-50 border border-default-200 text-foreground font-semibold text-[14px] min-w-[210px] justify-between h-[46px] px-6 shadow-sm"
-                                    endContent={<ChevronDown className="w-4 h-4 shrink-0 text-default-400" />}
+                                    className="rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-800 font-semibold text-[14px] min-w-[210px] justify-between h-[46px] px-6 shadow-sm min-w-0"
+                                    endContent={<ChevronDown className="w-4 h-4 shrink-0 text-gray-400" />}
                                 >
                                     <span className="flex items-center gap-3 min-w-0 truncate">
                                         <Laptop className="w-[18px] h-[18px] shrink-0 text-default-500" strokeWidth={2} />
@@ -330,9 +327,8 @@ export default function WorkerFindJobsPage() {
                         <Dropdown>
                             <DropdownTrigger>
                                 <Button
-                                    variant="bordered"
-                                    className="rounded-full bg-white hover:bg-default-50 border border-default-200 text-foreground font-semibold text-[14px] min-w-[210px] justify-between h-[46px] px-6 shadow-sm"
-                                    endContent={<ChevronDown className="w-4 h-4 shrink-0 text-default-400" />}
+                                    className="rounded-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-800 font-semibold text-[14px] min-w-[210px] justify-between h-[46px] px-6 shadow-sm min-w-0"
+                                    endContent={<ChevronDown className="w-4 h-4 shrink-0 text-gray-400" />}
                                 >
                                     <span className="flex items-center gap-3 min-w-0 truncate">
                                         <Globe className="w-[18px] h-[18px] shrink-0 text-default-500" strokeWidth={2} />
@@ -388,7 +384,7 @@ export default function WorkerFindJobsPage() {
                                     onClick={() => setSelectedCategory(isSelected ? null : catName)}
                                     className={`inline-flex items-center gap-2 rounded-full px-5 py-2 text-[14px] font-semibold border transition-all ${isSelected
                                         ? "bg-primary text-primary-foreground border-primary shadow-sm ring-2 ring-primary/20"
-                                        : "bg-white hover:bg-default-50 border-default-200 text-[#3f4044] shadow-sm hover:border-default-300"
+                                        : "bg-white hover:bg-gray-50 border-gray-200 text-gray-800 shadow-sm hover:border-gray-300"
                                         }`}
                                 >
                                     {getIcon()}
