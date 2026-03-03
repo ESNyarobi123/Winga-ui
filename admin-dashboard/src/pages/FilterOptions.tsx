@@ -32,7 +32,7 @@ export default function FilterOptionsPage() {
   });
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState<FilterOptionType | null>(null);
-  const [editOpen, setEditOpen] = useState(false);
+  const [, setEditOpen] = useState(false);
   const [editRow, setEditRow] = useState<FilterOptionRow | null>(null);
   const [deleteOpen, setDeleteOpen] = useState<FilterOptionRow | null>(null);
   const [acting, setActing] = useState(false);

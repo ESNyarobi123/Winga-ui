@@ -33,6 +33,8 @@ export function AdminInput({
   id,
   minLength,
   maxLength,
+  min,
+  step,
 }: {
   label: string;
   value?: string;
@@ -45,6 +47,8 @@ export function AdminInput({
   id?: string;
   minLength?: number;
   maxLength?: number;
+  min?: string;
+  step?: string;
 }) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onValueChange?.(e.target.value);
@@ -66,6 +70,8 @@ export function AdminInput({
         required={required}
         minLength={minLength}
         maxLength={maxLength}
+        min={min}
+        step={step}
         className={inputWrapperClass}
       />
     </div>
