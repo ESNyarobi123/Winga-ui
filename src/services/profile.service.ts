@@ -2,16 +2,18 @@ import { api } from "@/lib/axios";
 import type { User } from "@/types";
 import type { ApiResponse, SpringPage } from "@/types/api-response";
 
-/** Backend UpdateProfileRequest: all fields optional */
+/** Backend UpdateProfileRequest: all fields optional. Worker required: fullName, country, headline, languages, paymentPreferences, workType, timezone. */
 export interface UpdateProfileRequest {
   fullName?: string;
   phoneNumber?: string;
   bio?: string;
+  headline?: string;
   skills?: string;
   profileImageUrl?: string;
   companyName?: string;
   telegram?: string;
   country?: string;
+  countryCode?: string;
   /** JSON array string e.g. ["English","Swahili"] */
   languages?: string;
   cvUrl?: string;
@@ -19,6 +21,10 @@ export interface UpdateProfileRequest {
   timezone?: string;
   /** JSON array string e.g. ["Bank Transfer","PayPal"] */
   paymentPreferences?: string;
+  typeSpeed?: string;
+  internetSpeed?: string;
+  computerSpecs?: string;
+  hasWebcam?: boolean;
   city?: string;
   region?: string;
   latitude?: number;
@@ -34,6 +40,7 @@ export interface WorkExperienceItem {
   startDate: string;
   endDate: string;
   description: string;
+  skillsLearned?: string[];
   createdAt: string;
 }
 
@@ -44,6 +51,14 @@ export interface WorkExperienceRequest {
   startDate?: string;
   endDate?: string;
   description?: string;
+  skillsLearned?: string[];
+}
+
+/** Backend ProfileChecklistResponse — worker onboarding */
+export interface ProfileChecklistResponse {
+  complete: boolean;
+  profileCompleteness: number;
+  missingFields: string[];
 }
 
 /** Backend RatingSummaryResponse */
@@ -106,6 +121,12 @@ export const profileService = {
   /** GET /users/:id/rating — average rating and review count */
   async getRatingSummary(userId: string | number): Promise<RatingSummary> {
     const { data } = await api.get<ApiResponse<RatingSummary>>(`/users/${userId}/rating`);
+    return data.data;
+  },
+
+  /** GET /users/me/profile-checklist — worker: completeness % and missing required fields */
+  async getProfileChecklist(): Promise<ProfileChecklistResponse> {
+    const { data } = await api.get<ApiResponse<ProfileChecklistResponse>>("/users/me/profile-checklist");
     return data.data;
   },
 };

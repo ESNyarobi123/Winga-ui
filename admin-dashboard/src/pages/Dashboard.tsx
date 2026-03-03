@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getDashboardOverview } from "../api/client";
+import { getDashboardOverview, getAnalytics, exportContractsCsv } from "../api/client";
 import AdminButton from "../components/AdminButton";
 import {
   AreaChart,
@@ -20,6 +20,13 @@ import { Briefcase, FileText, TrendingUp, DollarSign, UserCheck, Shield, BarChar
 const COLORS = ["#006e42", "#005c36", "#99cfbb", "#f59e0b", "#64748b"];
 
 export default function Dashboard() {
+  const [exportingContracts, setExportingContracts] = useState(false);
+  const [analytics, setAnalytics] = useState<{
+    jobsPerCategory?: { category?: string; count?: number }[];
+    revenueInPeriod?: number;
+    periodFrom?: string;
+    periodTo?: string;
+  } | null>(null);
   const [data, setData] = useState<{
     activeJobs: number;
     applicationsToday: number;
@@ -41,6 +48,15 @@ export default function Dashboard() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const to = new Date();
+    const from = new Date(to);
+    from.setMonth(from.getMonth() - 1);
+    getAnalytics(from.toISOString(), to.toISOString())
+      .then((res) => res.data && setAnalytics(res.data))
+      .catch(() => setAnalytics(null));
   }, []);
 
   if (loading) {
@@ -105,6 +121,35 @@ export default function Dashboard() {
             </div>
         ))}
       </div>
+
+      {analytics && (analytics.revenueInPeriod != null || (analytics.jobsPerCategory?.length ?? 0) > 0) && (
+        <div className="border border-winga-border bg-white shadow-winga-card rounded-winga-lg p-6">
+          <h3 className="font-semibold text-foreground mb-4">Analytics (last 30 days)</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {analytics.revenueInPeriod != null && (
+              <div>
+                <p className="text-sm text-winga-muted-foreground">Revenue in period</p>
+                <p className="text-xl font-bold text-foreground">
+                  TZS {Number(analytics.revenueInPeriod).toLocaleString("en-TZ")}
+                </p>
+              </div>
+            )}
+            {analytics.jobsPerCategory && analytics.jobsPerCategory.length > 0 && (
+              <div>
+                <p className="text-sm text-winga-muted-foreground mb-2">Jobs per category (top)</p>
+                <ul className="space-y-1 text-sm">
+                  {analytics.jobsPerCategory.slice(0, 5).map((row: { category?: string; count?: number }, i: number) => (
+                    <li key={i} className="flex justify-between">
+                      <span className="text-foreground">{row.category ?? "—"}</span>
+                      <span className="font-medium">{row.count ?? 0}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="border border-winga-border bg-white shadow-winga-card rounded-winga-lg">
@@ -174,6 +219,21 @@ export default function Dashboard() {
           <Link to="/users"><AdminButton variant="flat" className="border border-winga-border text-winga-primary hover:bg-winga-primary-light">Manage users</AdminButton></Link>
           <Link to="/categories"><AdminButton variant="flat" className="border border-winga-border text-winga-primary hover:bg-winga-primary-light">Edit categories</AdminButton></Link>
           <Link to="/disputes"><AdminButton variant="flat" className="text-winga-muted-foreground hover:bg-winga-primary-light">View disputes</AdminButton></Link>
+          <AdminButton
+            variant="flat"
+            className="border border-winga-border text-winga-primary hover:bg-winga-primary-light"
+            isLoading={exportingContracts}
+            onPress={async () => {
+              setExportingContracts(true);
+              try {
+                await exportContractsCsv();
+              } finally {
+                setExportingContracts(false);
+              }
+            }}
+          >
+            Export contracts CSV
+          </AdminButton>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, ChevronDown, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { Search, ChevronDown, ChevronLeft, ChevronRight, RotateCcw, BadgeCheck, CheckCircle } from "lucide-react";
 import { workerService } from "@/services/worker.service";
 import type { WorkerListItem } from "@/types";
 
@@ -16,45 +16,35 @@ const FILTER_LABELS = [
     "Gender",
 ];
 
-const WORKER_DATA = [
-    { id: "1", name: "Kuna", location: "Tanzania", title: "AI content writer", description: "I am an AI Content Writer specializing in long-form SEO articles and blog posts for brands.", tags: ["20 hours / week", "Expert", "Email Chat", "10 days"] },
-    { id: "2", name: "Jared B. Watson", location: "Canada", title: "Client chat support manager", description: "I have 4+ years in client chat support and community management for creator-led brands.", tags: ["40 hours / week", "Expert", "Email Chat", "2 years"] },
-    { id: "3", name: "Matting", location: "Tanzania", title: "Social media manager", description: "Social media strategist and content creator. I help brands grow and engage audiences.", tags: ["Part-time", "Intermediate", "Telegram", "6 months"] },
-    { id: "4", name: "Diara T.", location: "Kenya", title: "OnlyFans chatter", description: "Experienced chatter with focus on retention and upsells. Fluent in English and Swahili.", tags: ["Full-time", "Expert", "Email Chat", "1 year"] },
-    { id: "5", name: "Scarex 🇪🇬", location: "Egypt", title: "VA & Editor", description: "I have extensive experience in editing and also in chatting, with the highest level of discipline.", tags: ["Part-time", "No Experience"] },
-    { id: "6", name: "Michaela 🇵🇭", location: "Philippines", title: "Virtual Assistant", description: "Nearly 10 years experience as Virtual assistant with course in Social Marketing.", tags: ["Full-time", "5 Years Experience", "🛠 General: Intermediate"] },
-    { id: "7", name: "Alex M.", location: "United Kingdom", title: "Copywriter", description: "SEO and sales copy for funnels and ads. Fast turnaround and brand voice matching.", tags: ["30 hours / week", "Expert", "Email", "3 years"] },
-    { id: "8", name: "Sofia R.", location: "Spain", title: "Community manager", description: "Manage Discord and Telegram communities. Moderation, engagement, and growth campaigns.", tags: ["Part-time", "Intermediate", "Discord Telegram", "1 year"] },
-    { id: "9", name: "Jordan K.", location: "United States", title: "Video editor", description: "Short-form and long-form editing for YouTube and TikTok. Premiere, After Effects, quick delivery.", tags: ["20 hours / week", "Expert", "Zoom Chat", "2 years"] },
-    { id: "10", name: "Priya L.", location: "India", title: "Customer support", description: "Live chat and email support for e-commerce and creator brands. Flexible hours.", tags: ["Full-time", "Intermediate", "Email Chat", "6 months"] },
-    { id: "11", name: "Marcus T.", location: "Nigeria", title: "OnlyFans chatter", description: "Dedicated chatter with strong retention and upsell results. Available nights and weekends.", tags: ["Part-time", "Expert", "Telegram", "1 year"] },
-    { id: "12", name: "Elena V.", location: "Colombia", title: "Social media assistant", description: "Content scheduling, captions, and engagement for Instagram and TikTok. Bilingual EN/ES.", tags: ["20 hours / week", "Intermediate", "Email", "10 months"] },
-];
-
 export default function ClientFindWorkersPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
-    const [workers, setWorkers] = useState<WorkerListItem[]>(WORKER_DATA);
+    const [workers, setWorkers] = useState<WorkerListItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [useSample, setUseSample] = useState(false);
+    const [verifiedOnly, setVerifiedOnly] = useState(false);
+    const [completeProfileOnly, setCompleteProfileOnly] = useState(false);
 
     useEffect(() => {
         setLoading(true);
         workerService
-            .getWorkers({ page, size: 10, keyword: searchQuery || undefined })
+            .getWorkers({
+                page,
+                size: 10,
+                keyword: searchQuery || undefined,
+                profileVerified: verifiedOnly || undefined,
+                profileComplete: completeProfileOnly || undefined,
+            })
             .then((res) => {
-                setWorkers(res.list.length > 0 ? res.list : WORKER_DATA);
-                setUseSample(res.list.length === 0);
-                setTotalPages(Math.max(1, res.totalPages));
+                setWorkers(res?.list ?? []);
+                setTotalPages(Math.max(1, res?.totalPages ?? 1));
             })
             .catch(() => {
-                setWorkers(WORKER_DATA);
-                setUseSample(true);
-                setTotalPages(5);
+                setWorkers([]);
+                setTotalPages(1);
             })
             .finally(() => setLoading(false));
-    }, [page, searchQuery]);
+    }, [page, searchQuery, verifiedOnly, completeProfileOnly]);
 
     const displayList = workers;
     const currentPage = page + 1;
@@ -113,8 +103,22 @@ export default function ClientFindWorkersPage() {
 
             {/* Main Content - image 1 */}
             <div className="max-w-[1000px] mx-auto px-6 py-6">
-                {/* Filters row: 8 dropdowns + Clear filters */}
+                {/* Quick filters + filter dropdowns */}
                 <div className="flex flex-wrap items-center gap-3 mb-6">
+                    <button
+                        type="button"
+                        onClick={() => setVerifiedOnly((v) => !v)}
+                        className={`flex items-center gap-2 px-4 py-3 rounded-xl text-[14px] font-semibold border shadow-sm transition-all ${verifiedOnly ? "bg-[#006e42] text-white border-[#006e42]" : "bg-white text-[#111827] border-[#E0E0E0] hover:border-[#006e42]/50"}`}
+                    >
+                        <BadgeCheck className="w-4 h-4" /> Verified only
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setCompleteProfileOnly((v) => !v)}
+                        className={`flex items-center gap-2 px-4 py-3 rounded-xl text-[14px] font-semibold border shadow-sm transition-all ${completeProfileOnly ? "bg-[#006e42] text-white border-[#006e42]" : "bg-white text-[#111827] border-[#E0E0E0] hover:border-[#006e42]/50"}`}
+                    >
+                        <CheckCircle className="w-4 h-4" /> Complete profile only
+                    </button>
                     {FILTER_LABELS.map((label) => (
                         <button
                             key={label}
@@ -129,7 +133,7 @@ export default function ClientFindWorkersPage() {
                     </button>
                 </div>
 
-                {/* Worker Cards — from API or sample */}
+                {/* Worker Cards — from API */}
                 {loading ? (
                     <div className="space-y-4">
                         {[1, 2, 3].map((i) => (
@@ -152,9 +156,16 @@ export default function ClientFindWorkersPage() {
                                     />
                                 </div>
                                 <div className="min-w-0">
-                                    <h3 className="text-[17px] font-bold text-[#111827] mb-0.5">
-                                        {worker.name}
-                                    </h3>
+                                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                                        <h3 className="text-[17px] font-bold text-[#111827]">
+                                            {worker.name}
+                                        </h3>
+                                        {worker.profileVerified && (
+                                            <span className="text-[11px] font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded flex items-center gap-1">
+                                                <BadgeCheck className="w-3 h-3" /> Verified
+                                            </span>
+                                        )}
+                                    </div>
                                     <p className="text-[13px] text-[#666] mb-1">{worker.location}</p>
                                     <p className="text-[14px] font-semibold text-[#006e42] mb-2">{worker.title}</p>
                                     <p className="text-[13px] text-[#555] leading-relaxed mb-3 max-w-[600px]">

@@ -17,10 +17,13 @@ export interface VerifyOtpResult {
   auth: AuthResponsePayload | null;
 }
 
+const REFRESH_TOKEN_KEY = "refreshToken";
+
 function persistAuth(payload: AuthResponsePayload) {
   const user = { ...payload.user, role: payload.user.role ?? "CLIENT" };
   if (typeof window !== "undefined") {
     localStorage.setItem("token", payload.accessToken);
+    if (payload.refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, payload.refreshToken);
     if (user.role) roleCookie.set(user.role);
   }
   return { user, token: payload.accessToken };
@@ -79,9 +82,26 @@ export const authService = {
     return data.data;
   },
 
+  /** POST /auth/refresh — exchange refresh token for new access + refresh (rotation) */
+  async refreshTokens(): Promise<{ user: User; token: string } | null> {
+    if (typeof window === "undefined") return null;
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    if (!refreshToken) return null;
+    try {
+      const { data } = await api.post<ApiResponse<AuthResponsePayload>>("/auth/refresh", { refreshToken });
+      const payload = data.data;
+      persistAuth(payload);
+      return { user: payload.user, token: payload.accessToken };
+    } catch {
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      return null;
+    }
+  },
+
   logout(): void {
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
       roleCookie.remove();
     }
   },

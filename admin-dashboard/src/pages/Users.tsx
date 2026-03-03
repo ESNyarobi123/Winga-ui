@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
-import { getUsers, createUser, updateUser, deleteUser, type UserRow } from "../api/client";
-import { UserPlus, Pencil, UserX } from "lucide-react";
+import {
+  getUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+  verifyProfile,
+  bulkVerifyProfile,
+  exportWorkersCsv,
+  exportWorkersCsvSelected,
+  getUserExperiences,
+  type UserRow,
+} from "../api/client";
+import { UserPlus, Pencil, UserX, Download, CheckCircle, FileText } from "lucide-react";
 import Modal from "../components/Modal";
 import PageHeader from "../components/PageHeader";
 import AdminCard from "../components/AdminCard";
@@ -20,6 +31,11 @@ export default function Users() {
   const [selected, setSelected] = useState<UserRow | null>(null);
   const [error, setError] = useState("");
   const [acting, setActing] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [exporting, setExporting] = useState(false);
+  const [experiencesOpen, setExperiencesOpen] = useState(false);
+  const [experiencesUser, setExperiencesUser] = useState<UserRow | null>(null);
+  const [experiences, setExperiences] = useState<{ id: number; title: string; company?: string; startDate?: string; endDate?: string; description?: string }[]>([]);
 
   const load = () => {
     setLoading(true);
@@ -41,13 +57,111 @@ export default function Users() {
         title="Users"
         subtitle="Create, edit, and manage employers and job seekers."
         action={
-          <AdminButton
-            className="btn-primary-winga"
-            startContent={<UserPlus size={18} />}
-            onPress={() => { setError(""); setCreateOpen(true); }}
-          >
-            Create user
-          </AdminButton>
+          <div className="flex flex-wrap gap-2">
+            <AdminButton
+              variant="flat"
+              startContent={<Download size={18} />}
+              isLoading={exporting}
+              onPress={async () => {
+                setExporting(true);
+                setError("");
+                try {
+                  await exportWorkersCsv();
+                } catch (e) {
+                  setError((e as Error).message || "Export failed");
+                } finally {
+                  setExporting(false);
+                }
+              }}
+            >
+              Export all CSV
+            </AdminButton>
+            <AdminButton
+              variant="flat"
+              startContent={<Download size={18} />}
+              isLoading={exporting}
+              onPress={async () => {
+                setExporting(true);
+                setError("");
+                try {
+                  await exportWorkersCsv(true, false);
+                } catch (e) {
+                  setError((e as Error).message || "Export failed");
+                } finally {
+                  setExporting(false);
+                }
+              }}
+            >
+              Export incomplete only
+            </AdminButton>
+            <AdminButton
+              variant="flat"
+              startContent={<Download size={18} />}
+              isLoading={exporting}
+              onPress={async () => {
+                setExporting(true);
+                setError("");
+                try {
+                  await exportWorkersCsv(false, true);
+                } catch (e) {
+                  setError((e as Error).message || "Export failed");
+                } finally {
+                  setExporting(false);
+                }
+              }}
+            >
+              Export with CV only
+            </AdminButton>
+            <AdminButton
+              variant="flat"
+              startContent={<Download size={18} />}
+              isLoading={exporting}
+              isDisabled={selectedIds.size === 0}
+              onPress={async () => {
+                if (selectedIds.size === 0) return;
+                setExporting(true);
+                setError("");
+                try {
+                  await exportWorkersCsvSelected(Array.from(selectedIds));
+                } catch (e) {
+                  setError((e as Error).message || "Export failed");
+                } finally {
+                  setExporting(false);
+                }
+              }}
+            >
+              Export selected ({selectedIds.size})
+            </AdminButton>
+            <AdminButton
+              variant="flat"
+              isDisabled={selectedIds.size === 0}
+              isLoading={acting}
+              startContent={<CheckCircle size={18} />}
+              onPress={async () => {
+                if (selectedIds.size === 0) return;
+                setActing(true);
+                setError("");
+                try {
+                  await bulkVerifyProfile(Array.from(selectedIds), true);
+                  setSelectedIds(new Set());
+                  load();
+                } catch (e) {
+                  setError((e as Error).message || "Bulk verify failed");
+                } finally {
+                  setActing(false);
+                }
+              }}
+            >
+              Bulk verify profile
+            </AdminButton>
+            <AdminButton
+              className="btn-primary-winga"
+              startContent={<UserPlus size={18} />}
+              onPress={() => { setError(""); setCreateOpen(true); }}
+            >
+              Create user
+            </AdminButton>
+          </div>
         }
       />
       {error && (
@@ -64,10 +178,19 @@ export default function Users() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-winga-border bg-winga-muted">
+                      <th className="text-left py-3 px-4 font-medium w-8">
+                        <input
+                          type="checkbox"
+                          checked={users.length > 0 && selectedIds.size === users.length}
+                          onChange={(e) => setSelectedIds(e.target.checked ? new Set(users.map((u) => u.id)) : new Set())}
+                          aria-label="Select all"
+                        />
+                      </th>
                       <th className="text-left py-3 px-4 font-medium">Name</th>
                       <th className="text-left py-3 px-4 font-medium">Email</th>
                       <th className="text-left py-3 px-4 font-medium">Role</th>
                       <th className="text-left py-3 px-4 font-medium">Verified</th>
+                      <th className="text-left py-3 px-4 font-medium">Profile</th>
                       <th className="text-left py-3 px-4 font-medium">Active</th>
                       <th className="text-left py-3 px-4 font-medium">Actions</th>
                     </tr>
@@ -75,12 +198,78 @@ export default function Users() {
                   <tbody>
                     {users.map((u) => (
                       <tr key={u.id} className="border-b border-winga-border">
+                        <td className="py-3 px-4">
+                          {(u.role === "FREELANCER" || !u.role) && (
+                            <input
+                              type="checkbox"
+                              checked={selectedIds.has(u.id)}
+                              onChange={(e) => {
+                                setSelectedIds((prev) => {
+                                  const next = new Set(prev);
+                                  if (e.target.checked) next.add(u.id);
+                                  else next.delete(u.id);
+                                  return next;
+                                });
+                              }}
+                              aria-label={`Select ${u.fullName ?? u.email}`}
+                            />
+                          )}
+                        </td>
                         <td className="py-3 px-4">{u.fullName ?? "—"}</td>
                         <td className="py-3 px-4 text-winga-muted-foreground">{u.email ?? "—"}</td>
                         <td className="py-3 px-4 text-winga-muted-foreground">{u.role ?? "—"}</td>
                         <td className="py-3 px-4">{u.isVerified ? "Yes" : "No"}</td>
+                        <td className="py-3 px-4">
+                          {u.role === "FREELANCER" ? (
+                            <>
+                              {u.profileVerified && <span className="text-green-600 font-medium">Verified </span>}
+                              {u.profileCompleteness != null && <span>{u.profileCompleteness}%</span>}
+                              {u.profileCompleteness == null && u.profileVerified == null && "—"}
+                            </>
+                          ) : "—"}
+                        </td>
                         <td className="py-3 px-4">{u.isActive !== false ? "Yes" : "No"}</td>
                         <td className="py-3 px-4 flex gap-2">
+                          {(u.role === "FREELANCER" || !u.role) && (
+                            <AdminButton
+                              size="sm"
+                              variant="flat"
+                              isIconOnly
+                              aria-label="View experiences"
+                              onPress={() => {
+                                setExperiencesUser(u);
+                                setExperiencesOpen(true);
+                                getUserExperiences(u.id)
+                                  .then((r) => setExperiences(Array.isArray(r.data) ? r.data : []))
+                                  .catch(() => setExperiences([]));
+                              }}
+                            >
+                              <FileText size={14} />
+                            </AdminButton>
+                          )}
+                          {(u.role === "FREELANCER" || !u.role) && (
+                            <AdminButton
+                              size="sm"
+                              variant="flat"
+                              className={u.profileVerified ? "text-amber-600" : "text-green-600"}
+                              isIconOnly
+                              aria-label={u.profileVerified ? "Unverify profile" : "Verify profile"}
+                              onPress={async () => {
+                                setActing(true);
+                                setError("");
+                                try {
+                                  await verifyProfile(u.id, !u.profileVerified);
+                                  load();
+                                } catch (e) {
+                                  setError((e as Error).message || "Update failed");
+                                } finally {
+                                  setActing(false);
+                                }
+                              }}
+                            >
+                              <CheckCircle size={14} />
+                            </AdminButton>
+                          )}
                           <AdminButton
                             size="sm"
                             variant="flat"
@@ -242,6 +431,28 @@ export default function Users() {
           </p>
         </Modal>
       )}
+
+      <Modal
+        open={experiencesOpen}
+        onClose={() => { setExperiencesOpen(false); setExperiencesUser(null); setExperiences([]); }}
+        title={experiencesUser ? `Work experiences — ${experiencesUser.fullName ?? experiencesUser.email}` : "Work experiences"}
+        description="Work history for this worker."
+        footer={
+          <AdminButton variant="flat" onPress={() => { setExperiencesOpen(false); setExperiencesUser(null); setExperiences([]); }}>Close</AdminButton>
+        }
+      >
+        <div className="space-y-3 max-h-80 overflow-y-auto">
+          {experiences.length === 0 && <p className="text-winga-muted-foreground text-sm">No experiences recorded.</p>}
+          {experiences.map((exp) => (
+            <div key={exp.id} className="border border-winga-border rounded-lg p-3 text-sm">
+              <p className="font-medium text-foreground">{exp.title}</p>
+              {exp.company && <p className="text-winga-muted-foreground">{exp.company}</p>}
+              {(exp.startDate || exp.endDate) && <p className="text-winga-muted-foreground text-xs">{exp.startDate} — {exp.endDate ?? "Present"}</p>}
+              {exp.description && <p className="mt-1">{exp.description}</p>}
+            </div>
+          ))}
+        </div>
+      </Modal>
     </div>
   );
 }
@@ -315,6 +526,7 @@ function EditUserForm({
   const [role, setRole] = useState(user.role ?? "");
   const [isVerified, setIsVerified] = useState(user.isVerified ?? false);
   const [isActive, setIsActive] = useState(user.isActive !== false);
+  const [profileVerified, setProfileVerified] = useState(user.profileVerified ?? false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -327,6 +539,11 @@ function EditUserForm({
     const body: Parameters<typeof updateUser>[1] = { fullName: fullName.trim(), email: email.trim(), role, isVerified, isActive };
     if (password.trim()) body.password = password;
     updateUser(user.id, body)
+      .then(() => {
+        if (user.role === "FREELANCER" && profileVerified !== (user.profileVerified ?? false)) {
+          return verifyProfile(user.id, profileVerified).then(() => {});
+        }
+      })
       .then(() => onSuccess())
       .catch((e) => setError(e.message || "Failed to update user"))
       .finally(() => setActing(false));
@@ -344,6 +561,9 @@ function EditUserForm({
       </AdminSelect>
       <div className="flex flex-wrap gap-6 pt-1">
         <AdminCheckbox label="Verified" checked={isVerified} onChange={setIsVerified} description="User is verified" />
+        {(role === "FREELANCER" || user.role === "FREELANCER") && (
+          <AdminCheckbox label="Profile verified (badge)" checked={profileVerified} onChange={setProfileVerified} description="Admin-verified profile badge" />
+        )}
         <AdminCheckbox label="Active" checked={isActive} onChange={setIsActive} description="User can log in" />
       </div>
     </form>

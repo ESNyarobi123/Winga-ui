@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { authService } from "@/services/auth.service";
 import { profileService } from "@/services/profile.service";
 import { uploadFile } from "@/services/upload.service";
+import { jobService } from "@/services/job.service";
 import { useUserStore } from "@/store/use-user-store";
 import { REGISTRATION_STORAGE_KEY } from "../register/page";
 import { MessageCircle, Upload, Plus, X } from "lucide-react";
@@ -15,12 +16,12 @@ const TOTAL_STEPS = 8;
 const STEP_KEYS = [2, 3, 4, 5, 6, 7, 8, 9] as const;
 
 const GENDERS = ["Male", "Female", "Other", "Prefer not to say"];
-const TOP_SKILLS = ["Marketing", "Sales", "Customer Support", "Content Writing", "Design", "Development", "Data Entry", "Other"];
+const TOP_SKILLS_FALLBACK = ["Marketing", "Sales", "Customer Support", "Content Writing", "Design", "Development", "Data Entry", "Other"];
 const BIRTH_YEARS = Array.from({ length: 50 }, (_, i) => 2007 - i);
-const LANGUAGES_LIST = ["English", "Swahili", "French", "Arabic", "Portuguese", "Spanish", "German", "Other"];
+const LANGUAGES_FALLBACK = ["English", "Swahili", "French", "Arabic", "Portuguese", "Spanish", "German", "Other"];
 const COUNTRIES = ["Tanzania", "Kenya", "Uganda", "Rwanda", "Nigeria", "South Africa", "Ghana", "Other"];
-const WORK_TYPES = ["Full-time", "Part-time", "Contract", "Freelance"];
-const TIMEZONES = ["EAT (UTC+3)", "Pacific Standard Time (UTC-08:00)", "Eastern Time (UTC-05:00)", "GMT (UTC+0)", "Other"];
+const WORK_TYPES_FALLBACK = ["Full-time", "Part-time", "Contract", "Freelance"];
+const TIMEZONES = ["EAT (UTC+3)", "Africa/Dar_es_Salaam", "Pacific Standard Time (UTC-08:00)", "Eastern Time (UTC-05:00)", "GMT (UTC+0)", "Other"];
 const PAYMENT_OPTIONS = ["Bank Transfer", "PayPal", "Paxum", "Skrill", "Wise", "Venmo", "Crypto"];
 
 export interface JobSeekerFormData {
@@ -86,6 +87,9 @@ export default function RegistrationJobSeekerPage() {
   const [payload, setPayload] = useState<{ registrationToken: string; email: string } | null>(null);
   const [addingExperience, setAddingExperience] = useState(false);
   const [newExp, setNewExp] = useState({ title: "", company: "", startDate: "", endDate: "", description: "" });
+  const [categories, setCategories] = useState<string[]>([]);
+  const [languagesFromApi, setLanguagesFromApi] = useState<string[]>([]);
+  const [workTypesFromApi, setWorkTypesFromApi] = useState<string[]>([]);
 
   const step = STEP_KEYS[stepIndex];
   const progress = (stepIndex + 1) / TOTAL_STEPS;
@@ -98,6 +102,17 @@ export default function RegistrationJobSeekerPage() {
     }
     setPayload(p);
   }, [router]);
+
+  useEffect(() => {
+    jobService.getCategories().then((list) => setCategories(list.length > 0 ? list : TOP_SKILLS_FALLBACK)).catch(() => setCategories(TOP_SKILLS_FALLBACK));
+    jobService.getFilterOptions().then((opts) => {
+      setLanguagesFromApi(opts.languages.length > 0 ? opts.languages.map((l) => l.name) : LANGUAGES_FALLBACK);
+      setWorkTypesFromApi(opts.employmentTypes.length > 0 ? opts.employmentTypes.map((e) => e.name) : WORK_TYPES_FALLBACK);
+    }).catch(() => {
+      setLanguagesFromApi(LANGUAGES_FALLBACK);
+      setWorkTypesFromApi(WORK_TYPES_FALLBACK);
+    });
+  }, []);
 
   const update = useCallback((updates: Partial<JobSeekerFormData>) => {
     setForm((prev) => ({ ...prev, ...updates }));
@@ -147,10 +162,7 @@ export default function RegistrationJobSeekerPage() {
         companyName: undefined,
       });
       setUser(res.user);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("token", res.token);
-        sessionStorage.removeItem(REGISTRATION_STORAGE_KEY);
-      }
+      if (typeof window !== "undefined") sessionStorage.removeItem(REGISTRATION_STORAGE_KEY);
 
       let profileImageUrl: string | undefined;
       if (form.profileImageFile) {
@@ -173,6 +185,7 @@ export default function RegistrationJobSeekerPage() {
       const phoneNumber = form.phoneCountry && form.phone ? `${form.phoneCountry.replace(/\s/g, "")}${form.phone.replace(/\D/g, "")}` : undefined;
       await profileService.updateProfile({
         fullName,
+        headline: form.profileHeadline || undefined,
         phoneNumber,
         bio: form.profileHeadline || undefined,
         skills: form.topSkill || undefined,
@@ -282,7 +295,7 @@ export default function RegistrationJobSeekerPage() {
                   className="w-full h-11 rounded-lg border border-input bg-background px-3 text-sm"
                 >
                   <option value="">Select</option>
-                  {TOP_SKILLS.map((s) => (
+                  {(categories.length > 0 ? categories : TOP_SKILLS_FALLBACK).map((s) => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
@@ -377,7 +390,7 @@ export default function RegistrationJobSeekerPage() {
                 }}
               >
                 <option value="">Search and select languages *</option>
-                {LANGUAGES_LIST.filter((l) => !form.languages.includes(l)).map((l) => (
+                {(languagesFromApi.length > 0 ? languagesFromApi : LANGUAGES_FALLBACK).filter((l) => !form.languages.includes(l)).map((l) => (
                   <option key={l} value={l}>{l}</option>
                 ))}
               </select>
@@ -565,7 +578,7 @@ export default function RegistrationJobSeekerPage() {
                   className="w-full h-11 rounded-lg border border-input bg-background px-3 text-sm"
                 >
                   <option value="">Select Work Type *</option>
-                  {WORK_TYPES.map((w) => (
+                  {(workTypesFromApi.length > 0 ? workTypesFromApi : WORK_TYPES_FALLBACK).map((w) => (
                     <option key={w} value={w}>{w}</option>
                   ))}
                 </select>

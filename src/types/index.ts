@@ -35,6 +35,20 @@ export interface User {
   latitude?: number;
   longitude?: number;
   defaultCategoryId?: number;
+  /** Worker: headline / tagline */
+  headline?: string;
+  countryCode?: string;
+  typeSpeed?: string;
+  internetSpeed?: string;
+  computerSpecs?: string;
+  hasWebcam?: boolean;
+  /** Worker profile completeness 0–100 */
+  profileCompleteness?: number;
+  /** True when profile is complete (required fields filled) */
+  isProfileComplete?: boolean;
+  /** Admin-verified profile badge */
+  profileVerified?: boolean;
+  profileVerifiedAt?: string;
 }
 
 /** Worker list item for client Find Workers page (from API UserResponse) */
@@ -46,6 +60,10 @@ export interface WorkerListItem {
   description: string;
   tags: string[];
   profileImageUrl?: string;
+  headline?: string;
+  profileCompleteness?: number;
+  isProfileComplete?: boolean;
+  profileVerified?: boolean;
 }
 
 /** Backend JobResponse shape (for API) */
@@ -89,6 +107,8 @@ export interface JobListItem {
   clientLogo?: string | null;
   isVerified?: boolean;
   postedAt: string;
+  /** ISO date string for sorting */
+  createdAt?: string;
   location?: string;
 }
 

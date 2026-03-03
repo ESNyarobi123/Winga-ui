@@ -1,31 +1,50 @@
-import { Mail, ArrowRight } from "lucide-react";
+import { Mail, ArrowRight, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+/** Supports both legacy (joined, type, country, avatar, bio) and WorkerListItem (location, title, description, profileImageUrl). */
 interface WorkerCardProps {
     id: string;
     name: string;
-    joined: string;
-    type: string;
-    country: string;
-    avatar: string;
-    bio: string;
+    joined?: string;
+    type?: string;
+    country?: string;
+    avatar?: string;
+    bio?: string;
+    /** WorkerListItem: location */
+    location?: string;
+    /** WorkerListItem: title / headline */
+    title?: string;
+    /** WorkerListItem: description */
+    description?: string;
+    profileImageUrl?: string;
     tags: string[];
+    profileVerified?: boolean;
+    profileCompleteness?: number;
     onClick?: () => void;
     onActionClick?: (e: React.MouseEvent) => void;
 }
 
 export function WorkerCard({
-    id,
     name,
     joined,
     type,
     country,
     avatar,
     bio,
+    location,
+    title,
+    description,
+    profileImageUrl,
     tags,
+    profileVerified,
     onClick,
     onActionClick,
 }: WorkerCardProps) {
+    const displayCountry = country ?? location ?? "";
+    const displayType = type ?? title ?? "";
+    const displayBio = bio ?? description ?? "";
+    const displayAvatar = avatar ?? profileImageUrl ?? "";
+
     return (
         <div
             className="bg-white rounded-2xl p-6 shadow-[0px_2px_12px_rgba(0,0,0,0.04)] hover:shadow-[0px_4px_24px_rgba(0,0,0,0.08)] transition-shadow duration-300 border border-border/50 cursor-pointer"
@@ -35,7 +54,7 @@ export function WorkerCard({
                 {/* Avatar */}
                 <div className="flex-shrink-0">
                     <img
-                        src={avatar}
+                        src={displayAvatar || "/placeholder-avatar.png"}
                         alt={name}
                         className="w-20 h-20 rounded-full object-cover border border-border"
                     />
@@ -43,27 +62,37 @@ export function WorkerCard({
 
                 {/* Info */}
                 <div className="flex-1 flex flex-col justify-center">
-                    <span className="text-xs font-semibold text-muted-foreground mb-1 block">
-                        {joined}
-                    </span>
+                    {joined && (
+                        <span className="text-xs font-semibold text-muted-foreground mb-1 block">
+                            {joined}
+                        </span>
+                    )}
                     <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <h3 className="text-xl font-bold text-[#111827]">{name}</h3>
-                        {/* Fake flag for demo */}
-                        <span className="text-sm bg-muted px-2 py-0.5 rounded flex items-center gap-1 font-medium">
-                            🌍 {country}
-                        </span>
-                        <span className="text-sm bg-[#E6F3EE] text-[#006E42] px-2 py-0.5 rounded font-bold">
-                            {type}
-                        </span>
+                        {displayCountry && (
+                            <span className="text-sm bg-muted px-2 py-0.5 rounded flex items-center gap-1 font-medium">
+                                🌍 {displayCountry}
+                            </span>
+                        )}
+                        {displayType && (
+                            <span className="text-sm bg-[#E6F3EE] text-[#006E42] px-2 py-0.5 rounded font-bold">
+                                {displayType}
+                            </span>
+                        )}
+                        {profileVerified && (
+                            <span className="text-sm bg-green-100 text-green-700 px-2 py-0.5 rounded font-medium flex items-center gap-1">
+                                <BadgeCheck className="w-3.5 h-3.5" /> Verified
+                            </span>
+                        )}
                     </div>
                     <p className="text-[#4B5563] text-sm md:text-base leading-relaxed mb-4">
-                        {bio}
+                        {displayBio}
                     </p>
 
                     <div className="flex flex-wrap gap-2">
-                        {tags.map((tag, idx) => (
+                        {(Array.isArray(tags) ? tags : []).map((tag, idx) => (
                             <span
-                                key={idx}
+                                key={`${idx}-${String(tag)}`}
                                 className="text-xs font-semibold bg-[#F3F4F6] text-[#374151] px-3 py-1.5 rounded-full"
                             >
                                 {tag}

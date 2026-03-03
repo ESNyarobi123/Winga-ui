@@ -70,7 +70,7 @@ export default function RegistrationEmployerPage() {
         companyName: companyName.trim() || undefined,
       });
       setUser(res.user);
-      sessionStorage.removeItem(REGISTRATION_STORAGE_KEY);
+      if (typeof window !== "undefined") sessionStorage.removeItem(REGISTRATION_STORAGE_KEY);
       router.replace("/client/workers");
     } catch (err: unknown) {
       setError(

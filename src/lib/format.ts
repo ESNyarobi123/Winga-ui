@@ -24,12 +24,13 @@ export function jobResponseToListItem(j: JobResponseBackend): JobListItem {
     title: j.title,
     description: j.description,
     category: j.category ?? "General",
-    tags: j.tags ?? [],
+    tags: Array.isArray(j.tags) ? j.tags.filter(Boolean) : (typeof j.tags === "string" && j.tags ? j.tags.split(",").map((s) => s.trim()).filter(Boolean) : []),
     budget: formatBudgetTzs(j.budget),
     budgetType: "Fixed Price",
     clientName: j.client?.fullName ?? "Client",
     clientLogo: j.client?.profileImageUrl ?? null,
     isVerified: j.client?.isVerified ?? false,
     postedAt: formatRelativeTime(j.createdAt),
+    createdAt: j.createdAt,
   };
 }

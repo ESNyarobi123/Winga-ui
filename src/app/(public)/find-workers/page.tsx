@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { Search, Briefcase, Sparkles, Monitor, Smartphone, CreditCard, Globe, Languages, Users, ChevronDown } from "lucide-react";
+import { Search, Briefcase, Sparkles, Monitor, Smartphone, CreditCard, Globe, Languages, Users, ChevronDown, BadgeCheck, CheckCircle } from "lucide-react";
 import { Input } from "@heroui/input";
 import { Button } from "@heroui/button";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
@@ -37,12 +37,19 @@ export default function FindWorkersPage() {
     const [sortBy, setSortBy] = useState("Newest");
     const [workers, setWorkers] = useState<WorkerListItem[]>([]);
     const [selectedWorker, setSelectedWorker] = useState<WorkerListItem | null>(null);
+    const [verifiedOnly, setVerifiedOnly] = useState(false);
+    const [completeProfileOnly, setCompleteProfileOnly] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
         setIsLoading(true);
         workerService
-            .getWorkers({ size: 50 })
+            .getWorkers({
+                size: 50,
+                keyword: searchQuery.trim() || undefined,
+                profileVerified: verifiedOnly || undefined,
+                profileComplete: completeProfileOnly || undefined,
+            })
             .then((res) => {
                 if (!cancelled && res?.list !== undefined) setWorkers(res.list);
             })
@@ -53,18 +60,9 @@ export default function FindWorkersPage() {
                 if (!cancelled) setIsLoading(false);
             });
         return () => { cancelled = true; };
-    }, []);
+    }, [searchQuery, verifiedOnly, completeProfileOnly]);
 
-    const filteredWorkers = useMemo(() => {
-        const q = searchQuery.trim().toLowerCase();
-        if (!q) return workers;
-        return workers.filter(
-            (w) =>
-                w.name.toLowerCase().includes(q) ||
-                (w.description && w.description.toLowerCase().includes(q)) ||
-                w.tags.some((t) => t.toLowerCase().includes(q))
-        );
-    }, [workers, searchQuery]);
+    const filteredWorkers = workers;
 
     const handleActionClick = (worker: any, e: React.MouseEvent) => {
         if (!user) {
@@ -114,6 +112,29 @@ export default function FindWorkersPage() {
             </section>
 
             <div className="max-w-[1000px] mx-auto px-4 py-10">
+                {/* Quick filters: Verified, Complete profile */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                    <Button
+                        size="sm"
+                        variant={verifiedOnly ? "solid" : "bordered"}
+                        color={verifiedOnly ? "success" : "default"}
+                        className="rounded-full"
+                        startContent={<BadgeCheck className="w-4 h-4" />}
+                        onPress={() => setVerifiedOnly((v) => !v)}
+                    >
+                        Verified only
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant={completeProfileOnly ? "solid" : "bordered"}
+                        color={completeProfileOnly ? "success" : "default"}
+                        className="rounded-full"
+                        startContent={<CheckCircle className="w-4 h-4" />}
+                        onPress={() => setCompleteProfileOnly((v) => !v)}
+                    >
+                        Complete profile only
+                    </Button>
+                </div>
                 {/* Filter dropdowns – neutral, rounded, subtle border, icon + chevron (2 rows × 4) */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                     {FILTERS.map(({ label, icon: Icon }) => (

@@ -152,25 +152,27 @@ export function JobDetailPanel({
               </div>
             </section>
 
-            {/* Skills & Expertise */}
-            {(job.tags?.length > 0 || true) && (
-              <section>
-                <h3 className="flex items-center gap-2 font-semibold text-[#006B3E] text-lg mb-3">
-                  <span className="text-xl">🧠</span> {t("job.skillsExpertise") || "Skills & Expertise"}
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {(job.tags?.length ? job.tags : ["Editing - Advanced", "Communication"]).map((tag) => (
+            {/* Skills & Expertise (tags from API) */}
+            <section>
+              <h3 className="flex items-center gap-2 font-semibold text-[#006B3E] text-lg mb-3">
+                <span className="text-xl">🧠</span> {t("job.skillsExpertise") || "Skills & Expertise"}
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {(Array.isArray(job.tags) ? job.tags : []).length > 0 ? (
+                  (Array.isArray(job.tags) ? job.tags : []).map((tag, i) => (
                     <Chip
-                      key={tag}
+                      key={`${i}-${String(tag)}`}
                       variant="bordered"
                       className="border-[#006B3E]/30 text-[#006B3E] font-semibold text-[14px] bg-[#E8F3EE]/50 h-9 px-4"
                     >
                       {tag}
                     </Chip>
-                  ))}
-                </div>
-              </section>
-            )}
+                  ))
+                ) : (
+                  <span className="text-default-500 text-sm">—</span>
+                )}
+              </div>
+            </section>
 
             {/* Social Media */}
             <section>

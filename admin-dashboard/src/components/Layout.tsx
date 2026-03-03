@@ -9,6 +9,7 @@ import {
   Users,
   FolderOpen,
   CreditCard,
+  Package,
   AlertCircle,
   Settings,
   ShieldCheck,
@@ -27,6 +28,7 @@ const nav = [
   { to: "/users", label: "Users", icon: Users },
   { to: "/categories", label: "Categories", icon: FolderOpen },
   { to: "/payment-options", label: "Payment options", icon: CreditCard },
+  { to: "/subscription-plans", label: "Subscription plans", icon: Package },
   { to: "/disputes", label: "Disputes", icon: AlertCircle },
   { to: "/settings", label: "Settings", icon: Settings },
 ];

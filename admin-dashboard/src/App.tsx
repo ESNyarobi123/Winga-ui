@@ -9,6 +9,7 @@ import Contracts from "./pages/Contracts";
 import Users from "./pages/Users";
 import Categories from "./pages/Categories";
 import PaymentOptions from "./pages/PaymentOptions";
+import SubscriptionPlans from "./pages/SubscriptionPlans";
 import Disputes from "./pages/Disputes";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
@@ -55,6 +56,7 @@ export default function App() {
           <Route path="users" element={<Users />} />
           <Route path="categories" element={<Categories />} />
           <Route path="payment-options" element={<PaymentOptions />} />
+          <Route path="subscription-plans" element={<SubscriptionPlans />} />
           <Route path="disputes" element={<Disputes />} />
           <Route path="settings" element={<Settings />} />
         </Route>

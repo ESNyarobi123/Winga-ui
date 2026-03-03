@@ -22,6 +22,10 @@ export const jobService = {
     size?: number;
     keyword?: string;
     category?: string;
+    employmentType?: string;
+    socialMedia?: string;
+    software?: string;
+    language?: string;
     minBudget?: number;
     maxBudget?: number;
   }): Promise<JobsPageResult> {
@@ -45,6 +49,28 @@ export const jobService = {
   async getCategories(): Promise<string[]> {
     const { data } = await api.get<ApiResponse<string[]>>("/jobs/categories");
     return data.data ?? [];
+  },
+
+  /** GET /jobs/filter-options — employment types, social media, software, languages (for registration & find-jobs) */
+  async getFilterOptions(): Promise<{
+    employmentTypes: { id: number; name: string; slug: string }[];
+    socialMedia: { id: number; name: string; slug: string }[];
+    software: { id: number; name: string; slug: string }[];
+    languages: { id: number; name: string; slug: string }[];
+  }> {
+    const { data } = await api.get<ApiResponse<{
+      employmentTypes?: { id: number; type?: string; name: string; slug: string; sortOrder?: number }[];
+      socialMedia?: { id: number; type?: string; name: string; slug: string; sortOrder?: number }[];
+      software?: { id: number; type?: string; name: string; slug: string; sortOrder?: number }[];
+      languages?: { id: number; type?: string; name: string; slug: string; sortOrder?: number }[];
+    }>>("/jobs/filter-options");
+    const raw = data.data;
+    return {
+      employmentTypes: raw?.employmentTypes?.map((o) => ({ id: o.id, name: o.name, slug: o.slug })) ?? [],
+      socialMedia: raw?.socialMedia?.map((o) => ({ id: o.id, name: o.name, slug: o.slug })) ?? [],
+      software: raw?.software?.map((o) => ({ id: o.id, name: o.name, slug: o.slug })) ?? [],
+      languages: raw?.languages?.map((o) => ({ id: o.id, name: o.name, slug: o.slug })) ?? [],
+    };
   },
 
   async getMyJobs(params?: { page?: number; size?: number }): Promise<JobsPageResult> {

@@ -10,7 +10,6 @@ import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/d
 import { Drawer, DrawerContent } from "@heroui/drawer";
 import { JobList } from "@/components/features/jobs/job-list";
 import { JobDetailPanel } from "@/components/features/jobs/job-detail-panel";
-import { JOB_CATEGORIES } from "@/lib/constants";
 import { jobService } from "@/services/job.service";
 import { useAuth } from "@/hooks/use-auth";
 import { useT } from "@/lib/i18n";
@@ -36,6 +35,7 @@ export default function FindJobsPage() {
   const [sortBy, setSortBy] = useState<typeof SORT_KEYS[number]>("newest");
   const [selectedJob, setSelectedJob] = useState<JobListItem | null>(null);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
+  const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
     if (user?.role === "FREELANCER") {
@@ -45,10 +45,21 @@ export default function FindJobsPage() {
   }, [user?.role, router]);
 
   useEffect(() => {
+    jobService.getCategories().then(setCategories).catch(() => setCategories([]));
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    jobService.getSavedJobs({ size: 200 }).then((res) => {
+      setSavedJobIds(new Set((res?.list ?? []).map((j) => String(j.id))));
+    }).catch(() => {});
+  }, [user]);
+
+  useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
     jobService
-      .getJobs({ keyword: searchQuery || undefined, category: selectedCategory ?? undefined, size: 50 })
+      .getJobs({ keyword: searchQuery.trim() || undefined, category: selectedCategory ?? undefined, size: 50 })
       .then((res) => {
         if (!cancelled && res?.list !== undefined) setJobs(res.list);
       })
@@ -64,27 +75,12 @@ export default function FindJobsPage() {
   }, [searchQuery, selectedCategory]);
 
   const filteredJobs = useMemo(() => {
-    let list = [...jobs];
-    const q = searchQuery.trim().toLowerCase();
-    if (q) {
-      list = list.filter(
-        (job) =>
-          job.title.toLowerCase().includes(q) ||
-          job.category.toLowerCase().includes(q) ||
-          (job.clientName && job.clientName.toLowerCase().includes(q)) ||
-          job.tags.some((t) => t.toLowerCase().includes(q))
-      );
-    }
-    if (selectedCategory) {
-      list = list.filter(
-        (job) => job.category.toLowerCase() === selectedCategory.toLowerCase()
-      );
-    }
-    const getTime = (job: JobListItem) => job.postedAt ? new Date(job.postedAt).getTime() : 0;
-    if (sortBy === "newest" && list.length > 0) list = [...list].sort((a, b) => getTime(b) - getTime(a));
-    else if (sortBy === "oldest" && list.length > 0) list = [...list].sort((a, b) => getTime(a) - getTime(b));
+    const list = [...jobs];
+    const getTime = (job: JobListItem) => (job.createdAt ? new Date(job.createdAt).getTime() : 0);
+    if (sortBy === "newest" && list.length > 0) return [...list].sort((a, b) => getTime(b) - getTime(a));
+    if (sortBy === "oldest" && list.length > 0) return [...list].sort((a, b) => getTime(a) - getTime(b));
     return list;
-  }, [jobs, searchQuery, selectedCategory, sortBy]);
+  }, [jobs, sortBy]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -141,24 +137,24 @@ export default function FindJobsPage() {
           ))}
         </div>
 
-        {/* Category tags – rounded pills, subtle border, icon + label, selected = soft primary */}
+        {/* Category tags – from API (admin-managed), rounded pills */}
         <div className="flex flex-wrap items-center gap-3 mb-10">
-          {JOB_CATEGORIES.map((cat) => {
-            const isSelected = selectedCategory === cat.name;
+          {categories.length > 0 && categories.map((catName) => {
+            const isSelected = selectedCategory === catName;
             return (
               <Chip
-                key={cat.name}
+                key={catName}
                 variant="bordered"
                 size="md"
                 className={`cursor-pointer font-semibold text-[14px] transition-all rounded-xl min-h-[44px] px-4 ${isSelected
                     ? "bg-primary-50 text-primary border-primary/50 shadow-sm border"
                     : "bg-white text-gray-800 border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm border"
                   }`}
-                startContent={<span className="text-base">{cat.icon}</span>}
+                startContent={<span className="text-base">🛠</span>}
                 onClose={isSelected ? () => setSelectedCategory(null) : undefined}
-                onClick={() => setSelectedCategory(isSelected ? null : cat.name)}
+                onClick={() => setSelectedCategory(isSelected ? null : catName)}
               >
-                {cat.name}
+                {catName}
               </Chip>
             );
           })}
@@ -204,12 +200,15 @@ export default function FindJobsPage() {
               selectedJobId={selectedJob?.id ?? null}
               savedJobIds={savedJobIds}
               onSaveToggle={(jobId) => {
-                setSavedJobIds((prev) => {
-                  const next = new Set(prev);
-                  if (next.has(jobId)) next.delete(jobId);
-                  else next.add(jobId);
-                  return next;
-                });
+                if (!user) return;
+                const saved = savedJobIds.has(jobId);
+                if (saved) {
+                  jobService.unsaveJob(jobId).catch(() => {});
+                  setSavedJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
+                } else {
+                  jobService.saveJob(jobId).catch(() => {});
+                  setSavedJobIds((prev) => new Set(prev).add(jobId));
+                }
               }}
             />
           </div>
@@ -236,12 +235,15 @@ export default function FindJobsPage() {
                   isLoggedIn={!!user}
                   saved={savedJobIds.has(String(selectedJob?.id))}
                   onSaveToggle={(jobId) => {
-                    setSavedJobIds((prev) => {
-                      const next = new Set(prev);
-                      if (next.has(jobId)) next.delete(jobId);
-                      else next.add(jobId);
-                      return next;
-                    });
+                    if (!user) return;
+                    const saved = savedJobIds.has(jobId);
+                    if (saved) {
+                      jobService.unsaveJob(jobId).catch(() => {});
+                      setSavedJobIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
+                    } else {
+                      jobService.saveJob(jobId).catch(() => {});
+                      setSavedJobIds((prev) => new Set(prev).add(jobId));
+                    }
                   }}
                 />
               )}

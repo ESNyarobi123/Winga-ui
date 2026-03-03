@@ -9,63 +9,7 @@ import { Skeleton } from "@heroui/skeleton";
 import { jobService } from "@/services/job.service";
 import type { JobListItem } from "@/types";
 
-const savedJobsSample = [
-    {
-        id: "1",
-        title: "OF Chatter PH",
-        type: "Full-time",
-        postedAt: "February 27, 2026",
-        salary: "$2 hourly & 3",
-        tags: [
-            { icon: "🐦", label: "OnlyFans" },
-            { icon: "💬", label: "Chatting" },
-            { icon: "🇬🇧", label: "English" },
-        ],
-        isVerified: false,
-        clientName: null,
-        saved: true,
-    },
-    {
-        id: "2",
-        title: "OF Chatter (PH)",
-        type: "Full-time",
-        postedAt: "February 27, 2026",
-        salary: "$2 monthly & 3",
-        tags: [
-            { icon: "🐦", label: "OnlyFans" },
-            { icon: "💬", label: "Chatting" },
-            { icon: "🇬🇧", label: "English" },
-        ],
-        isVerified: true,
-        clientName: "Verified Employer",
-        saved: true,
-    },
-    {
-        id: "3",
-        title: "Content Editor",
-        type: "Part-time",
-        postedAt: "February 27, 2026",
-        salary: "$250 - $700 monthly",
-        tags: [
-            { icon: "✈️", label: "Telegram" },
-            { icon: "🐦", label: "OnlyFans" },
-            { icon: "📸", label: "Instagram" },
-            { icon: "▶️", label: "YouTube" },
-            { icon: "✖️", label: "Twitter" },
-            { icon: "🧵", label: "Threads" },
-            { icon: "🔴", label: "Reddit" },
-            { icon: "🎵", label: "TikTok" },
-            { icon: "🎬", label: "Editing" },
-            { icon: "📈", label: "Marketing" },
-            { icon: "🇬🇧", label: "English" },
-        ],
-        isVerified: false,
-        clientName: "OnlyGlow Media",
-        saved: true,
-    },
-];
-
-/** Local shape for the saved job card (API returns JobListItem; we adapt or use sample) */
+/** Local shape for the saved job card (from API JobListItem) */
 type SavedJobCard = {
   id: string;
   title: string;
@@ -95,36 +39,25 @@ function toSavedCard(j: JobListItem): SavedJobCard {
 export default function WorkerSavedJobsPage() {
   const [jobs, setJobs] = useState<SavedJobCard[]>([]);
   const [loading, setLoading] = useState(true);
-  const [useSample, setUseSample] = useState(false);
 
   useEffect(() => {
     jobService
       .getSavedJobs({ size: 50 })
       .then((res) => {
         const list = res?.list ?? [];
-        if (list.length > 0) {
-          setJobs(list.map(toSavedCard));
-          setUseSample(false);
-        } else {
-          setJobs(savedJobsSample);
-          setUseSample(true);
-        }
+        setJobs(list.map(toSavedCard));
       })
-      .catch(() => {
-        setJobs(savedJobsSample);
-        setUseSample(true);
-      })
+      .catch(() => setJobs([]))
       .finally(() => setLoading(false));
   }, []);
 
   const toggleSave = (id: string) => {
-    setJobs((prev) =>
-      prev.map((j) => (j.id === id ? { ...j, saved: !j.saved } : j))
-    );
-    if (!useSample) jobService.unsaveJob(id).catch(() => {});
+    jobService.unsaveJob(id).then(() => {
+      setJobs((prev) => prev.filter((j) => j.id !== id));
+    }).catch(() => {});
   };
 
-  const activeJobs = jobs.filter((j) => j.saved);
+  const activeJobs = jobs;
 
     return (
         <div className="min-h-screen bg-background">

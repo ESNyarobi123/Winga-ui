@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronRight, ChevronLeft, MapPin, Globe, Clock, CreditCard, Laptop, Type, Wifi, Camera } from "lucide-react";
+import { ChevronRight, ChevronLeft, MapPin, Globe, Clock, CreditCard, Laptop, Type, Wifi, Camera, BadgeCheck } from "lucide-react";
 import { Button } from "@heroui/button";
 import { useT } from "@/lib/i18n";
+import type { WorkerListItem } from "@/types";
 
 type WorkerDetailPanelProps = {
-    worker: any;
+    worker: WorkerListItem | null;
     onClose: () => void;
 };
 
@@ -15,6 +16,11 @@ export function WorkerDetailPanel({ worker, onClose }: WorkerDetailPanelProps) {
     const t = useT();
 
     if (!worker) return null;
+
+    const avatar = worker.profileImageUrl || "https://i.pravatar.cc/150";
+    const country = worker.location || "";
+    const headline = worker.title || worker.headline || "Full-time";
+    const bio = worker.description || "Dedicated and trustworthy online account manager experienced in handling chats, customer support, and social media engagement.";
 
     return (
         <div className="flex flex-col h-full bg-white w-full">
@@ -36,27 +42,32 @@ export function WorkerDetailPanel({ worker, onClose }: WorkerDetailPanelProps) {
                 {/* Profile Header Block */}
                 <div className="flex items-center gap-4 mb-4">
                     <img
-                        src={worker.avatar || "https://i.pravatar.cc/150"}
+                        src={avatar}
                         alt={worker.name}
                         className="w-[80px] h-[80px] rounded-full object-cover border-[3px] border-white shadow-sm"
                     />
                     <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                             <h2 className="text-[26px] font-extrabold text-[#006B3E] leading-tight">
                                 {worker.name}
                             </h2>
-                            <span className="text-lg" title={worker.country}>🌍</span>
+                            {worker.profileVerified && (
+                                <span className="text-green-700 font-semibold text-sm bg-green-100 px-2 py-0.5 rounded flex items-center gap-1">
+                                    <BadgeCheck className="w-3.5 h-3.5" /> Verified
+                                </span>
+                            )}
+                            {country && <span className="text-lg" title={country}>🌍</span>}
                         </div>
                         <div className="mt-1">
                             <span className="text-[#006B3E] font-bold text-sm bg-[#E8F3EE] px-2 py-1 rounded">
-                                {worker.type || "Full-time"}
+                                {headline}
                             </span>
                         </div>
                     </div>
                 </div>
 
                 <p className="text-[15px] font-medium text-gray-700 leading-relaxed mb-6">
-                    {worker.bio || "Dedicated and trustworthy online account manager experienced in handling chats, customer support, and social media engagement."}
+                    {bio}
                 </p>
 
                 {/* Worker tags as small grey chips */}

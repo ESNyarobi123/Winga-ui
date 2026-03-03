@@ -58,6 +58,14 @@ export type UserRow = {
   verificationStatus?: string;
   isActive?: boolean;
   createdAt?: string;
+  /** Worker profile completeness 0–100 */
+  profileCompleteness?: number;
+  isProfileComplete?: boolean;
+  profileVerified?: boolean;
+  profileVerifiedAt?: string;
+  headline?: string;
+  cvUrl?: string;
+  profileImageUrl?: string;
 };
 
 export async function getUsers(page = 0, size = 20) {
@@ -78,6 +86,81 @@ export async function updateUser(id: number, body: Partial<{ fullName: string; e
 
 export async function deleteUser(id: number) {
   return api(`/admin/users/${id}`, { method: "DELETE" });
+}
+
+/** GET /admin/users/:id/experiences — worker work experiences */
+export async function getUserExperiences(id: number) {
+  return api<{ id: number; title: string; company?: string; startDate?: string; endDate?: string; description?: string; skillsLearned?: string[] }[]>(`/admin/users/${id}/experiences`);
+}
+
+/** PUT /admin/users/:id/verify-profile?verified=true|false */
+export async function verifyProfile(userId: number, verified: boolean) {
+  return api<UserRow>(`/admin/users/${userId}/verify-profile?verified=${verified}`, { method: "PUT" });
+}
+
+/** POST /admin/users/bulk-verify-profile — body: { userIds: number[], verified: boolean } */
+export async function bulkVerifyProfile(userIds: number[], verified: boolean) {
+  return api<{ updated: number }>("/admin/users/bulk-verify-profile", {
+    method: "POST",
+    body: JSON.stringify({ userIds, verified }),
+  });
+}
+
+/** GET /admin/analytics?from=&to= — optional ISO date range. Returns jobsPerCategory, proposalsPerJob, revenueInPeriod. */
+export async function getAnalytics(from?: string, to?: string) {
+  const params = new URLSearchParams();
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
+  const q = params.toString();
+  return api<{ jobsPerCategory?: { categoryName: string; count: number }[]; proposalsPerJob?: unknown[]; revenueInPeriod?: number }>(`/admin/analytics${q ? `?${q}` : ""}`);
+}
+
+/** Download CSV from a URL with auth. Uses fetch + blob and triggers download. */
+async function downloadCsv(path: string, filename: string) {
+  const url = path.startsWith("http") ? path : `${API_BASE}/api${path.startsWith("/") ? path : `/${path}`}`;
+  const headers = getAuthHeaders() as Record<string, string>;
+  const res = await fetch(url, { headers });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || res.statusText);
+  }
+  const blob = await res.blob();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/** GET /admin/export/workers?incompleteOnly=&withCvOnly= — download workers CSV */
+export async function exportWorkersCsv(incompleteOnly?: boolean, withCvOnly?: boolean) {
+  const params = new URLSearchParams();
+  if (incompleteOnly === true) params.set("incompleteOnly", "true");
+  if (withCvOnly === true) params.set("withCvOnly", "true");
+  const q = params.toString();
+  await downloadCsv(`/admin/export/workers${q ? `?${q}` : ""}`, "workers-export.csv");
+}
+
+/** POST /admin/export/workers — body { userIds: number[] } — download selected workers CSV */
+export async function exportWorkersCsvSelected(userIds: number[]) {
+  const url = `${API_BASE}/api/admin/export/workers`;
+  const headers = { "Content-Type": "application/json", ...getAuthHeaders() } as Record<string, string>;
+  const res = await fetch(url, { method: "POST", headers, body: JSON.stringify({ userIds }) });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || res.statusText);
+  }
+  const blob = await res.blob();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "workers-selected.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/** GET /admin/export/contracts — download contracts CSV */
+export async function exportContractsCsv() {
+  await downloadCsv("/admin/export/contracts", "contracts-export.csv");
 }
 
 export async function getModerationJobs(page = 0, size = 20) {
@@ -242,6 +325,48 @@ export async function updatePaymentOption(id: number, body: Partial<{ name: stri
 
 export async function deletePaymentOption(id: number) {
   return api(`/admin/payment-options/${id}`, { method: "DELETE" });
+}
+
+// ─── Subscription plans (freelancer packages) ─────────────────────────────────
+export type SubscriptionPlanRow = {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  price: number;
+  currency: string;
+  durationDays: number;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt?: string;
+};
+
+export async function getSubscriptionPlans() {
+  return api<SubscriptionPlanRow[]>("/admin/subscription-plans");
+}
+
+export async function createSubscriptionPlan(body: {
+  name: string;
+  slug: string;
+  description?: string;
+  price: number;
+  currency?: string;
+  durationDays: number;
+  isActive?: boolean;
+  sortOrder?: number;
+}) {
+  return api<SubscriptionPlanRow>("/admin/subscription-plans", { method: "POST", body: JSON.stringify(body) });
+}
+
+export async function updateSubscriptionPlan(
+  id: number,
+  body: Partial<{ name: string; slug: string; description: string; price: number; currency: string; durationDays: number; isActive: boolean; sortOrder: number }>
+) {
+  return api<SubscriptionPlanRow>(`/admin/subscription-plans/${id}`, { method: "PUT", body: JSON.stringify(body) });
+}
+
+export async function deleteSubscriptionPlan(id: number) {
+  return api(`/admin/subscription-plans/${id}`, { method: "DELETE" });
 }
 
 export async function getDisputes(page = 0, size = 20) {

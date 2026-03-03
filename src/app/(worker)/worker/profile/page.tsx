@@ -10,65 +10,92 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@herou
 import { Chip } from "@heroui/chip";
 import { authService } from "@/services/auth.service";
 import { profileService } from "@/services/profile.service";
+import type { ProfileChecklistResponse, WorkExperienceItem } from "@/services/profile.service";
 import { portfolioService } from "@/services/portfolio.service";
 import { certificationService } from "@/services/certification.service";
 import { useAuth } from "@/hooks/use-auth";
 import { LocationFields } from "@/components/features/location/location-fields";
 import type { User } from "@/types";
 
-const defaultProfile = {
-    name: "",
-    location: "Tanzania 🇹🇿",
-    tagline: "",
-    whatsapp: "",
-    telegram: "",
-    email: "",
-    avatar: null as string | null,
-    details: {
-        languages: [{ name: "English", level: "Fluent/Native" }],
-        paymentMethods: ["Bank Transfer", "PayPal", "Skrill", "Crypto"],
-        workType: "Full-time",
-        typingSpeed: "10 per minute",
-        internetSpeed: "Not specified",
-        computerSpecs: "Not specified",
-        webcam: "Not specified",
-        microphone: "Not specified",
-    },
-    experiences: [
-        {
-            id: "1",
-            company: "Unida tech limited",
-            role: "Application development",
-            period: "Feb 2026 - Present",
-            title: "Software developer",
-            skills: [{ icon: "🚀", name: "Development - Advanced" }],
-            software: [{ icon: "❓", name: "Other" }],
-        },
-    ],
+const defaultDetails = {
+    languages: [] as { name: string; level: string }[],
+    paymentMethods: [] as string[],
+    workType: "",
+    typingSpeed: "",
+    internetSpeed: "",
+    computerSpecs: "",
+    webcam: "",
+    microphone: "—",
 };
+
+function parseLanguages(s: string | undefined): { name: string; level: string }[] {
+    if (!s || typeof s !== "string") return [];
+    if (s.startsWith("[")) {
+        try {
+            const arr = JSON.parse(s);
+            return Array.isArray(arr) ? arr.map((x) => ({ name: String(x), level: "—" })) : [];
+        } catch { return []; }
+    }
+    return s.split(",").map((x) => ({ name: x.trim(), level: "—" })).filter((x) => x.name);
+}
+
+function parsePaymentMethods(s: string | undefined): string[] {
+    if (!s || typeof s !== "string") return [];
+    if (s.startsWith("[")) {
+        try {
+            const arr = JSON.parse(s);
+            return Array.isArray(arr) ? arr.map(String).filter(Boolean) : [];
+        } catch { return []; }
+    }
+    return s.split(",").map((x) => x.trim()).filter(Boolean);
+}
 
 function userToProfile(u: User) {
     return {
-        ...defaultProfile,
         name: u.fullName ?? u.email ?? "",
+        location: u.country ?? "Tanzania 🇹🇿",
+        tagline: u.bio ?? "",
+        whatsapp: u.phoneNumber ?? "",
+        telegram: u.telegram ?? "",
         email: u.email ?? "",
         avatar: u.profileImageUrl ?? null,
-        tagline: u.bio ?? defaultProfile.tagline,
-        whatsapp: u.phoneNumber ?? defaultProfile.whatsapp,
+        details: {
+            ...defaultDetails,
+            languages: parseLanguages(u.languages),
+            paymentMethods: parsePaymentMethods(u.paymentPreferences),
+            workType: u.workType ?? "",
+            typingSpeed: u.typeSpeed ?? "",
+            internetSpeed: u.internetSpeed ?? "",
+            computerSpecs: u.computerSpecs ?? "",
+            webcam: u.hasWebcam != null ? (u.hasWebcam ? "Yes" : "No") : "",
+        },
     };
 }
 
 export default function WorkerProfilePage() {
     const { setUser } = useAuth();
-    const [profile, setProfile] = useState(defaultProfile);
+    const [profile, setProfile] = useState(() => ({ ...userToProfile({} as User), details: defaultDetails }));
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
-    const [editForm, setEditForm] = useState({ fullName: "", phoneNumber: "", bio: "" });
+    const [editForm, setEditForm] = useState({
+        fullName: "",
+        phoneNumber: "",
+        bio: "",
+        headline: "",
+        country: "",
+        workType: "",
+        timezone: "",
+        languages: "",
+        paymentPreferences: "",
+    });
     const [location, setLocation] = useState<{ city?: string; region?: string; latitude?: number; longitude?: number }>({});
     const [saving, setSaving] = useState(false);
     const [rating, setRating] = useState<{ averageRating: number; reviewCount: number } | null>(null);
     const [portfolio, setPortfolio] = useState<Awaited<ReturnType<typeof portfolioService.getMyPortfolio>>>([]);
     const [certifications, setCertifications] = useState<Awaited<ReturnType<typeof certificationService.getMyCertifications>>>([]);
+    const [checklist, setChecklist] = useState<ProfileChecklistResponse | null>(null);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [experiences, setExperiences] = useState<WorkExperienceItem[]>([]);
 
     function loadProfile() {
         setLoading(true);
@@ -81,6 +108,26 @@ export default function WorkerProfilePage() {
                     fullName: user.fullName ?? "",
                     phoneNumber: user.phoneNumber ?? "",
                     bio: user.bio ?? "",
+                    headline: user.headline ?? "",
+                    country: user.country ?? "",
+                    workType: user.workType ?? "",
+                    timezone: user.timezone ?? "",
+                    languages: (() => {
+                        const s = user.languages;
+                        if (!s || typeof s !== "string") return "";
+                        if (s.startsWith("[")) {
+                            try { return JSON.parse(s).filter(Boolean).join(", "); } catch { return s; }
+                        }
+                        return s;
+                    })(),
+                    paymentPreferences: (() => {
+                        const s = user.paymentPreferences;
+                        if (!s || typeof s !== "string") return "";
+                        if (s.startsWith("[")) {
+                            try { return JSON.parse(s).filter(Boolean).join(", "); } catch { return s; }
+                        }
+                        return s;
+                    })(),
                 });
                 setLocation({
                     city: user.city,
@@ -99,6 +146,8 @@ export default function WorkerProfilePage() {
                 portfolioService.getMyPortfolio().then(setPortfolio).catch(() => setPortfolio([]));
                 certificationService.getMyCertifications().then(setCertifications).catch(() => setCertifications([]));
             })
+            .then(() => profileService.getProfileChecklist().then(setChecklist).catch(() => setChecklist(null)))
+            .then(() => profileService.getMyExperiences().then(setExperiences).catch(() => setExperiences([])))
             .catch(() => {})
             .finally(() => setLoading(false));
     }
@@ -109,11 +158,20 @@ export default function WorkerProfilePage() {
 
     async function handleSaveProfile() {
         setSaving(true);
+        setSaveError(null);
         try {
+            const langStr = editForm.languages?.trim();
+            const payStr = editForm.paymentPreferences?.trim();
             const updated = await profileService.updateProfile({
                 fullName: editForm.fullName || undefined,
                 phoneNumber: editForm.phoneNumber || undefined,
                 bio: editForm.bio || undefined,
+                headline: editForm.headline || undefined,
+                country: editForm.country || undefined,
+                workType: editForm.workType || undefined,
+                timezone: editForm.timezone || undefined,
+                languages: langStr ? (langStr.includes(",") ? JSON.stringify(langStr.split(",").map((s) => s.trim()).filter(Boolean)) : JSON.stringify([langStr])) : undefined,
+                paymentPreferences: payStr ? (payStr.includes(",") ? JSON.stringify(payStr.split(",").map((s) => s.trim()).filter(Boolean)) : JSON.stringify([payStr])) : undefined,
                 city: location.city,
                 region: location.region,
                 latitude: location.latitude,
@@ -122,8 +180,11 @@ export default function WorkerProfilePage() {
             setUser(updated);
             setProfile((prev) => ({ ...prev, ...userToProfile(updated) }));
             setEditing(false);
-        } catch {
-            // keep form open on error
+            loadProfile();
+        } catch (err: unknown) {
+            const res = err && typeof err === "object" && "response" in err ? (err as { response?: { data?: { message?: string } } }).response?.data?.message : null;
+            const msg = res || (err && typeof err === "object" && "message" in err ? String((err as { message: string }).message) : null) || "Failed to save. Complete required fields (e.g. country, headline, languages, payment, work type, timezone).";
+            setSaveError(msg);
         } finally {
             setSaving(false);
         }
@@ -140,6 +201,20 @@ export default function WorkerProfilePage() {
     return (
         <div className="min-h-screen bg-background">
             <div className="max-w-[900px] mx-auto px-6 py-8">
+                {checklist && !checklist.complete && (
+                    <Card className="border border-primary/30 rounded-2xl p-4 mb-4 bg-primary-50/50" shadow="sm">
+                        <CardBody className="p-0">
+                            <p className="text-sm font-semibold text-foreground mb-1">Profile completeness: {checklist.profileCompleteness}%</p>
+                            <div className="h-2 w-full rounded-full bg-default-200 overflow-hidden mb-2">
+                                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${checklist.profileCompleteness}%` }} />
+                            </div>
+                            {checklist.missingFields?.length > 0 && (
+                                <p className="text-xs text-default-600">Complete: {checklist.missingFields.join(", ")}</p>
+                            )}
+                        </CardBody>
+                    </Card>
+                )}
+
                 <Card className="border border-default-200 rounded-2xl p-6 mb-6 relative" shadow="sm">
                     <Button
                         isIconOnly
@@ -214,35 +289,35 @@ export default function WorkerProfilePage() {
                             <div className="flex items-start justify-between">
                                 <div>
                                     <div className="flex items-center gap-1.5 text-[13px] text-default-500 mb-1">🌐 <span className="font-semibold text-foreground">Languages</span></div>
-                                    {profile.details.languages.map((lang) => (
+                                    {profile.details.languages.length > 0 ? profile.details.languages.map((lang) => (
                                         <div key={lang.name} className="text-[13.5px] text-foreground font-medium">{lang.name}: <span className="text-default-500">{lang.level}</span></div>
-                                    ))}
+                                    )) : <div className="text-[13.5px] text-default-500">—</div>}
                                 </div>
                                 <Button isIconOnly size="sm" variant="flat" color="primary" className="bg-primary-100 min-w-8 w-8 h-8" aria-label="Edit languages"><Pencil className="w-3.5 h-3.5" /></Button>
                             </div>
                             <div>
                                 <div className="text-[13px] text-default-500 mb-1">💳 <span className="font-semibold text-foreground">Preferred way of payment</span></div>
-                                <div className="text-[13.5px] font-medium text-foreground">{profile.details.paymentMethods.join(", ")}</div>
+                                <div className="text-[13.5px] font-medium text-foreground">{profile.details.paymentMethods.length > 0 ? profile.details.paymentMethods.join(", ") : "—"}</div>
                             </div>
                             <div>
                                 <div className="text-[13px] text-default-500 mb-1">💼 <span className="font-semibold text-foreground">Work type</span></div>
-                                <div className="text-[13.5px] font-medium text-foreground">{profile.details.workType}</div>
+                                <div className="text-[13.5px] font-medium text-foreground">{profile.details.workType || "—"}</div>
                             </div>
                             <div>
                                 <div className="text-[13px] text-default-500 mb-1">⏱️ <span className="font-semibold text-foreground">Type speed</span></div>
-                                <div className="text-[13.5px] font-medium text-foreground">{profile.details.typingSpeed}</div>
+                                <div className="text-[13.5px] font-medium text-foreground">{profile.details.typingSpeed || "—"}</div>
                             </div>
                             <div>
                                 <div className="text-[13px] text-default-500 mb-1">🌐 <span className="font-semibold text-foreground">Internet speed</span></div>
-                                <div className="text-[13.5px] text-default-500">{profile.details.internetSpeed}</div>
+                                <div className="text-[13.5px] text-default-500">{profile.details.internetSpeed || "—"}</div>
                             </div>
                             <div>
                                 <div className="text-[13px] text-default-500 mb-1">💻 <span className="font-semibold text-foreground">Computer specs</span></div>
-                                <div className="text-[13.5px] text-default-500">{profile.details.computerSpecs}</div>
+                                <div className="text-[13.5px] text-default-500">{profile.details.computerSpecs || "—"}</div>
                             </div>
                             <div>
                                 <div className="text-[13px] text-default-500 mb-1">📷 <span className="font-semibold text-foreground">Webcam</span></div>
-                                <div className="text-[13.5px] text-default-500">{profile.details.webcam}</div>
+                                <div className="text-[13.5px] text-default-500">{profile.details.webcam || "—"}</div>
                             </div>
                             <div>
                                 <div className="text-[13px] text-default-500 mb-1">🎙️ <span className="font-semibold text-foreground">Microphone</span></div>
@@ -297,45 +372,44 @@ export default function WorkerProfilePage() {
                             <Button size="sm" variant="bordered" startContent={<Plus className="w-3.5 h-3.5" />}>Add experience</Button>
                         </div>
                         <div className="space-y-4">
-                            {profile.experiences.map((exp) => (
-                                <Card key={exp.id} className="border border-default-200 hover:border-primary/30 transition-all" shadow="sm">
-                                    <CardBody className="p-4 relative">
-                                        <div className="absolute top-4 right-4 flex items-center gap-1.5">
-                                            <Button isIconOnly size="sm" variant="light" className="min-w-8 w-8 h-8" aria-label="Reorder"><AlignLeft className="w-3.5 h-3.5 text-default-500" /></Button>
-                                            <Button isIconOnly size="sm" variant="light" color="danger" className="min-w-8 w-8 h-8" aria-label="Delete"><Trash2 className="w-3.5 h-3.5" /></Button>
-                                        </div>
-                                        <div className="text-[12px] text-default-400 font-medium mb-1">{exp.company}</div>
-                                        <h3 className="text-[17px] font-bold text-foreground mb-0.5">{exp.role}</h3>
-                                        <div className="text-[13px] text-default-500 mb-1">{exp.period}</div>
-                                        <div className="text-[13px] text-default-500 mb-3">{exp.title}</div>
-                                        <div className="mb-2">
-                                            <div className="text-[13px] font-bold text-foreground mb-2">Skills Learned</div>
-                                            <div className="flex flex-wrap gap-2">
-                                                {exp.skills.map((skill) => (
-                                                    <Chip key={skill.name} size="sm" color="primary" variant="flat" startContent={skill.icon}>{skill.name}</Chip>
-                                                ))}
+                            {experiences.length === 0 ? (
+                                <p className="text-default-500 text-sm">No experiences added yet. Add work history from the edit form or dashboard.</p>
+                            ) : (
+                                experiences.map((exp) => (
+                                    <Card key={exp.id} className="border border-default-200 hover:border-primary/30 transition-all" shadow="sm">
+                                        <CardBody className="p-4 relative">
+                                            <div className="text-[12px] text-default-400 font-medium mb-1">{exp.company || "—"}</div>
+                                            <h3 className="text-[17px] font-bold text-foreground mb-0.5">{exp.title}</h3>
+                                            <div className="text-[13px] text-default-500 mb-1">
+                                                {exp.startDate ?? ""} — {exp.endDate ?? "Present"}
                                             </div>
-                                        </div>
-                                        <div>
-                                            <div className="text-[13px] font-bold text-foreground mb-2">Software Used</div>
-                                            <div className="flex flex-wrap gap-2">
-                                                {exp.software.map((sw) => (
-                                                    <Chip key={sw.name} size="sm" variant="bordered" startContent={sw.icon}>{sw.name}</Chip>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </CardBody>
-                                </Card>
-                            ))}
+                                            {exp.description && <div className="text-[13px] text-default-500 mb-3">{exp.description}</div>}
+                                            {(exp.skillsLearned?.length ?? 0) > 0 && (
+                                                <div className="mb-2">
+                                                    <div className="text-[13px] font-bold text-foreground mb-2">Skills Learned</div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {exp.skillsLearned!.map((skill, i) => (
+                                                            <Chip key={`${i}-${skill}`} size="sm" color="primary" variant="flat">🚀 {skill}</Chip>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </CardBody>
+                                    </Card>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <Modal isOpen={editing} onOpenChange={(open) => !saving && setEditing(open)} size="md" radius="lg">
+            <Modal isOpen={editing} onOpenChange={(open) => { if (!saving) { setEditing(open); setSaveError(null); } }} size="md" radius="lg">
                 <ModalContent>
                     <ModalHeader className="text-lg font-bold">Edit profile</ModalHeader>
                     <ModalBody>
+                        {saveError && (
+                            <p className="text-sm text-danger mb-3 rounded-lg bg-danger-50 p-2" role="alert">{saveError}</p>
+                        )}
                         <Input
                             label="Name"
                             placeholder="Full name"
@@ -355,7 +429,49 @@ export default function WorkerProfilePage() {
                             placeholder="Short bio"
                             value={editForm.bio}
                             onValueChange={(v) => setEditForm((f) => ({ ...f, bio: v }))}
-                            minRows={3}
+                            minRows={2}
+                            size="sm"
+                        />
+                        <Input
+                            label="Headline"
+                            placeholder="e.g. Senior React Developer"
+                            value={editForm.headline}
+                            onValueChange={(v) => setEditForm((f) => ({ ...f, headline: v }))}
+                            size="sm"
+                        />
+                        <Input
+                            label="Country"
+                            placeholder="e.g. Tanzania"
+                            value={editForm.country}
+                            onValueChange={(v) => setEditForm((f) => ({ ...f, country: v }))}
+                            size="sm"
+                        />
+                        <Input
+                            label="Work type"
+                            placeholder="e.g. Full-time, Part-time"
+                            value={editForm.workType}
+                            onValueChange={(v) => setEditForm((f) => ({ ...f, workType: v }))}
+                            size="sm"
+                        />
+                        <Input
+                            label="Timezone"
+                            placeholder="e.g. Africa/Dar_es_Salaam"
+                            value={editForm.timezone}
+                            onValueChange={(v) => setEditForm((f) => ({ ...f, timezone: v }))}
+                            size="sm"
+                        />
+                        <Input
+                            label="Languages (comma-separated)"
+                            placeholder="e.g. English, Swahili"
+                            value={editForm.languages}
+                            onValueChange={(v) => setEditForm((f) => ({ ...f, languages: v }))}
+                            size="sm"
+                        />
+                        <Input
+                            label="Payment preferences (comma-separated)"
+                            placeholder="e.g. Bank Transfer, PayPal"
+                            value={editForm.paymentPreferences}
+                            onValueChange={(v) => setEditForm((f) => ({ ...f, paymentPreferences: v }))}
                             size="sm"
                         />
                         <div>

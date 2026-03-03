@@ -73,9 +73,9 @@ export function JobCardAdvanced({
             <span className="px-3.5 py-1.5 rounded-[50px] text-[13px] font-bold bg-[var(--color-primary-light)] text-primary">
               <span className="mr-1.5 opacity-80">🔥</span> {category}
             </span>
-            {tags.slice(0, 6).map((tag, i) => (
+            {(Array.isArray(tags) ? tags : []).slice(0, 6).map((tag, i) => (
               <span
-                key={tag}
+                key={`${i}-${String(tag)}`}
                 className="px-3.5 py-1.5 rounded-[50px] text-[13px] font-bold bg-[var(--color-primary-light)] text-primary"
               >
                 <span className="mr-1.5 opacity-80">{i === 0 ? "💬" : i === 1 ? "🛠" : "🌐"}</span> {tag}

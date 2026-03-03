@@ -27,8 +27,10 @@ export default function ClientProfilePage() {
   const [displayCompanyName, setDisplayCompanyName] = useState(true);
   const [sendEmailNotifications, setSendEmailNotifications] = useState(true);
   const [email, setEmail] = useState("");
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const [initialState, setInitialState] = useState("");
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     authService
@@ -40,6 +42,7 @@ export default function ClientProfilePage() {
         setLastName(l);
         setAgencyName(user.companyName ?? "");
         setEmail(user.email ?? "");
+        setProfileImageUrl(user.profileImageUrl ?? null);
         setDisplayCompanyName(true);
         setInitialState(JSON.stringify({ f, l, agency: user.companyName ?? "" }));
       })
@@ -59,6 +62,7 @@ export default function ClientProfilePage() {
   async function handleSave() {
     if (!hasChanges) return;
     setSaving(true);
+    setSaveError(null);
     try {
       const fullName = [firstName.trim(), lastName.trim()].filter(Boolean).join(" ") || undefined;
       const updated = await profileService.updateProfile({
@@ -70,9 +74,13 @@ export default function ClientProfilePage() {
       setFirstName(f);
       setLastName(l);
       setAgencyName(updated.companyName ?? "");
+      setProfileImageUrl(updated.profileImageUrl ?? null);
       setInitialState(JSON.stringify({ f, l, agency: updated.companyName ?? "" }));
-    } catch {
-      // keep form
+    } catch (err: unknown) {
+      const msg = err && typeof err === "object" && "response" in err
+        ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+        : (err && typeof err === "object" && "message" in err ? String((err as { message: string }).message) : null);
+      setSaveError(msg || "Failed to save profile.");
     } finally {
       setSaving(false);
     }
@@ -90,10 +98,20 @@ export default function ClientProfilePage() {
     <div className="max-w-[560px] mx-auto px-6 py-8">
       <h1 className="text-2xl font-bold text-[#111827] mb-8 text-center">Profile</h1>
 
-      {/* Logo upload - square gray box like reference image */}
+      {saveError && (
+        <div className="mb-6 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700" role="alert">
+          {saveError}
+        </div>
+      )}
+
+      {/* Logo / profile image */}
       <div className="mb-8 flex justify-center">
-        <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-lg bg-[#e5e7eb] flex items-center justify-center border border-[#d1d5db] relative">
-          <span className="text-[#6b7280] text-xs sm:text-sm font-semibold uppercase tracking-wider">LOGO</span>
+        <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-lg bg-[#e5e7eb] flex items-center justify-center border border-[#d1d5db] relative overflow-hidden">
+          {profileImageUrl ? (
+            <img src={profileImageUrl} alt="Profile" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-[#6b7280] text-xs sm:text-sm font-semibold uppercase tracking-wider">LOGO</span>
+          )}
           <button
             type="button"
             className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full bg-white border-2 border-[#e5e7eb] flex items-center justify-center hover:bg-gray-50 shadow-md"

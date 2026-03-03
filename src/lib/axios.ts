@@ -1,4 +1,5 @@
 import axios from "axios";
+import { authService } from "@/services/auth.service";
 
 const apiHost = process.env.NEXT_PUBLIC_API_URL ?? "";
 const baseURL = apiHost ? `${apiHost.replace(/\/$/, "")}/api` : "/api";
@@ -22,11 +23,17 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry && typeof window !== "undefined") {
+      originalRequest._retry = true;
+      const refreshed = await authService.refreshTokens();
+      if (refreshed?.token) {
+        originalRequest.headers.Authorization = `Bearer ${refreshed.token}`;
+        return api(originalRequest);
       }
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
     }
     return Promise.reject(error);
   }
