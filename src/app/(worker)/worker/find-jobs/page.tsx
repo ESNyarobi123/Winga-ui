@@ -31,7 +31,9 @@ import { Chip } from "@heroui/chip";
 import { Skeleton } from "@heroui/skeleton";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/dropdown";
 import { Pagination } from "@heroui/pagination";
+import { Drawer, DrawerContent } from "@heroui/drawer";
 import { JobCardAdvanced } from "@/components/features/jobs/job-card-advanced";
+import { JobDetailPanel } from "@/components/features/jobs/job-detail-panel";
 import { jobService } from "@/services/job.service";
 import type { JobListItem } from "@/types";
 
@@ -85,6 +87,8 @@ export default function WorkerFindJobsPage() {
     const [selectedSocialMedia, setSelectedSocialMedia] = useState<string | null>(null);
     const [selectedSoftware, setSelectedSoftware] = useState<string | null>(null);
     const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+    const [showAllCategories, setShowAllCategories] = useState(false);
+    const [selectedJob, setSelectedJob] = useState<JobListItem | null>(null);
     const PAGE_SIZE = 10;
 
     useEffect(() => {
@@ -360,7 +364,7 @@ export default function WorkerFindJobsPage() {
 
                     {/* Category tags */}
                     <div className="flex flex-wrap gap-3 mb-10">
-                        {categories.map((catName) => {
+                        {categories.slice(0, showAllCategories ? categories.length : 8).map((catName) => {
                             const isSelected = selectedCategory === catName;
 
                             // Map icon based on name or fallback
@@ -392,6 +396,17 @@ export default function WorkerFindJobsPage() {
                                 </button>
                             );
                         })}
+                        {categories.length > 8 && (
+                            <button
+                                type="button"
+                                onClick={() => setShowAllCategories(!showAllCategories)}
+                                className="inline-flex items-center gap-2 rounded-full px-5 py-2 text-[14px] font-semibold border transition-all bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-800 shadow-sm hover:border-gray-300"
+                            >
+                                <MoreHorizontal className="w-4 h-4 shrink-0 text-default-500" strokeWidth={2} />
+                                {showAllCategories ? "Show Less" : `+${categories.length - 8} Others`}
+                            </button>
+                        )}
+                        {categories.length === 0 && <span className="text-sm text-gray-500">Loading categories…</span>}
                     </div>
                 </div>
 
@@ -435,7 +450,8 @@ export default function WorkerFindJobsPage() {
                                 <JobCardAdvanced
                                     key={job.id}
                                     {...job}
-                                    href={`/worker/find-jobs/${job.id}`}
+                                    onSelect={() => setSelectedJob(job)}
+                                    selected={selectedJob?.id === job.id}
                                     saved={savedJobIds.has(String(job.id))}
                                     onSaveToggle={handleSaveToggle}
                                 />
@@ -460,6 +476,33 @@ export default function WorkerFindJobsPage() {
                     )}
                 </div>
             </div>
+
+            <Drawer
+                isOpen={!!selectedJob}
+                onOpenChange={(isOpen) => {
+                    if (!isOpen) setSelectedJob(null);
+                }}
+                placement="right"
+                hideCloseButton
+                classNames={{
+                    base: "w-full sm:max-w-[480px] bg-white rounded-l-2xl shadow-2xl overflow-hidden",
+                    body: "p-0",
+                    header: "hidden",
+                }}
+            >
+                <DrawerContent>
+                    {() => (
+                        <JobDetailPanel
+                            job={selectedJob}
+                            onClose={() => setSelectedJob(null)}
+                            onApply={() => { }}
+                            isLoggedIn={true}
+                            saved={savedJobIds.has(String(selectedJob?.id))}
+                            onSaveToggle={handleSaveToggle}
+                        />
+                    )}
+                </DrawerContent>
+            </Drawer>
         </div>
     );
 }

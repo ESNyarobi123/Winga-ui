@@ -4,15 +4,9 @@ import { useState } from "react";
 import { Info, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 
 // Sample data so the page looks complete (like reference image)
-const SAMPLE_STATS = { totalCommissions: 127.5, activeCodes: 2, pendingPayments: 50, paid: 77.5 };
-const SAMPLE_CODES = [
-    { code: "WINGA-REF-2024", uses: 12, revenue: "$840" },
-    { code: "HIRE25", uses: 5, revenue: "$350" },
-];
-const SAMPLE_PAYMENTS = [
-    { created: "Feb 20, 2026", referralCode: "WINGA-REF-2024", commission: "$12.50", status: "Paid", withdrawn: "Feb 25, 2026" },
-    { created: "Feb 18, 2026", referralCode: "HIRE25", commission: "$8.00", status: "Pending", withdrawn: "—" },
-];
+const SAMPLE_STATS = { totalCommissions: 0, activeCodes: 0, pendingPayments: 0, paid: 0 };
+const SAMPLE_CODES: any[] = [];
+const SAMPLE_PAYMENTS: any[] = [];
 
 export default function ClientAffiliatesPage() {
     const [useSampleData] = useState(true); // Toggle to false when API is wired
@@ -39,7 +33,7 @@ export default function ClientAffiliatesPage() {
                     <div className="bg-white border border-[#E8E8E8] rounded-2xl p-6 shadow-sm">
                         <h3 className="text-[13px] font-bold text-[#333] mb-1">Total Commissions</h3>
                         <div className="text-[28px] font-extrabold text-[#111827] mb-1">
-                            ${totalCommissions.toFixed(2)}
+                            Tsh {totalCommissions.toFixed(2)}
                         </div>
                         <p className="text-[11px] text-[#888] font-medium">
                             {totalCommissions ? "12% — Commission earned" : "0% — Commission earned"}
@@ -52,8 +46,8 @@ export default function ClientAffiliatesPage() {
                     </div>
                     <div className="bg-white border border-[#E8E8E8] rounded-2xl p-6 shadow-sm">
                         <h3 className="text-[13px] font-bold text-[#333] mb-1">Pending Payments</h3>
-                        <div className="text-[28px] font-extrabold text-[#111827] mb-1">${pendingPayments.toFixed(2)}</div>
-                        <p className="text-[11px] text-[#888] font-medium">Paid: ${paid.toFixed(2)}</p>
+                        <div className="text-[28px] font-extrabold text-[#111827] mb-1">Tsh {pendingPayments.toFixed(2)}</div>
+                        <p className="text-[11px] text-[#888] font-medium">Paid: Tsh {paid.toFixed(2)}</p>
                     </div>
                 </div>
 

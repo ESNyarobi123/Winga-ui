@@ -46,6 +46,7 @@ export default function FindJobsPage() {
   const [selectedSocialMedia, setSelectedSocialMedia] = useState<string | null>(null);
   const [selectedSoftware, setSelectedSoftware] = useState<string | null>(null);
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
   useEffect(() => {
     if (user?.role === "FREELANCER") {
@@ -230,7 +231,7 @@ export default function FindJobsPage() {
 
         {/* Category tags – from API GET /jobs/categories (admin-managed) */}
         <div className="flex flex-wrap items-center gap-3 mb-10">
-          {categories.map((catName) => {
+          {categories.slice(0, showAllCategories ? categories.length : 8).map((catName) => {
             const isSelected = selectedCategory === catName;
             return (
               <Chip
@@ -249,6 +250,16 @@ export default function FindJobsPage() {
               </Chip>
             );
           })}
+          {categories.length > 8 && (
+            <Chip
+              variant="bordered"
+              size="md"
+              className="cursor-pointer font-semibold text-[14px] transition-all rounded-xl min-h-[44px] px-4 bg-gray-50 text-gray-800 border-gray-200 hover:bg-gray-100 hover:border-gray-300 shadow-sm border"
+              onClick={() => setShowAllCategories(!showAllCategories)}
+            >
+              {showAllCategories ? "Show Less" : `+${categories.length - 8} Others`}
+            </Chip>
+          )}
           {categories.length === 0 && <span className="text-sm text-gray-500">Loading categories…</span>}
         </div>
 

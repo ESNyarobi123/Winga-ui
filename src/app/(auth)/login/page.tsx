@@ -173,7 +173,16 @@ export default function LoginPage() {
               aria-label="OTP"
             />
 
-            {error && <p className="text-sm text-danger mt-2">{error}</p>}
+            {error && (
+              <p className="text-sm text-danger mt-2">
+                {error}{" "}
+                {error === t("auth.noAccountSignUp") && (
+                  <Link href="/register" className="font-bold underline ml-1 hover:opacity-80">
+                    Create account
+                  </Link>
+                )}
+              </p>
+            )}
 
             <Button
               type="submit"

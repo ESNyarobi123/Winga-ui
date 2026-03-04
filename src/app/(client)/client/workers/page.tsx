@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Search, ChevronDown, ChevronLeft, ChevronRight, RotateCcw, BadgeCheck, CheckCircle } from "lucide-react";
+import { Drawer, DrawerContent } from "@heroui/drawer";
 import { workerService } from "@/services/worker.service";
+import { WorkerDetailPanel } from "@/components/features/workers/worker-detail-panel";
 import type { WorkerListItem } from "@/types";
 
 const FILTER_LABELS = [
@@ -24,6 +26,7 @@ export default function ClientFindWorkersPage() {
     const [loading, setLoading] = useState(true);
     const [verifiedOnly, setVerifiedOnly] = useState(false);
     const [completeProfileOnly, setCompleteProfileOnly] = useState(false);
+    const [selectedWorker, setSelectedWorker] = useState<WorkerListItem | null>(null);
 
     useEffect(() => {
         setLoading(true);
@@ -141,59 +144,61 @@ export default function ClientFindWorkersPage() {
                         ))}
                     </div>
                 ) : (
-                <div className="space-y-4">
-                    {displayList.map((worker) => (
-                        <div
-                            key={worker.id}
-                            className="bg-white border border-[#E8E8E8] rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-[#006e42]/25 transition-all flex flex-col md:flex-row items-stretch justify-between gap-5"
-                        >
-                            <div className="flex flex-1 gap-4 min-w-0">
-                                <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
-                                    <img
-                                        src={worker.profileImageUrl || `https://i.pravatar.cc/150?u=${worker.id}`}
-                                        alt={worker.name}
-                                        className="w-full h-full object-cover"
-                                    />
+                    <div className="space-y-4">
+                        {displayList.map((worker) => (
+                            <div
+                                key={worker.id}
+                                onClick={() => setSelectedWorker(worker)}
+                                className={`cursor-pointer bg-white border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-stretch justify-between gap-5 ${selectedWorker?.id === worker.id ? "border-[#006e42] ring-2 ring-[#006e42]/20" : "border-[#E8E8E8] hover:border-[#006e42]/25"
+                                    }`}
+                            >
+                                <div className="flex flex-1 gap-4 min-w-0">
+                                    <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 bg-gray-200">
+                                        <img
+                                            src={worker.profileImageUrl || `https://i.pravatar.cc/150?u=${worker.id}`}
+                                            alt={worker.name}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                                            <h3 className="text-[17px] font-bold text-[#111827]">
+                                                {worker.name}
+                                            </h3>
+                                            {worker.profileVerified && (
+                                                <span className="text-[11px] font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded flex items-center gap-1">
+                                                    <BadgeCheck className="w-3 h-3" /> Verified
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-[13px] text-[#666] mb-1">{worker.location}</p>
+                                        <p className="text-[14px] font-semibold text-[#006e42] mb-2">{worker.title}</p>
+                                        <p className="text-[13px] text-[#555] leading-relaxed mb-3 max-w-[600px]">
+                                            {worker.description}
+                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {worker.tags.map((tag) => (
+                                                <span
+                                                    key={tag}
+                                                    className="px-3 py-1.5 rounded-full bg-[#eaf5ef] text-[#006e42] text-[12px] font-bold"
+                                                >
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                                        <h3 className="text-[17px] font-bold text-[#111827]">
-                                            {worker.name}
-                                        </h3>
-                                        {worker.profileVerified && (
-                                            <span className="text-[11px] font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded flex items-center gap-1">
-                                                <BadgeCheck className="w-3 h-3" /> Verified
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="text-[13px] text-[#666] mb-1">{worker.location}</p>
-                                    <p className="text-[14px] font-semibold text-[#006e42] mb-2">{worker.title}</p>
-                                    <p className="text-[13px] text-[#555] leading-relaxed mb-3 max-w-[600px]">
-                                        {worker.description}
-                                    </p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {worker.tags.map((tag) => (
-                                            <span
-                                                key={tag}
-                                                className="px-3 py-1.5 rounded-full bg-[#eaf5ef] text-[#006e42] text-[12px] font-bold"
-                                            >
-                                                {tag}
-                                            </span>
-                                        ))}
-                                    </div>
+                                <div className="flex flex-col justify-center gap-2 md:w-[130px] shrink-0">
+                                    <button className="w-full py-2.5 bg-[#006e42] text-white text-[13px] font-bold rounded-lg hover:bg-[#005c36] transition-colors" onClick={(e) => { e.stopPropagation(); console.log("Message"); }}>
+                                        Message
+                                    </button>
+                                    <button className="w-full py-2.5 bg-white border-2 border-[#006e42] text-[#006e42] text-[13px] font-bold rounded-lg hover:bg-[#eaf5ef] transition-colors" onClick={(e) => { e.stopPropagation(); setSelectedWorker(worker); }}>
+                                        View profile
+                                    </button>
                                 </div>
                             </div>
-                            <div className="flex flex-col justify-center gap-2 md:w-[130px] shrink-0">
-                                <button className="w-full py-2.5 bg-[#006e42] text-white text-[13px] font-bold rounded-lg hover:bg-[#005c36] transition-colors">
-                                    Message
-                                </button>
-                                <button className="w-full py-2.5 bg-white border-2 border-[#006e42] text-[#006e42] text-[13px] font-bold rounded-lg hover:bg-[#eaf5ef] transition-colors">
-                                    Contact info
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
                 )}
 
                 {/* Pagination */}
@@ -209,9 +214,8 @@ export default function ClientFindWorkersPage() {
                         <button
                             key={n}
                             onClick={() => setPage(n - 1)}
-                            className={`w-9 h-9 rounded-full text-[13px] font-bold transition-colors ${
-                                currentPage === n ? "bg-[#006e42] text-white" : "bg-white border-2 border-[#006e42] text-[#006e42] hover:bg-[#eaf5ef]"
-                            }`}
+                            className={`w-9 h-9 rounded-full text-[13px] font-bold transition-colors ${currentPage === n ? "bg-[#006e42] text-white" : "bg-white border-2 border-[#006e42] text-[#006e42] hover:bg-[#eaf5ef]"
+                                }`}
                         >
                             {n}
                         </button>
@@ -226,6 +230,29 @@ export default function ClientFindWorkersPage() {
                     </button>
                 </div>
             </div>
+
+            <Drawer
+                isOpen={!!selectedWorker}
+                onOpenChange={(isOpen) => {
+                    if (!isOpen) setSelectedWorker(null);
+                }}
+                placement="right"
+                hideCloseButton
+                classNames={{
+                    base: "w-full sm:max-w-[480px] bg-white rounded-l-2xl shadow-2xl overflow-hidden",
+                    body: "p-0",
+                    header: "hidden",
+                }}
+            >
+                <DrawerContent>
+                    {() => (
+                        <WorkerDetailPanel
+                            worker={selectedWorker}
+                            onClose={() => setSelectedWorker(null)}
+                        />
+                    )}
+                </DrawerContent>
+            </Drawer>
         </div>
     );
 }
